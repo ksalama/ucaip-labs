@@ -1,0 +1,5 @@
+apache-beam[gcp]==2.26.0
+tensorflow==2.3.0
+kfp==1.4.0
+google-cloud-aiplatform
+google-cloud-automl
