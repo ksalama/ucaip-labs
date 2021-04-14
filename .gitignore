@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+_workspace/
+*.tar.gz
+.egg-info/
+*.whl
+mlpipeline-ui-metadata.json
