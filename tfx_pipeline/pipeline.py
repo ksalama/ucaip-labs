@@ -253,6 +253,10 @@ def create_pipeline(
         pushed_model_location=exported_model_location,
         serving_image_uri=config.SERVING_IMAGE_URI,
     )
+    pipeline_components.append(aip_model_uploader)
+    
+    # Add dependency from pusher to aip_model_uploader.
+    aip_model_uploader.add_upstream_node(pusher)
 
     logging.info(
         f"Pipeline components: {[component.id for component in pipeline_components]}"
