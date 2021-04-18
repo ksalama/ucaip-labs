@@ -133,3 +133,5 @@ _workspace/
 .egg-info/
 *.whl
 mlpipeline-ui-metadata.json
+*.csv
+*.sqllite
