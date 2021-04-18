@@ -1,0 +1,14 @@
+title: TabularClassification
+description: >
+  Classification results.
+type: object
+properties:
+  predicted_probabilities:
+    type: number
+    format: float
+    minimum: 0.0
+    maximum: 1.0
+    description: >
+      If the probability is less than 0.5, 
+      then the predict class is 0 else 1.
+x-batchpredict-csv-classification-labels: predicted_probabilities
