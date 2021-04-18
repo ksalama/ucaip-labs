@@ -51,16 +51,16 @@ The [03-model-serving](03-model-serving.ipynb) notebook covers:
 ## ML Training Pipeline
 
 We build an end-to-end [TFX training pipeline](tfx_pipline) that performs the following steps:
-1. Receive hyperparameters using hyperparam_gen custom python component
-2. Extract data from BigQuery using BigQueryExampleGen
-3. Validate the raw data using StatisticsGen and ExampleValidator
-4. Process the data using Transform
-5. Train a custom model using Trainer
-6. Train an AutoML Tables model using automl_trainer custom python component
-7. Evaluat the custom model using ModelEvaluator
-8. Validate the custom model against the AutoML Tables model using a custom python component
-9. Save the blessed to model registry location using using Pusher
-10. Upload the model to AI Platform using aip_model_pusher custom python component
+1. Receive hyperparameters using hyperparam_gen custom python component.
+2. Extract data from BigQuery using BigQueryExampleGen.
+3. Validate the raw data using StatisticsGen and ExampleValidator.
+4. Process the data using Transform.
+5. Train a custom model using Trainer.
+6. Train an AutoML Tables model using automl_trainer custom python component.
+7. Evaluat the custom model using ModelEvaluator.
+8. Validate the custom model against the AutoML Tables model using a custom python component.
+9. Save the blessed to model registry location using using Pusher.
+10. Upload the model to AI Platform using aip_model_pusher custom python component.
 
 The following notebooks help achieving the following:
 
