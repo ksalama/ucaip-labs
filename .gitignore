@@ -135,3 +135,4 @@ _workspace/
 mlpipeline-ui-metadata.json
 *.csv
 *.sqllite
+model.png
