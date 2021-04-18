@@ -3,7 +3,7 @@
 
 import os
 
-API_KEY = os.getenv("API_KEY", 'AIzaSyByWYn-3xe9OixHb1ZAr1gKEgbgSZAL76Y')
+API_KEY = os.getenv("API_KEY", '')
 
 DATASET_DISPLAYNAME = os.getenv("DATASET_DISPLAYNAME", "chicago_taxi_tips")
 CUSTOM_MODEL_DISPLAYNAME = os.getenv("CUSTOM_MODEL_DISPLAYNAME", f"{DATASET_DISPLAYNAME}_classifier_custom")
