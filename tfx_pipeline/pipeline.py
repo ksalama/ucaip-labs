@@ -8,7 +8,7 @@ import logging
 import tensorflow_model_analysis as tfma
 
 import tfx
-from tfx.proto import example_gen_pb2, transform_pb2
+from tfx.proto import example_gen_pb2, transform_pb2, trainer_pb2
 from tfx.orchestration import pipeline, data_types
 from tfx.dsl.components.base import executor_spec
 from tfx.components.trainer import executor as trainer_executor
@@ -160,8 +160,8 @@ def create_pipeline(
         transformed_examples=transform.outputs.transformed_examples,
         schema=schema_importer.outputs.result,
         transform_graph=transform.outputs.transform_graph,
-        train_args={'splits': ['train'], 'num_steps': num_epochs},
-        eval_args={'splits': ['eval'], 'num_steps': None},
+        train_args=trainer_pb2.TrainArgs(num_steps=0),
+        eval_args=trainer_pb2.EvalArgs(num_steps=None),
         hyperparameters=hyperparams_gen.outputs.hyperparameters,
         instance_name="CustomModel",
     )

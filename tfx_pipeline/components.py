@@ -15,10 +15,11 @@ from tensorflow_transform.tf_metadata import schema_utils
 
 from tfx.types import artifact_utils
 from tfx.utils import io_utils
-from tfx.types.standard_artifacts import Artifact
 from tfx.dsl.component.experimental.decorators import component
 from tfx.dsl.component.experimental.annotations import InputArtifact, OutputArtifact, Parameter
-from tfx.types.standard_artifacts import PushedModel, HyperParameters, Schema, ModelEvaluation, ModelBlessing
+from tfx.types.standard_artifacts import Artifact, PushedModel, HyperParameters, Schema, ModelEvaluation, ModelBlessing
+from tfx.types.experimental.simple_artifacts import File as UploadedModel, Metrics as UploadedModelEvaluation
+
 
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
@@ -28,13 +29,6 @@ from google.cloud.aiplatform import gapic as aip
 HYPERPARAM_FILENAME = 'hyperparameters.json'
 SCHEMA_FILENAME = 'schema.pbtxt'
 EVALUATION_RESULTS_FILENAME = 'evaluation_results.json'
-
-
-class UploadedModel(Artifact):
-    TYPE_NAME = 'UploadedModel'
-    
-class UploadedModelEvaluation(Artifact):
-    TYPE_NAME = 'UploadedModelEvaluation'
 
 
 @component

@@ -3,6 +3,8 @@
 
 import os
 
+API_KEY = os.getenv("API_KEY", 'AIzaSyByWYn-3xe9OixHb1ZAr1gKEgbgSZAL76Y')
+
 DATASET_DISPLAYNAME = os.getenv("DATASET_DISPLAYNAME", "chicago_taxi_tips")
 CUSTOM_MODEL_DISPLAYNAME = os.getenv("CUSTOM_MODEL_DISPLAYNAME", f"{DATASET_DISPLAYNAME}_classifier_custom")
 AUTOML_MODEL_DISPLAYNAME = os.getenv("AUTOML_MODEL_DISPLAYNAME", f"{DATASET_DISPLAYNAME}_classifier_automl")
@@ -13,6 +15,8 @@ TRAIN_LIMIT = os.getenv("TRAIN_LIMIT", "0")
 TEST_LIMIT = os.getenv("TEST_LIMIT", "0")
 
 PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{DATASET_DISPLAYNAME}_train_pipeline")
+PIPELINE_NAME = PIPELINE_NAME.replace('_', '-')
+
 PROJECT = os.getenv("PROJECT", "ksalama-cloudml")
 REGION = os.getenv("REGION", "us-central1")
 
