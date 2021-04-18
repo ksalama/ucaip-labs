@@ -4,17 +4,15 @@
 
 1. [Create a GCP Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#console), [enable billing](https://cloud.google.com/billing/docs/how-to/modify-project), and [create a GCS bucket](https://cloud.google.com/storage/docs/creating-buckets).
 2. [Enable the required APIs](https://cloud.google.com/endpoints/docs/openapi/enable-api).
-3. [Create an AI Notebook instance](https://cloud.google.com/ai-platform/notebooks/docs/create-new).
-4. Open the JupyterLab then open a new Terminal
-5. Clone the repository to your AI Notebook instance:
+3. Generate [API Key](https://cloud.google.com/docs/authentication/api-keys) to use for submitting AI Platfrom Managed Pipeline jobs.
+4. [Create an AI Notebook instance](https://cloud.google.com/ai-platform/notebooks/docs/create-new).
+5. Open the JupyterLab then open a new Terminal
+6. Clone the repository to your AI Notebook instance:
 ```
 git clone https://github.com/ksalama/ucaip-labs.git
 cd ucaip-labs
 ```
-6. Install requirements:
-```
-pip install -r requirements.txt
-```
+7. Open [00-env-setup.ipynb](00-env-setup.ipynb) and run the cells to tnstall requirements
 
 ## Data Analysis and Preparation
 
@@ -40,9 +38,9 @@ We experiment with creating two models: [AutoML](https://cloud.google.com/ai-pla
     3. Training the keras model in AI Platform using a [pre-built container](https://cloud.google.com/ai-platform-unified/docs/training/pre-built-containers)
     4. Upload the exported model from Cloud Storahe to AI Platform as a Model.
 
-## Model Serving and Explainabiliy
+## Model Deployment and Prediction Serving
 
-We serve the model trained either using AutoML Tables or a custom training job for predicionts.
+We serve the model trained either using AutoML Tables or a custom training job for predictions and explainations.
 The [03-model-serving](03-model-serving.ipynb) notebook covers:
 1. Creating an AI Platform Endpoint.
 2. Deploy the AutoML Tables and the custom modesl to the endpoint.
@@ -68,7 +66,8 @@ The following notebooks help achieving the following:
 
 1. The [04-tfx-interactive](04-tfx-interactive.ipynb) covers testing the pipeline components interactively.
 2. The [05-tfx-local-run](05-tfx-local-run.ipynb) covers running the end-to-end pipeline locally.
-3. The [06-tfx-kfp-deploy](06-tfx-kfp-deploy.ipynb) covers compilinga and deploying pipeline to AI Platform Pipelines (Hosted KFP).
+3. The [06-tfx-kfp-deploy](06-tfx-kfp-deploy.ipynb) covers compiling and deploying the pipeline to AI Platform Pipelines (Hosted KFP).
+4. The [07-tfx-managed-run](06-tfx-managed-run.ipynb) covers compiling and running the pipeline to AI Platform Pipelines (Managed).
 
 
 ## (TODO) Model Monitoring
