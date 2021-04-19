@@ -17,16 +17,16 @@ import os
 
 API_KEY = os.getenv("API_KEY", '')
 
-DATASET_DISPLAYNAME = os.getenv("DATASET_DISPLAYNAME", "chicago_taxi_tips")
-CUSTOM_MODEL_DISPLAYNAME = os.getenv("CUSTOM_MODEL_DISPLAYNAME", f"{DATASET_DISPLAYNAME}_classifier_custom")
-AUTOML_MODEL_DISPLAYNAME = os.getenv("AUTOML_MODEL_DISPLAYNAME", f"{DATASET_DISPLAYNAME}_classifier_automl")
+DATASET_DISPLAY_NAME = os.getenv("DATASET_DISPLAY_NAME", "chicago_taxi_tips")
+CUSTOM_MODEL_DISPLAY_NAME = os.getenv("CUSTOM_MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}_classifier_custom")
+AUTOML_MODEL_DISPLAY_NAME = os.getenv("AUTOML_MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}_classifier_automl")
 
 DATA_SPLIT_COLUMN = 'data_split'
 EXCLUDE_COLUMNS = ','.join(['trip_start_timestamp'])
 TRAIN_LIMIT = os.getenv("TRAIN_LIMIT", "0")
 TEST_LIMIT = os.getenv("TEST_LIMIT", "0")
 
-PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{DATASET_DISPLAYNAME}_train_pipeline")
+PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{DATASET_DISPLAY_NAME}_train_pipeline")
 PIPELINE_NAME = PIPELINE_NAME.replace('_', '-')
 
 PROJECT = os.getenv("PROJECT", "ksalama-cloudml")
@@ -49,7 +49,7 @@ ACCURACY_THRESHOLD = os.getenv("ACCURACY_THRESHOLD", "0.85")
 USE_KFP_SA = os.getenv("USE_KFP_SA", "False")
 
 IMAGE_URI = os.getenv(
-    "IMAGE_URI", f"gcr.io/{PROJECT}/tfx_{DATASET_DISPLAYNAME}:latest"
+    "IMAGE_URI", f"gcr.io/{PROJECT}/tfx_{DATASET_DISPLAY_NAME}:latest"
 )
 
 BEAM_RUNNER = os.getenv("BEAM_RUNNER", "DirectRunner")

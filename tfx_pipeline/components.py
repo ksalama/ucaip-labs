@@ -14,7 +14,9 @@
 """TFX Custom Python Components."""
 
 
+import sys
 import os
+import time
 import json
 import warnings
 import logging
@@ -37,6 +39,13 @@ from tfx.types.experimental.simple_artifacts import File as UploadedModel, Metri
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 from google.cloud.aiplatform import gapic as aip
+
+SCRIPT_DIR = os.path.dirname(
+    os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+)
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
+
+from utils.ucaip_utils import AIPUtils
 
 
 HYPERPARAM_FILENAME = 'hyperparameters.json'
@@ -79,21 +88,8 @@ def automl_trainer(
     uploaded_model: OutputArtifact[UploadedModel]
 ):
     
-    parent = f"projects/{project}/locations/{region}"
-    api_endpoint = f"{region}-aiplatform.googleapis.com"
-    client_options = {"api_endpoint": api_endpoint}
-
-    logging.info(f"Retrieving {dataset_display_name} dataset id...")
-    dataset_client = aip.DatasetServiceClient(client_options=client_options)
-    for dataset in dataset_client.list_datasets(parent=parent):
-        if dataset.display_name == dataset_display_name:
-            dataset_uri = dataset.name
-            break
+    aip_utils = AIPUtils(project, region)
     
-    logging.info(f"{dataset_display_name} dataset uri: {dataset.name}")
-    dataset_id = dataset.name.split('/')[-1]
-    logging.info(f"{dataset_display_name} dataset id: {dataset_id}")
-
     schema_file = os.path.join(artifact_utils.get_single_uri([schema]), SCHEMA_FILENAME)
     logging.info(f"Loading schema from: {schema_file}")
     schema_obj = tfdv.load_schema_text(schema_file)
@@ -107,7 +103,7 @@ def automl_trainer(
         for column in input_columns
     ]
     
-    training_task_inputs_dict = {
+    training_task_inputs_spec = {
         "targetColumn": target_column,
         "predictionType": "classification",
         "transformations": transformations,
@@ -115,46 +111,37 @@ def automl_trainer(
         "disableEarlyStopping": False,
         "optimizationObjective": "minimize-log-loss",
     }
-    training_task_inputs = json_format.ParseDict(training_task_inputs_dict, Value())
-
-    training_pipeline = {
-        "display_name": f"train_{model_display_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-        "training_task_definition": "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml",
-        "training_task_inputs": training_task_inputs,
-        "input_data_config": {
-            "dataset_id": dataset_id,
-            "predefined_split": {
-               "key": data_split_column 
-            }
-        },
-        "model_to_upload": {"display_name": model_display_name},
+    
+    predefined_split = {
+        "key": data_split_column 
     }
-    logging.info(f"AutoML Table training job specs: {training_pipeline}")
 
 #     logging.info(f"Submitting AutoML Table training job...")
-#     response = automl_pipeline_client.create_training_pipeline(
-#         parent=parent, training_pipeline=training_pipeline
+#     training_job = aip_utils.train_automl_table(
+#             dataset_display_name=model_display_name,
+#             model_display_name=model_display_name,
+#             training_task_inputs_spec=training_task_inputs_dict,
+#             predefined_split=predefined_split
 #     )
-#     training_job = response.name
+    
+    
 #     logging.info(f"Training job: {training_job}")
-#     logging.info(f"Training job is running...")
+#     while True:
+#         response = aip_utils.get_automl_training_job_by_uri(training_job.name)
+#         logging.info(f"Training job state: {response.state.name}.")
+        
+#         if response.state.name in ['PIPELINE_STATE_SUCCEEDED', 'PIPELINE_STATE_FAILD']:
+#             break
+#         time.sleep(60)
     
-#     response_result = response.result()
-    
-#     logging.info(f"AutoML training completed with status  {response_result.state}")
-#     uploaded_model.set_string_custom_property('training_job', training_job)
+#     logging.info(f"AutoML training completed with status  {response.state}")
+#     uploaded_model.set_string_custom_property('training_job', training_job.name)
     
     logging.info(f"Retrieving {model_display_name} model...")
-    model_client = aip.ModelServiceClient(client_options=client_options)
-    model_list = model_client.list_models(parent=parent)
+    model = aip_utils.get_model_by_display_name(model_display_name)
 
-    for entry in model_list:
-        if entry.display_name == model_display_name:
-            model_uri = entry.name
-            break
-
-    logging.info(f"Model uploaded to AI Platform: {model_uri}")
-    uploaded_model.set_string_custom_property('model_uri', model_uri)
+    logging.info(f"Model uploaded to AI Platform: {model.name}")
+    uploaded_model.set_string_custom_property('model_uri', model.name)
     
     
 
@@ -165,15 +152,12 @@ def automl_metrics_gen(
     uploaded_model: InputArtifact[UploadedModel],
     evaluation: OutputArtifact[UploadedModelEvaluation]):
     
-    parent = f"projects/{project}/locations/{region}"
-    api_endpoint = f"{region}-aiplatform.googleapis.com"
-    client_options = {"api_endpoint": api_endpoint}
-    model_client = aip.ModelServiceClient(client_options=client_options)
+    aip_utils = AIPUtils(project, region)
     
     model_uri = uploaded_model.get_string_custom_property('model_uri')
     logging.info(f"Retrieving metrics for model: {model_uri}")
     
-    model_evaluations = model_client.list_model_evaluations(parent=model_uri)
+    model_evaluations = aip_utils.get_evaluation_results_by_model_uri(model_uri)
     metrics = list(model_evaluations)[0].metrics
     
     evaluation_results_dict = {
@@ -259,35 +243,19 @@ def aip_model_uploader(
     uploaded_model: OutputArtifact[UploadedModel]
 ):
     
-    parent = f"projects/{project}/locations/{region}"
-    api_endpoint = f"{region}-aiplatform.googleapis.com"
-    client_options = {"api_endpoint": api_endpoint}
+    aip_utils = AIPUtils(project, region)
     
     pushed_model_dir = os.path.join(
         pushed_model_location, tf.io.gfile.listdir(pushed_model_location)[-1])
     
     logging.info(f"Model registry location: {pushed_model_dir}")
     
-    model_desc = {
-        "display_name": model_display_name,
-        "artifact_uri": pushed_model_dir,
-        "container_spec": {
-            "image_uri": serving_image_uri,
-            "command": [],
-            "args": [],
-            "env": [{"name": "env_name", "value": "env_value"}],
-            "ports": [{"container_port": 8080}],
-            "predict_route": "",
-            "health_route": "",
-        },
-    }
-    
-    model_client = aip.ModelServiceClient(client_options=client_options)
-
-    response = model_client.upload_model(
-        model=model_desc,
-        parent=parent
+    response = aip_utils.upload_model(
+        model_display_name=model_display_name,
+        model_artifact_uri=pushed_model_location,
+        serving_image_uri=serving_image_uri
     )
-    aip_model_uri = response.result().model
-    logging.info(f"Model uploaded to AI Platform: {aip_model_uri}")
-    uploaded_model.set_string_custom_property('model_uri', aip_model_uri)
+    
+    model_uri = response.result().model
+    logging.info(f"Model uploaded to AI Platform: {model_uri}")
+    uploaded_model.set_string_custom_property('model_uri', model_uri)

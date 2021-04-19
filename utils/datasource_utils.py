@@ -13,22 +13,17 @@
 # limitations under the License.
 """Utilities for generating BigQuery data querying scirpts."""
 
-from google.cloud.aiplatform import gapic as aip
+try:
+    from utils.ucaip_utils import AIPUtils
+except:
+    from ucaip_utils import AIPUtils
 
 def get_source_query(
     project, region, dataset_display_name, data_split, limit=None):
     
-    parent = f"projects/{project}/locations/{region}"
-    api_endpoint = f"{region}-aiplatform.googleapis.com"
-    client_options = {"api_endpoint": api_endpoint}
+    aip_utils = AIPUtils(project, region)
     
-    dataset_client = aip.DatasetServiceClient(client_options=client_options)
-    for dataset in dataset_client.list_datasets(parent=parent):
-        if dataset.display_name == dataset_display_name:
-            dataset_uri = dataset.name
-            break
-
-    dataset = dataset_client.get_dataset(name=dataset_uri)
+    dataset = aip_utils.get_dataset_by_display_name(dataset_display_name)
     bq_source_uri = dataset.metadata['inputConfig']['bigquerySource']['uri']
     _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split('.')
     
