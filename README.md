@@ -66,7 +66,7 @@ We have the following notebooks for the ML training pipeline:
 1. The [04-tfx-interactive](04-tfx-interactive.ipynb) notebook covers testing the pipeline components interactively.
 2. The [05-tfx-local-run](05-tfx-local-run.ipynb) notebook covers running the end-to-end pipeline locally.
 3. The [06-tfx-kfp-deploy](06-tfx-kfp-deploy.ipynb) notebook covers compiling and deploying the pipeline to AI Platform Hosted KFP.
-4. The [07-tfx-managed-run](06-tfx-managed-run.ipynb) notebook covers compiling and running the pipeline to AI Platform Managed Pipelines.
+4. The [07-tfx-managed-run](07-tfx-managed-run.ipynb) notebook covers compiling and running the pipeline to AI Platform Managed Pipelines.
 
 
 ## (TODO) Model Monitoring
