@@ -50,8 +50,21 @@ class AIPUtils:
         self.prediction_client_beta = aip_beta.PredictionServiceClient(
             client_options=self.client_options)
         
+        # Validate the uniqueness of the datasets display names.
+        self.list_datasets()
+
+        # Validate the uniqueness of the model display names.
+        self.list_models()
+            
+        # Validate the uniqueness of the endpoint display names.    
+        self.list_endpoints()
+        
     def list_datasets(self):
-        return self.dataset_client.list_datasets(parent=self.parent)
+        datasets = self.dataset_client.list_datasets(parent=self.parent)
+        dataset_display_names = [
+            dataset.display_name for dataset in datasets]
+        assert len(dataset_display_names) == len(set(dataset_display_names)), "Dataset display names are not unique."
+        return datasets
     
     
     def get_dataset_by_display_name(self, dataset_display_name: str):
@@ -86,7 +99,11 @@ class AIPUtils:
     
     
     def list_models(self):
-        return self.model_client.list_models(parent=self.parent)
+        models = self.model_client.list_models(parent=self.parent)
+        model_display_names = [
+            model.display_name for model in models]
+        assert len(model_display_names) == len(set(model_display_names)), "Model display names are not unique."
+        return models
     
     
     def get_model_by_display_name(self, model_display_name: str):
@@ -224,7 +241,11 @@ class AIPUtils:
     
     
     def list_endpoints(self):
-        return self.endpoint_client.list_endpoints(parent=self.parent)
+        endpoints = self.endpoint_client.list_endpoints(parent=self.parent)
+        endpoint_display_names = [
+            endpoint.display_name for endpoint in endpoints]
+        assert len(endpoint_display_names) == len(set(endpoint_display_names)), "Endpoint display names are not unique."
+        return endpoints
     
     
     def get_endpoint_by_display_name(self, endpoint_display_name: str):
