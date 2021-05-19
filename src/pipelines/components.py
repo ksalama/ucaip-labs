@@ -91,7 +91,7 @@ def aip_model_uploader(
     
     response = aip_utils.upload_model(
         model_display_name=model_display_name,
-        model_artifact_uri=pushed_model_location,
+        model_artifact_uri=pushed_model_dir,
         serving_image_uri=serving_image_uri
     )
     
