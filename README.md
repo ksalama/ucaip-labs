@@ -12,13 +12,16 @@
 git clone https://github.com/ksalama/ucaip-labs.git
 cd ucaip-labs
 ```
-7. Open [00-env-setup.ipynb](00-env-setup.ipynb) and run the cells to tnstall requirements
+7. Run the following commands to install the required packages:
+```
+pip install -r requirements.txt
+```
 
 ## Data Analysis and Preparation
 
 The [Chicago Taxi Trips](https://pantheon.corp.google.com/marketplace/details/city-of-chicago-public-data/chicago-taxi-trips) dataset is one ofof [public datasets hosted with BigQuery](https://cloud.google.com/bigquery/public-data/), which includes taxi trips from 2013 to the present, reported to the City of Chicago in its role as a regulatory agency. The task is to predict whether a given trip will result in a tip > 20%.
 
-The [01-data-analysis-and-prep](01-data-analysis-and-prep.ipynb) notebook covers:
+The [01-dataset-management](01-dataset-management.ipynb) notebook covers:
 1. Performing exploratory data analysis on the data in BigQuery.
 2. Creating managed AI Platform Dataset using the Python SDK.
 3. Generating the schema for the raw data using [TensorFlow Data Validation](https://www.tensorflow.org/tfx/guide/tfdv).
@@ -26,29 +29,30 @@ The [01-data-analysis-and-prep](01-data-analysis-and-prep.ipynb) notebook covers
 
 ## Experimentation
 
-We experiment with creating two models: [AutoML](https://cloud.google.com/ai-platform-unified/docs/training/training) and [Custom Model](https://cloud.google.com/ai-platform-unified/docs/training/create-model-custom-training). 
+We experiment with creating a [Custom Model](https://cloud.google.com/ai-platform-unified/docs/training/create-model-custom-training) the using [02-experimentation](02-experimentation.ipynb) notebook, which covers:
+1. Preparing the data using Dataflow
+2. Implementing a Keras classification model
+3. Training the Keras model in AI Platform using a [pre-built container](https://cloud.google.com/ai-platform-unified/docs/training/pre-built-containers)
+4. Upload the exported model from Cloud Storage to AI Platform as a Model.
 
-1. The [02-1-experimentation-automl](02-1-experimentation-automl.ipynb) notebook covers:
-    1. Using AutoML Tables to create a classification model.
-    2. Retrieving the evaluation metrics from the AutoML model.
-
-2. The [02-2-experimentation-keras](02-2-experimentation-keras.ipynb) notebook covers:
-    1. Preparing the data using Dataflow
-    2. Implementing a Keras classification model
-    3. Training the keras model in AI Platform using a [pre-built container](https://cloud.google.com/ai-platform-unified/docs/training/pre-built-containers)
-    4. Upload the exported model from Cloud Storahe to AI Platform as a Model.
-
-## Model Deployment and Prediction Serving
-
-We serve the model trained either using AutoML Tables or a custom training job for predictions and explainations.
-The [03-model-serving](03-model-serving.ipynb) notebook covers:
+## Model Deployment
+We use [Cloud Build](https://cloud.google.com/build) test and deploy the uploaded model to AI Plaform prediction.
+The [03-model-deployment](02-model-deployment.ipynb) configures and executes the [build/model-deployment.yaml](build/model-deployment.yaml)
+file with the following steps:
 1. Creating an AI Platform Endpoint.
-2. Deploy the AutoML Tables and the custom modesl to the endpoint.
-4. Test the endpoints for online prediction.
-5. Getting online explaination from the AutoML Tables mode.
-5. Use the uploaded custom model for batch prediciton.
+2. Test model interface.
+3. Deploy the custom modesl to the endpoint.
+4. Test the endpoint.
 
-## ML Training Pipeline
+## Prediction Serving
+
+We serve the deployed model for prediction. 
+The [04-prediction-serving](04-prediction-serving.ipynb) notebook covers:
+
+1. Use the endpoint for online prediction.
+2. Use the uploaded model for batch prediciton.
+
+## Training Operationalization
 
 We build an end-to-end [TFX training pipeline](tfx_pipline) that performs the following steps:
 1. Receive hyperparameters using hyperparam_gen custom python component.
@@ -56,18 +60,15 @@ We build an end-to-end [TFX training pipeline](tfx_pipline) that performs the fo
 3. Validate the raw data using StatisticsGen and ExampleValidator.
 4. Process the data using Transform.
 5. Train a custom model using Trainer.
-6. Train an AutoML Tables model using automl_trainer custom python component.
-7. Evaluat the custom model using ModelEvaluator.
-8. Validate the custom model against the AutoML Tables model using a custom python component.
-9. Save the blessed to model registry location using using Pusher.
-10. Upload the model to AI Platform using aip_model_pusher custom python component.
+6. Evaluat and validate the custom model using ModelEvaluator.
+7. Save the blessed to model registry location using using Pusher.
+8. Upload the model to AI Platform using aip_model_pusher custom python component.
 
 We have the following notebooks for the ML training pipeline:
-1. The [04-tfx-interactive](04-tfx-interactive.ipynb) notebook covers testing the pipeline components interactively.
-2. The [05-tfx-local-run](05-tfx-local-run.ipynb) notebook covers running the end-to-end pipeline locally.
-3. The [06-tfx-kfp-deploy](06-tfx-kfp-deploy.ipynb) notebook covers compiling and deploying the pipeline to AI Platform Hosted KFP.
-4. The [07-tfx-managed-run](07-tfx-managed-run.ipynb) notebook covers compiling and running the pipeline to AI Platform Managed Pipelines.
+1. The [05-tfx-interactive](05-tfx-interactive.ipynb) notebook covers testing the pipeline components interactively.
+2. The [06-pipeline-deployment](06-pipeline-deployment.ipynb) notebook covers compiling and running the pipeline to AI Platform Managed Pipelines.
 
+## Continuous Training
 
 ## (TODO) Model Monitoring
 
