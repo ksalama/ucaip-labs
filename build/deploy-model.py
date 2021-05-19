@@ -66,7 +66,7 @@ def create_endpoint(project, region, endpoint_display_name):
     aip_utils = AIPUtils(project, region)
     result = aip_utils.create_endpoint(endpoint_display_name).result()
     logging.info(f"Endpoint is ready.")
-    return response
+    return result
     
 def deploy_model(project, region, endpoint_display_name, model_display_name, dedicated_serving_resources_spec):
     logging.info(f"Deploying model {model_display_name} to  endpoint {endpoint_display_name}")
