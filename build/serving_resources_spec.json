@@ -1,0 +1,7 @@
+{
+   "machine_spec":{
+      "machine_type":"n1-standard-2"
+   },
+   "min_replica_count":1,
+   "max_replica_count":10
+}

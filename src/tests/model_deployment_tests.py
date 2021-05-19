@@ -49,8 +49,7 @@ def test_model_artifact():
     logging.info(f"Model artifact uri:{artifact_uri}")
     assert tf.io.gfile.exists(artifact_uri), f"Model artifact uri {artifact_uri} does not exist!"
     
-    saved_model_dir = os.path.join(artifact_uri, tf.io.gfile.listdir(artifact_uri)[-1])
-    saved_model = tf.saved_model.load(saved_model_dir)
+    saved_model = tf.saved_model.load(artifact_uri)
     logging.info("Model loaded successfully.")
     
     assert SERVING_DEFAULT_SIGNATURE_NAME in saved_model.signatures, f"{SERVING_DEFAULT_SIGNATURE_NAME} not in model signatures!"
