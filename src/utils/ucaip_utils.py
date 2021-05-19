@@ -259,16 +259,19 @@ class AIPUtils:
         return result
     
     
-    def create_endpoint(self, endpoint_display_name: str):
+    def create_endpoint(self, endpoint_display_name: str, raise_error_if_exists: bool=False):
         
-        if self.get_endpoint_by_display_name(endpoint_display_name):
-            raise ValueError(
-                f"Endpoint with the Display Name {endpoint_display_name} already exists.")
+        response = self.get_endpoint_by_display_name(endpoint_display_name)
+        if response:
+            if raise_error_if_exists:
+                raise ValueError(
+                    f"Endpoint with the Display Name {endpoint_display_name} already exists.")
             
-        response = self.endpoint_client.create_endpoint(
-            parent=self.parent,
-            endpoint=aip.Endpoint(display_name=endpoint_display_name)
-        )
+        else:
+            response = self.endpoint_client.create_endpoint(
+                parent=self.parent,
+                endpoint=aip.Endpoint(display_name=endpoint_display_name)
+            )
         
         return response
     
