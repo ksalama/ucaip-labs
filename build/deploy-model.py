@@ -64,7 +64,7 @@ def get_args():
 def create_endpoint(project, region, endpoint_display_name):
     logging.info(f"Creating endpoint {endpoint_display_name}")
     aip_utils = AIPUtils(project, region)
-    result = aip_utils.create_endpoint(endpoint_display_name).result()
+    result = aip_utils.create_endpoint(endpoint_display_name)
     logging.info(f"Endpoint is ready.")
     return result
     
