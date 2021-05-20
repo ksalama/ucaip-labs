@@ -37,12 +37,13 @@ We experiment with creating a [Custom Model](https://cloud.google.com/ai-platfor
 
 ## Model Deployment
 We use [Cloud Build](https://cloud.google.com/build) test and deploy the uploaded model to AI Plaform prediction.
-The [03-model-deployment](02-model-deployment.ipynb) configures and executes the [build/model-deployment.yaml](build/model-deployment.yaml)
+The [03-model-deployment](03-model-deployment.ipynb) configures and executes the [build/model-deployment.yaml](build/model-deployment.yaml)
 file with the following steps:
 1. Creating an AI Platform Endpoint.
 2. Test model interface.
-3. Deploy the custom modesl to the endpoint.
-4. Test the endpoint.
+3. Create an endpoint in AI Platform.
+4. Deploy the model to the endpoint.
+5. Test the endpoint.
 
 ## Prediction Serving
 
