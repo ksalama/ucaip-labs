@@ -87,6 +87,7 @@ def test_model_artifact():
     
     assert predictions['classes'].shape == (1, 2), f"Invalid output classes shape: {predictions['classes'].shape}!"
     assert predictions['scores'].shape == (1, 2), f"Invalid output scores shape: {predictions['scores'].shape}!"
+    logging.info(f"Prediction output: {predictions}")
     
     
 def test_model_endpoint():
@@ -118,4 +119,4 @@ def test_model_endpoint():
     assert len(prediction['classes']) == 2, f"Invalid number of output classes: {len(prediction['classes'])}!"
     assert len(prediction['scores']) == 2, f"Invalid number output scores: {len(prediction['scores'])}!"
     
-    assert True
+    logging.info(f"Prediction output: {prediction}")

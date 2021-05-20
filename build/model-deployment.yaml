@@ -26,7 +26,7 @@ steps:
          '--verbose']
   id: 'Clone Repository'
   
-# Run unit tests.
+# Test uploaded model artifact.
 - name: '$_CICD_IMAGE_URI'
   entrypoint: 'pytest'
   args: ['src/tests/model_deployment_tests.py::test_model_artifact']
@@ -37,7 +37,6 @@ steps:
   - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
   id: 'Test Model Artifact'
   waitFor: ['Clone Repository']
-  
   
 # Create an endpoint.
 - name: '$_CICD_IMAGE_URI'
@@ -51,12 +50,11 @@ steps:
   id: 'Create Endpoint'
   waitFor: ['Test Model Artifact']
   
-  
-# Create an endpoint.
+# Deploy the model.
 - name: '$_CICD_IMAGE_URI'
   entrypoint: 'python'
   args: ['build/deploy-model.py',
-          '--mode', 'endpoint',
+          '--mode', 'model',
           '--project', '$_PROJECT',
           '--region', '$_REGION',
           '--endpoint-display-name', '$_ENDPOINT_DISPLAY_NAME',
@@ -65,3 +63,16 @@ steps:
   dir: 'ucaip-labs'
   id: 'Deploy Model'
   waitFor: ['Create Endpoint']
+  
+# Test deployed model endpoint.
+- name: '$_CICD_IMAGE_URI'
+  entrypoint: 'pytest'
+  args: ['src/tests/model_deployment_tests.py::test_model_endpoint']
+  dir: 'ucaip-labs'
+  env: 
+  - 'PROJECT=$_PROJECT'  
+  - 'REGION=$_REGION'
+  - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
+  - 'ENDPOINT_DISPLAY_NAME=$_ENDPOINT_DISPLAY_NAME'
+  id: 'Test Model Endpoint'
+  waitFor: ['Deploy Model']
