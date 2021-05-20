@@ -19,17 +19,17 @@ import logging
 import tensorflow as tf
 
 test_instance = {
-    "dropoff_grid": tf.constant([["POINT(-87.6 41.9)"]]),
-    "euclidean": tf.constant([[2064.2696]]),
-    "loc_cross": tf.constant([[""]]),
-    "payment_type": tf.constant([["Credit Card"]]),
-    "pickup_grid": tf.constant([["POINT(-87.6 41.9)"]]),
-    "trip_miles": tf.constant([[1.37]]),
-    "trip_day": tf.constant([[12]], tf.dtypes.int64),
-    "trip_hour": tf.constant([[16]], tf.dtypes.int64),
-    "trip_month": tf.constant([[2]], tf.dtypes.int64),
-    "trip_day_of_week": tf.constant([[4]], tf.dtypes.int64),
-    "trip_seconds": tf.constant([[555]], tf.dtypes.int64),
+    "dropoff_grid": ["POINT(-87.6 41.9)"],
+    "euclidean": [2064.2696],
+    "loc_cross": [""],
+    "payment_type": ["Credit Card"],
+    "pickup_grid": ["POINT(-87.6 41.9)"],
+    "trip_miles": [1.37],
+    "trip_day": [12],
+    "trip_hour": [16],
+    "trip_month": [2],
+    "trip_day_of_week": [4],
+    "trip_seconds": [555],
 }
 
 SERVING_DEFAULT_SIGNATURE_NAME = 'serving_default'
@@ -38,10 +38,33 @@ from src.utils.ucaip_utils import AIPUtils
 
 def test_model_artifact():
     
+    feature_types = {
+        "dropoff_grid": tf.dtypes.string,
+        "euclidean": tf.dtypes.float32,
+        "loc_cross":  tf.dtypes.string,
+        "payment_type":  tf.dtypes.string,
+        "pickup_grid":  tf.dtypes.string,
+        "trip_miles": tf.dtypes.float32,
+        "trip_day": tf.dtypes.int64,
+        "trip_hour": tf.dtypes.int64,
+        "trip_month": tf.dtypes.int64,
+        "trip_day_of_week": tf.dtypes.int64,
+        "trip_seconds": tf.dtypes.int64,
+    }
+    
+    new_test_instance = dict()
+    for key in test_instance:
+        new_test_instance[key] =  tf.constant([test_instance[key]], dtype=feature_types[key])
+        
+    print(new_test_instance)
+    
     project = os.getenv("PROJECT")
     region = os.getenv("REGION")
     model_display_name = os.getenv("MODEL_DISPLAY_NAME")
     
+    assert project, "Environment variable PROJECT is None!"
+    assert region, "Environment variable REGION is None!"
+    assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
     
     aip_utils = AIPUtils(project, region)
     model_desc = aip_utils.get_model_by_display_name(model_display_name)
@@ -55,7 +78,7 @@ def test_model_artifact():
     assert SERVING_DEFAULT_SIGNATURE_NAME in saved_model.signatures, f"{SERVING_DEFAULT_SIGNATURE_NAME} not in model signatures!"
     
     prediction_fn = saved_model.signatures['serving_default']
-    predictions = prediction_fn(**test_instance)
+    predictions = prediction_fn(**new_test_instance)
     logging.info("Model produced predictions.")
     
     keys = ['classes', 'scores']
@@ -64,3 +87,35 @@ def test_model_artifact():
     
     assert predictions['classes'].shape == (1, 2), f"Invalid output classes shape: {predictions['classes'].shape}!"
     assert predictions['scores'].shape == (1, 2), f"Invalid output scores shape: {predictions['scores'].shape}!"
+    
+    
+def test_model_endpoint():
+    
+    project = os.getenv("PROJECT")
+    region = os.getenv("REGION")
+    model_display_name = os.getenv("MODEL_DISPLAY_NAME")
+    endpoint_display_name = os.getenv("ENDPOINT_DISPLAY_NAME")
+    
+    assert project, "Environment variable PROJECT is None!"
+    assert region, "Environment variable REGION is None!"
+    assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
+    assert endpoint_display_name, "Environment variable ENDPOINT_DISPLAY_NAME is None!"
+    
+    
+    aip_utils = AIPUtils(project, region)
+    endpoint = aip_utils.get_endpoint_by_display_name(endpoint_display_name)
+    assert endpoint, f"Endpoint with display name {endpoint_display_name} does not exist! in region {region}"
+    
+    logging.info(f"Calling endpoint: {endpoint}.")
+    
+    response = aip_utils.predict_tabular_classifier(endpoint.name, test_instance)
+    prediction = dict(list(response.predictions)[0])
+    
+    keys = ['classes', 'scores']
+    for key in keys:
+        assert key in prediction, f"{key} in prediction outputs!"
+        
+    assert len(prediction['classes']) == 2, f"Invalid number of output classes: {len(prediction['classes'])}!"
+    assert len(prediction['scores']) == 2, f"Invalid number output scores: {len(prediction['scores'])}!"
+    
+    assert True
