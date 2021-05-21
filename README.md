@@ -1,4 +1,4 @@
-# Code labs for Cloud AI Platform (Unified)
+# MLOps on Vertex AI
 
 ## Getting started
 
