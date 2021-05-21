@@ -77,7 +77,7 @@ def create_pipeline(
         batch_size=batch_size,
         learning_rate=learning_rate,
         hidden_units=hidden_units,
-    )
+    ).with_id("HyperparamsGen")
     
     # Get train source query.
     train_sql_query = datasource_utils.get_training_source_query(
@@ -103,8 +103,7 @@ def create_pipeline(
     train_example_gen = BigQueryExampleGen(
         query=train_sql_query, 
         output_config=train_output_config,
-        instance_name="TrainData",
-    )
+    ).with_id("TrainDataGen")
     
     # Get test source query.
     test_sql_query = datasource_utils.get_training_source_query(
@@ -127,25 +126,24 @@ def create_pipeline(
     test_example_gen = BigQueryExampleGen(
         query=test_sql_query, 
         output_config=test_output_config,
-        instance_name="TestData",
-    )
+    ).with_id("TestDataGen")
 
     # Schema importer.
     schema_importer = ImporterNode(
-        instance_name="Schema_Importer",
         source_uri=RAW_SCHEMA_DIR,
         artifact_type=tfx.types.standard_artifacts.Schema,
-    )
+    ).with_id("SchemaImporter")
 
     # Statistics generation.
     statistics_gen = StatisticsGen(
-        examples=train_example_gen.outputs.examples)
+        examples=train_example_gen.outputs.examples
+    ).with_id("StatisticsGen")
     
     # Example validation.
     example_validator = ExampleValidator(
         statistics=statistics_gen.outputs.statistics,
         schema=schema_importer.outputs.result,
-    )
+    ).with_id("ExampleValidator")
 
     # Data transformation.
     transform = Transform(
@@ -154,16 +152,16 @@ def create_pipeline(
         module_file=TRANSFORM_MODULE_FILE,
         splits_config=transform_pb2.SplitsConfig(
             analyze=['train'], transform=['train', 'eval'])
-    )
+    ).with_id("DataTransformer")
     
     # Add dependency from example_validator to transform.
     transform.add_upstream_node(example_validator)
     
     # Get the latest model to warmstart
     warmstart_model_resolver = Resolver(
-        instance_name='Latest_Model_Resolver',
         strategy_class=latest_artifacts_resolver.LatestArtifactsResolver,
-        latest_model=tfx.types.Channel(type=tfx.types.standard_artifacts.Model))
+        latest_model=tfx.types.Channel(type=tfx.types.standard_artifacts.Model)
+    ).with_id("WarmstartModelResolver")
 
 
     # Model training.
@@ -179,16 +177,14 @@ def create_pipeline(
         train_args=trainer_pb2.TrainArgs(num_steps=0),
         eval_args=trainer_pb2.EvalArgs(num_steps=None),
         hyperparameters=hyperparams_gen.outputs.hyperparameters,
-        instance_name="CustomModel",
-    )
+    ).with_id("ModelTrainer")
     
     # Get the latest blessed model (baseline) for model validation.
     baseline_model_resolver = Resolver(
         strategy_class=latest_blessed_model_resolver.LatestBlessedModelResolver,
         model=tfx.types.Channel(type=tfx.types.standard_artifacts.Model),
         model_blessing=tfx.types.Channel(type=tfx.types.standard_artifacts.ModelBlessing),
-        instance_name='Blessed_Model_Resolver'
-    )
+    ).with_id("BaselineModelResolver")
 
     # Prepare evaluation config.
     eval_config = tfma.EvalConfig(
@@ -226,8 +222,7 @@ def create_pipeline(
          baseline_model=baseline_model_resolver.outputs.model,
         eval_config=eval_config,
         schema=schema_importer.outputs.result,
-        instance_name="CustomModel",
-    )
+    ).with_id("ModelEvaluator")
 
     exported_model_location = os.path.join(
         config.MODEL_REGISTRY_URI, config.DATASET_DISPLAY_NAME)
@@ -242,7 +237,7 @@ def create_pipeline(
         model=trainer.outputs.model,
         model_blessing=evaluator.outputs.blessing,
         push_destination=push_destination,
-    )
+    ).with_id("ModelPusher")
     
     # Upload custom trained model to AI Platform.
     aip_model_uploader = custom_components.aip_model_uploader(
@@ -251,7 +246,7 @@ def create_pipeline(
         model_display_name=config.MODEL_DISPLAY_NAME,
         pushed_model_location=exported_model_location,
         serving_image_uri=config.SERVING_IMAGE_URI,
-    )
+    ).with_id("VertexUploader")
 
     # Add dependency from pusher to aip_model_uploader.
     aip_model_uploader.add_upstream_node(pusher)

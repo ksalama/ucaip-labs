@@ -15,8 +15,6 @@
 
 import os
 
-API_KEY = os.getenv("API_KEY", '')
-
 DATASET_DISPLAY_NAME = os.getenv("DATASET_DISPLAY_NAME", "chicago_taxi_tips")
 MODEL_DISPLAY_NAME = os.getenv("MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}_classifier_custom")
 

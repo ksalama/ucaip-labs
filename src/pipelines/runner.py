@@ -61,12 +61,11 @@ def compile_pipeline():
 
     runner = kubeflow_v2_dag_runner.KubeflowV2DagRunner(
         config=kubeflow_v2_dag_runner.KubeflowV2DagRunnerConfig(
-            project_id=config.PROJECT,
             default_image=config.IMAGE_URI
         ),
         output_filename=pipeline_definition_file)
     
-    _ = runner.compile(managed_pipeline, write_out=True)
+    _ = runner.run(managed_pipeline, write_out=True)
     return pipeline_definition_file
     
     
