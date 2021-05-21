@@ -31,7 +31,7 @@ from tfx.extensions.google_cloud_big_query.example_gen.component import (
     BigQueryExampleGen,
 )
 from tfx.components import StatisticsGen, ExampleValidator, Transform, Trainer, Evaluator, Pusher
-from tfx.components.common_nodes.importer_node import ImporterNode
+from tfx.dsl.components.common.importer import Importer
 from tfx.dsl.components.common.resolver import Resolver
 from tfx.dsl.experimental import latest_artifacts_resolver
 from tfx.dsl.experimental import latest_blessed_model_resolver
@@ -129,7 +129,7 @@ def create_pipeline(
     ).with_id("TestDataGen")
 
     # Schema importer.
-    schema_importer = ImporterNode(
+    schema_importer = Importer(
         source_uri=RAW_SCHEMA_DIR,
         artifact_type=tfx.types.standard_artifacts.Schema,
     ).with_id("SchemaImporter")
