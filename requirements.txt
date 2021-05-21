@@ -1,3 +1,3 @@
-tfx==0.27
-kfp==1.4.0
+tfx==0.30
+kfp==1.6.2
 google-cloud-aiplatform
