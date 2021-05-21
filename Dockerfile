@@ -1,6 +1,6 @@
-FROM gcr.io/tfx-oss-public/tfx:0.27.0
+FROM gcr.io/tfx-oss-public/tfx:0.30.0
 
-RUN pip install google-cloud-aiplatform google-cloud-automl
+RUN pip install google-cloud-aiplatform
 
 COPY src/ src/
 
