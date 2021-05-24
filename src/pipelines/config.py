@@ -41,7 +41,7 @@ MODEL_REGISTRY_URI = os.getenv(
 
 NUM_TRAIN_SPLITS = os.getenv("NUM_TRAIN_SPLITS", "4")
 NUM_EVAL_SPLITS = os.getenv("NUM_EVAL_SPLITS", "1")
-ACCURACY_THRESHOLD = os.getenv("ACCURACY_THRESHOLD", "0.85")
+ACCURACY_THRESHOLD = os.getenv("ACCURACY_THRESHOLD", "0.8")
 
 USE_KFP_SA = os.getenv("USE_KFP_SA", "False")
 
@@ -70,12 +70,13 @@ AI_PLATFORM_TRAINING_ARGS = {
 }
 
 
-SERVING_RUNTIME = os.getenv("SERVING_RUNTIME", 'tf2-cpu.2-3')
+SERVING_RUNTIME = os.getenv("SERVING_RUNTIME", 'tf2-cpu.2-4')
 SERVING_IMAGE_URI = f"gcr.io/cloud-aiplatform/prediction/{SERVING_RUNTIME}:latest"
 
-ENABLE_CACHE = os.getenv("ENABLE_CACHE", "FALSE")
-
+ENABLE_CACHE = os.getenv("ENABLE_CACHE", "0")
+UPLOAD_MODEL = os.getenv("UPLOAD_MODEL", "1")
 
 os.environ['PROJECT'] = PROJECT
 os.environ['PIPELINE_NAME'] = PIPELINE_NAME
 os.environ['IMAGE_URI'] = IMAGE_URI
+os.environ['MODEL_REGISTRY_URI'] = MODEL_REGISTRY_URI

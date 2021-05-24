@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Test an uploaded model to AI Platform."""
+"""Test an uploaded model to Vertex AI."""
 
 import os
 import pytest

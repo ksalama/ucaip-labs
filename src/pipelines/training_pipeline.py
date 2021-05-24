@@ -205,7 +205,7 @@ def create_pipeline(
                         class_name='BinaryAccuracy',
                         threshold=tfma.MetricThreshold(
                             value_threshold=tfma.GenericValueThreshold(
-                                lower_bound={'value': 0.8}),
+                                lower_bound={'value': float(config.ACCURACY_THRESHOLD)}),
                             # Change threshold will be ignored if there is no
                             # baseline model resolved from MLMD (first run).
                             change_threshold=tfma.GenericChangeThreshold(
@@ -240,7 +240,7 @@ def create_pipeline(
     ).with_id("ModelPusher")
     
     # Upload custom trained model to AI Platform.
-    aip_model_uploader = custom_components.aip_model_uploader(
+    vertex_model_uploader = custom_components.aip_model_uploader(
         project=config.PROJECT,
         region=config.REGION,
         model_display_name=config.MODEL_DISPLAY_NAME,
@@ -263,11 +263,12 @@ def create_pipeline(
         trainer,
         baseline_model_resolver,
         evaluator,
-        pusher,
-        aip_model_uploader
+        pusher
     ]
     
-
+    if int(config.UPLOAD_MODEL):
+        pipeline_components.append(vertex_model_uploader)
+    
     logging.info(
         f"Pipeline components: {[component.id for component in pipeline_components]}"
     )
@@ -284,5 +285,5 @@ def create_pipeline(
         components=pipeline_components,
         beam_pipeline_args=beam_pipeline_args,
         metadata_connection_config=metadata_connection_config,
-        enable_cache=bool(config.ENABLE_CACHE),
+        enable_cache=int(config.ENABLE_CACHE),
     )
