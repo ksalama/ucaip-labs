@@ -249,7 +249,7 @@ def create_pipeline(
     ).with_id("VertexUploader")
 
     # Add dependency from pusher to aip_model_uploader.
-    aip_model_uploader.add_upstream_node(pusher)
+    vertex_model_uploader.add_upstream_node(pusher)
     
     pipeline_components = [
         hyperparams_gen,
