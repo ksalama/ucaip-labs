@@ -16,7 +16,7 @@
 
 import os
 from absl import logging
-from aiplatform.pipelines import client
+from kfp.v2.google.client import AIPlatformClient
 from tfx.orchestration import data_types
 from tfx.orchestration.kubeflow.v2 import kubeflow_v2_dag_runner
 
@@ -70,10 +70,9 @@ def compile_pipeline(pipeline_definition_file):
     
 def submit_pipeline(pipeline_definition_file):
     
-    pipeline_client = client.Client(
+    pipeline_client = AIPlatformClient(
         project_id=config.PROJECT,
-        region=config.REGION,
-        api_key=config.API_KEY
+        region=config.REGION
     )
 
     pipeline_client.create_run_from_job_spec(
