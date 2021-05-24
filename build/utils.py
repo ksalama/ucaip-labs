@@ -79,7 +79,8 @@ def create_endpoint(project, region, endpoint_display_name):
     result = aip_utils.create_endpoint(endpoint_display_name)
     logging.info(f"Endpoint is ready.")
     return result
-    
+
+
 def deploy_model(project, region, endpoint_display_name, model_display_name, dedicated_serving_resources_spec):
     logging.info(f"Deploying model {model_display_name} to  endpoint {endpoint_display_name}")
     aip_utils = AIPUtils(project, region)
@@ -90,10 +91,12 @@ def deploy_model(project, region, endpoint_display_name, model_display_name, ded
     logging.info(f"Model {model_display_name} is deployed.")
     return result
 
+
 def compile_pipeline(pipeline_name):
     pipeline_definition_file = f"{pipeline_name}.json"
     pipeline_definition = runner.compile_pipeline(pipeline_definition_file)
     return pipeline_definition
+
 
 def upload_pipeline(pipeline_name, pipelines_store):
     pipeline_definition_file = f"{pipeline_name}.json"
@@ -113,7 +116,6 @@ def main():
     args = get_args()
     
     if args.mode == 'create-endpoint':
-        
         if not args.project:
             raise ValueError("project must be supplied.")
         if not args.region:
@@ -126,8 +128,8 @@ def main():
             args.region, 
             args.endpoint_display_name
         )
-    elif args.mode == 'deploy-model':
         
+    elif args.mode == 'deploy-model':
         if not args.project:
             raise ValueError("project must be supplied.")
         if not args.region:
@@ -147,15 +149,19 @@ def main():
             args.model_display_name,
             dedicated_serving_resources_spec
         )
+        
     elif args.mode == 'compile-pipeline':
         if not args.pipeline_name:
             raise ValueError("pipeline-name must be supplied.")
-        result = compile_pipeline(args.pipeline_name):
+            
+        result = compile_pipeline(args.pipeline_name)
+
     elif args.mode == 'upload-pipeline':
         if not args.pipeline_name:
             raise ValueError("pipeline-name must be supplied.")
         if not args.pipelines_store:
             raise ValueError("pipelines-store must be supplied.")
+
         result = upload_pipeline(pipeline_name, pipelines_store)
     else:
         raise ValueError(f"Invalid mode {args.mode}.")
