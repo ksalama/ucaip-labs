@@ -83,7 +83,7 @@ steps:
   entrypoint: 'python'
   args: ['build/utils.py',
           '--mode', 'upload-pipeline',
-          '--pipelines-name', '$_PIPELINE_NAME',
+          '--pipeline-name', '$_PIPELINE_NAME',
           '--pipelines-store', '$_PIPELINES_STORE'
           ]
   dir: 'ucaip-labs'
