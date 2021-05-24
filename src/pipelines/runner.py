@@ -25,7 +25,7 @@ from src.pipelines import config, training_pipeline
 from src.model_training import defaults
 
 
-def compile_pipeline():
+def compile_pipeline(pipeline_definition_file):
     
     pipeline_root = os.path.join(
         config.ARTIFACT_STORE_URI,
@@ -65,8 +65,7 @@ def compile_pipeline():
         ),
         output_filename=pipeline_definition_file)
     
-    _ = runner.run(managed_pipeline, write_out=True)
-    return pipeline_definition_file
+    return runner.run(managed_pipeline, write_out=True)
     
     
 def submit_pipeline(pipeline_definition_file):
