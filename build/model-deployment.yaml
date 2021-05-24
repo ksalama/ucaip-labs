@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-####################################################################################
-# CI/CD steps for Cloud Build to test and deploy a model to AI Platform Prediction.
-####################################################################################
+######################################################################
+# CI/CD steps for Cloud Build to test and deploy a model to Vertex AI.
+######################################################################
 
 steps:
 
@@ -41,8 +41,8 @@ steps:
 # Create an endpoint.
 - name: '$_CICD_IMAGE_URI'
   entrypoint: 'python'
-  args: ['build/deploy-model.py',
-          '--mode', 'endpoint',
+  args: ['build/utils.py',
+          '--mode', 'create-endpoint',
           '--project', '$_PROJECT',
           '--region', '$_REGION',
           '--endpoint-display-name', '$_ENDPOINT_DISPLAY_NAME']
@@ -53,8 +53,8 @@ steps:
 # Deploy the model.
 - name: '$_CICD_IMAGE_URI'
   entrypoint: 'python'
-  args: ['build/deploy-model.py',
-          '--mode', 'model',
+  args: ['build/utils.py',
+          '--mode', 'deploy-model',
           '--project', '$_PROJECT',
           '--region', '$_REGION',
           '--endpoint-display-name', '$_ENDPOINT_DISPLAY_NAME',
