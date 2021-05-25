@@ -72,21 +72,18 @@ steps:
   - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
   - 'DATASET_DISPLAY_NAME=$_DATASET_DISPLAY_NAME'  
   - 'GCS_LOCATION=$_GCS_LOCATION' 
+  - 'TFX_IMAGE_URI=$_TFX_IMAGE_URI' 
   - 'BEAM_RUNNER=$_BEAM_RUNNER'
   - 'TRAINING_RUNNER=$_TRAINING_RUNNER'
   id: 'Compile Pipeline'
   waitFor: ['Local Test E2E Pipeline']
-
-# Deploy the pipeline GCP.
-- name: '$_CICD_IMAGE_URI'
-  entrypoint: 'python'
-  args: ['build/utils.py',
-          '--mode', 'upload-pipeline',
-          '--pipeline-name', '$_PIPELINE_NAME',
-          '--pipelines-store', '$_PIPELINES_STORE'
-          ]
+  
+  
+# Upload compiled pipeline to GCS
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', '$_PIPELINE_NAME.json', '$_PIPELINES_STORE']
   dir: 'ucaip-labs'
-  id: 'Upload Pipeline'
+  id:  'Upload Pipeline to GCS'
   waitFor: ['Compile Pipeline']
   
 
