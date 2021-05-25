@@ -225,7 +225,7 @@ def create_pipeline(
     ).with_id("ModelEvaluator")
 
     exported_model_location = os.path.join(
-        config.MODEL_REGISTRY_URI, config.DATASET_DISPLAY_NAME)
+        config.MODEL_REGISTRY_URI, config.MODEL_DISPLAY_NAME)
     push_destination = tfx.proto.pusher_pb2.PushDestination(
         filesystem=tfx.proto.pusher_pb2.PushDestination.Filesystem(
             base_directory=exported_model_location
