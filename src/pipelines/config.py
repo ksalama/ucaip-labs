@@ -45,8 +45,8 @@ ACCURACY_THRESHOLD = os.getenv("ACCURACY_THRESHOLD", "0.8")
 
 USE_KFP_SA = os.getenv("USE_KFP_SA", "False")
 
-IMAGE_URI = os.getenv(
-    "IMAGE_URI", f"gcr.io/{PROJECT}/tfx_{DATASET_DISPLAY_NAME}:latest"
+TFX_IMAGE_URI = os.getenv(
+    "TFX_IMAGE_URI", f"gcr.io/{PROJECT}/tfx_{DATASET_DISPLAY_NAME}:latest"
 )
 
 BEAM_RUNNER = os.getenv("BEAM_RUNNER", "DirectRunner")
@@ -78,5 +78,5 @@ UPLOAD_MODEL = os.getenv("UPLOAD_MODEL", "1")
 
 os.environ['PROJECT'] = PROJECT
 os.environ['PIPELINE_NAME'] = PIPELINE_NAME
-os.environ['IMAGE_URI'] = IMAGE_URI
+os.environ['TFX_IMAGE_URI'] = TFX_IMAGE_URI
 os.environ['MODEL_REGISTRY_URI'] = MODEL_REGISTRY_URI

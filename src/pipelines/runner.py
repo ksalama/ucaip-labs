@@ -61,7 +61,7 @@ def compile_pipeline(pipeline_definition_file):
 
     runner = kubeflow_v2_dag_runner.KubeflowV2DagRunner(
         config=kubeflow_v2_dag_runner.KubeflowV2DagRunnerConfig(
-            default_image=config.IMAGE_URI
+            default_image=config.TFX_IMAGE_URI
         ),
         output_filename=pipeline_definition_file)
     
