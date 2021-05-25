@@ -40,20 +40,19 @@ steps:
   - 'REGION=$_REGION'
   - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
   - 'DATASET_DISPLAY_NAME=$_DATASET_DISPLAY_NAME'  
-  - 'GCS_LOCATION=$_GCS_LOCATION'
+  - 'GCS_LOCATION=$_TEST_GCS_LOCATION'
   - 'TRAIN_LIMIT=$_TRAIN_LIMIT'
   - 'TEST_LIMIT=$_TEST_LIMIT'  
   - 'UPLOAD_MODEL=$_UPLOAD_MODEL'
   - 'ACCURACY_THRESHOLD=$_ACCURACY_THRESHOLD'
-  - 'BEAM_RUNNER=$_BEAM_RUNNER'
-  - 'TRAINING_RUNNER=$_TRAINING_RUNNER'
   id: 'Local Test E2E Pipeline'
   waitFor: ['Clone Repository']
+  timeout: 1800s
 
 
 # Build the image that encapsulates the pipeline.
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '$_IMAGE_URI', '.']
+  args: ['build', '-t', '$_TFX_IMAGE_URI', '.']
   dir: 'ucaip-labs'
   id: 'Build TFX Image'
   waitFor: ['Local Test E2E Pipeline']
@@ -91,4 +90,4 @@ steps:
   waitFor: ['Compile Pipeline']
   
 
-images: ['$_IMAGE_URI']
+images: ['$_TFX_IMAGE_URI']
