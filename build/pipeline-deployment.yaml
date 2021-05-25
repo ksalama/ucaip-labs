@@ -79,7 +79,7 @@ steps:
   waitFor: ['Local Test E2E Pipeline']
   
   
-# Upload compiled pipeline to GCS
+# Upload compiled pipeline to GCS.
 - name: 'gcr.io/cloud-builders/gsutil'
   args: ['cp', '$_PIPELINE_NAME.json', '$_PIPELINES_STORE']
   dir: 'ucaip-labs'
@@ -87,4 +87,5 @@ steps:
   waitFor: ['Compile Pipeline']
   
 
+# Push TFX Image to Container Registy.
 images: ['$_TFX_IMAGE_URI']
