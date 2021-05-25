@@ -33,7 +33,7 @@ steps:
 # Test e2e pipeline using local runner.
 - name: '$_CICD_IMAGE_URI'
   entrypoint: 'pytest'
-  args: ['src/tests/pipeline_deployment_tests.py::test_e2e_pipeline']
+  args: ['src/tests/pipeline_deployment_tests.py::test_e2e_pipeline', '-s']
   dir: 'ucaip-labs'
   env: 
   - 'PROJECT=$_PROJECT'  
