@@ -92,14 +92,10 @@ def deploy_model(project, region, endpoint_display_name, model_display_name, ded
     return result
 
 
-def compile_pipeline(pipeline_name):
+def compile_and_upload_pipeline(pipeline_name, pipelines_store):
     pipeline_definition_file = f"{pipeline_name}.json"
     pipeline_definition = runner.compile_pipeline(pipeline_definition_file)
-    return pipeline_definition
-
-
-def upload_pipeline(pipeline_name, pipelines_store):
-    pipeline_definition_file = f"{pipeline_name}.json"
+    
     storage_client = storage.Client()
     gcs_location_parts = pipelines_store.replace("gs://", "").split("/")
     bucket_name = gcs_location_parts[0]
@@ -108,7 +104,7 @@ def upload_pipeline(pipeline_name, pipelines_store):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
     blob.upload_from_filename(pipeline_definition_file)
-    return os.path.join(gcs_location, pipeline_definition_file)
+    return os.path.join(gcs_location, pipeline_definition_file), pipeline_definition
 
     
 
@@ -150,19 +146,13 @@ def main():
             dedicated_serving_resources_spec
         )
         
-    elif args.mode == 'compile-pipeline':
-        if not args.pipeline_name:
-            raise ValueError("pipeline-name must be supplied.")
-            
-        result = compile_pipeline(args.pipeline_name)
-
-    elif args.mode == 'upload-pipeline':
+    elif args.mode == 'compile-upload-pipeline':
         if not args.pipeline_name:
             raise ValueError("pipeline-name must be supplied.")
         if not args.pipelines_store:
             raise ValueError("pipelines-store must be supplied.")
-
-        result = upload_pipeline(args.pipeline_name, args.pipelines_store)
+            
+        result = compile_pipeline(args.pipeline_name, args.pipelines_store)
     else:
         raise ValueError(f"Invalid mode {args.mode}.")
         
