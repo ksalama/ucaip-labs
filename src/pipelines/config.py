@@ -66,7 +66,7 @@ TRAINING_RUNNER = os.getenv("TRAINING_RUNNER", "local")
 AI_PLATFORM_TRAINING_ARGS = {
     "project": PROJECT,
     "region": REGION,
-    "masterConfig": {"imageUri": IMAGE_URI},
+    "masterConfig": {"imageUri": TFX_IMAGE_URI},
 }
 
 

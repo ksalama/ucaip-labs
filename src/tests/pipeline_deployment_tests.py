@@ -49,6 +49,7 @@ def test_e2e_pipeline():
     train_limit = os.getenv("TRAIN_LIMIT", 1000)
     test_limit = os.getenv("TEST_LIMIT", 100)
     model_registry = os.getenv("MODEL_REGISTRY_URI")
+    upload_model = os.getenv("UPLOAD_MODEL")
     
     assert project, "Environment variable PROJECT is None!"
     assert region, "Environment variable REGION is None!"
@@ -57,6 +58,7 @@ def test_e2e_pipeline():
     assert gcs_location, "Environment variable GCS_LOCATION is None!"
     assert model_registry, "Environment variable MODEL_REGISTRY_URI is None!"
     
+    logging.info(f"upload_model: {upload_model}")
     if tf.io.gfile.exists(gcs_location):
         tf.io.gfile.rmtree(gcs_location)
     logging.info(f"Pipeline e2e test artifacts stored in: {gcs_location}")
