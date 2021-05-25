@@ -240,7 +240,7 @@ def create_pipeline(
     ).with_id("ModelPusher")
     
     # Upload custom trained model to AI Platform.
-    vertex_model_uploader = custom_components.aip_model_uploader(
+    vertex_model_uploader = custom_components.vertex_model_uploader(
         project=config.PROJECT,
         region=config.REGION,
         model_display_name=config.MODEL_DISPLAY_NAME,

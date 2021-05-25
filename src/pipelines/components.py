@@ -73,7 +73,7 @@ def hyperparameters_gen(
     
 
 @component
-def aip_model_uploader(
+def vertex_model_uploader(
     project: Parameter[str],
     region: Parameter[str],
     model_display_name: Parameter[str],
