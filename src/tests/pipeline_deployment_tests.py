@@ -27,11 +27,11 @@ import logging
 from src.pipelines import config
 from src.pipelines import training_pipeline
 
-root = logging.getLogger()
-root.setLevel(logging.INFO)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.INFO)
-root.addHandler(handler)
+# root = logging.getLogger()
+# root.setLevel(logging.INFO)
+# handler = logging.StreamHandler(sys.stdout)
+# handler.setLevel(logging.INFO)
+# root.addHandler(handler)
 
 MLMD_SQLLITE = 'mlmd.sqllite'
 NUM_EPOCHS = 1
