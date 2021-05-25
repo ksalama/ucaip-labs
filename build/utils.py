@@ -162,7 +162,7 @@ def main():
         if not args.pipelines_store:
             raise ValueError("pipelines-store must be supplied.")
 
-        result = upload_pipeline(args.pipeline_name, arg.pipelines_store)
+        result = upload_pipeline(args.pipeline_name, args.pipelines_store)
     else:
         raise ValueError(f"Invalid mode {args.mode}.")
         
