@@ -27,11 +27,11 @@ import logging
 from src.pipelines import config
 from src.pipelines import training_pipeline
 
-# root = logging.getLogger()
-# root.setLevel(logging.INFO)
-# handler = logging.StreamHandler(sys.stdout)
-# handler.setLevel(logging.INFO)
-# root.addHandler(handler)
+root = logging.getLogger()
+root.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+root.addHandler(handler)
 
 MLMD_SQLLITE = 'mlmd.sqllite'
 NUM_EPOCHS = 1
@@ -51,6 +51,7 @@ def test_e2e_pipeline():
     model_registry = os.getenv("MODEL_REGISTRY_URI")
     upload_model = os.getenv("UPLOAD_MODEL")
     
+    assert int(upload_model) == 0
     assert project, "Environment variable PROJECT is None!"
     assert region, "Environment variable REGION is None!"
     assert dataset_display_name, "Environment variable DATASET_DISPLAY_NAME is None!"

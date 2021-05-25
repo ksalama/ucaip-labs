@@ -272,6 +272,9 @@ def create_pipeline(
     logging.info(
         f"Pipeline components: {[component.id for component in pipeline_components]}"
     )
+    
+    print([component.id for component in pipeline_components])
+    print(f"config.UPLOAD_MODEL {config.UPLOAD_MODEL}")
 
     beam_pipeline_args = config.BEAM_DIRECT_PIPELINE_ARGS
     if config.BEAM_RUNNER == "DataflowRunner":
