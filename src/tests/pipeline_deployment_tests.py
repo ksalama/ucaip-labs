@@ -88,6 +88,6 @@ def test_e2e_pipeline():
     )
 
     runner.run(pipeline)
-    
+
     logging.info(f"Model output: {os.path.join(model_registry, model_display_name)}")
-    #assert tf.io.gfile.exists(os.path.join(model_registry, model_display_name))
+    assert tf.io.gfile.exists(os.path.join(model_registry, model_display_name))
