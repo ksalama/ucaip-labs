@@ -16,15 +16,17 @@
 import os
 
 DATASET_DISPLAY_NAME = os.getenv("DATASET_DISPLAY_NAME", "chicago_taxi_tips")
-MODEL_DISPLAY_NAME = os.getenv("MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}_classifier_custom")
+MODEL_DISPLAY_NAME = os.getenv(
+    "MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}_classifier_custom"
+)
 
-DATA_SPLIT_COLUMN = 'data_split'
-EXCLUDE_COLUMNS = ','.join(['trip_start_timestamp'])
+DATA_SPLIT_COLUMN = "data_split"
+EXCLUDE_COLUMNS = ",".join(["trip_start_timestamp"])
 TRAIN_LIMIT = os.getenv("TRAIN_LIMIT", "0")
 TEST_LIMIT = os.getenv("TEST_LIMIT", "0")
 
 PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{DATASET_DISPLAY_NAME}_train_pipeline")
-PIPELINE_NAME = PIPELINE_NAME.replace('_', '-')
+PIPELINE_NAME = PIPELINE_NAME.replace("_", "-")
 
 PROJECT = os.getenv("PROJECT", "ksalama-cloudml")
 REGION = os.getenv("REGION", "us-central1")
@@ -70,13 +72,13 @@ AI_PLATFORM_TRAINING_ARGS = {
 }
 
 
-SERVING_RUNTIME = os.getenv("SERVING_RUNTIME", 'tf2-cpu.2-4')
+SERVING_RUNTIME = os.getenv("SERVING_RUNTIME", "tf2-cpu.2-4")
 SERVING_IMAGE_URI = f"gcr.io/cloud-aiplatform/prediction/{SERVING_RUNTIME}:latest"
 
 ENABLE_CACHE = os.getenv("ENABLE_CACHE", "0")
 UPLOAD_MODEL = os.getenv("UPLOAD_MODEL", "1")
 
-os.environ['PROJECT'] = PROJECT
-os.environ['PIPELINE_NAME'] = PIPELINE_NAME
-os.environ['TFX_IMAGE_URI'] = TFX_IMAGE_URI
-os.environ['MODEL_REGISTRY_URI'] = MODEL_REGISTRY_URI
+os.environ["PROJECT"] = PROJECT
+os.environ["PIPELINE_NAME"] = PIPELINE_NAME
+os.environ["TFX_IMAGE_URI"] = TFX_IMAGE_URI
+os.environ["MODEL_REGISTRY_URI"] = MODEL_REGISTRY_URI

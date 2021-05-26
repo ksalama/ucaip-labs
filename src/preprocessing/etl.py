@@ -27,9 +27,7 @@ from tensorflow_transform.tf_metadata import schema_utils
 
 from src.preprocessing import transformations
 
-RAW_SCHEMA_LOCATION = 'src/raw_schema/schema.pbtxt'
-
-
+RAW_SCHEMA_LOCATION = "src/raw_schema/schema.pbtxt"
 
 
 # TARGET_FEATURE_NAME = 'tip_bin'
@@ -49,7 +47,7 @@ RAW_SCHEMA_LOCATION = 'src/raw_schema/schema.pbtxt'
 #     "pickup_grid",
 #     "dropoff_grid",
 #     "loc_cross",
-#     "payment_type", 
+#     "payment_type",
 #     "trip_day_of_week"
 # ]
 
@@ -73,13 +71,12 @@ RAW_SCHEMA_LOCATION = 'src/raw_schema/schema.pbtxt'
 #         )
 
 #     outputs[TARGET_FEATURE_NAME] = inputs[TARGET_FEATURE_NAME]
-    
+
 #     for key in outputs:
 #         outputs[key] = tf.squeeze(outputs[key], -1)
-        
-    
-#     return outputs
 
+
+#     return outputs
 
 
 def parse_bq_record(bq_record):
@@ -91,6 +88,7 @@ def parse_bq_record(bq_record):
 
 def split_dataset(bq_row, num_partitions, ratio):
     import json
+
     assert num_partitions == len(ratio)
     bucket = sum(map(ord, json.dumps(bq_row))) % sum(ratio)
     total = 0
@@ -102,23 +100,26 @@ def split_dataset(bq_row, num_partitions, ratio):
 
 
 def run_transform_pipeline(args):
-    
+
     pipeline_options = beam.pipeline.PipelineOptions(flags=[], **args)
-    
-    raw_data_query = args['raw_data_query']
-    write_raw_data = args['write_raw_data']
-    exported_data_prefix = args['exported_data_prefix']
-    transformed_data_prefix = args['transformed_data_prefix']
-    transform_artefact_dir = args['transform_artefact_dir']
-    temporary_dir = args['temporary_dir']
-    gcs_location = args['gcs_location']
-    project=args['project']
+
+    raw_data_query = args["raw_data_query"]
+    write_raw_data = args["write_raw_data"]
+    exported_data_prefix = args["exported_data_prefix"]
+    transformed_data_prefix = args["transformed_data_prefix"]
+    transform_artefact_dir = args["transform_artefact_dir"]
+    temporary_dir = args["temporary_dir"]
+    gcs_location = args["gcs_location"]
+    project = args["project"]
 
     source_raw_schema = tfdv.load_schema_text(RAW_SCHEMA_LOCATION)
-    raw_feature_spec = schema_utils.schema_as_feature_spec(source_raw_schema).feature_spec
-    
+    raw_feature_spec = schema_utils.schema_as_feature_spec(
+        source_raw_schema
+    ).feature_spec
+
     raw_metadata = dataset_metadata.DatasetMetadata(
-      dataset_schema.from_feature_spec(raw_feature_spec))
+        dataset_schema.from_feature_spec(raw_feature_spec)
+    )
 
     with beam.Pipeline(options=pipeline_options) as pipeline:
         with tft_beam.Context(temporary_dir):
@@ -126,75 +127,87 @@ def run_transform_pipeline(args):
             # Read raw BigQuery data.
             raw_train_data, raw_eval_data = (
                 pipeline
-                  | 'Read Raw Data' >> beam.io.ReadFromBigQuery(
-                      query=raw_data_query, project=project, use_standard_sql=True, gcs_location=gcs_location)
-                  | 'Parse Data' >> beam.Map(parse_bq_record)
-                  | 'Split' >> beam.Partition(split_dataset, 2, ratio=[8, 2])
+                | "Read Raw Data"
+                >> beam.io.ReadFromBigQuery(
+                    query=raw_data_query,
+                    project=project,
+                    use_standard_sql=True,
+                    gcs_location=gcs_location,
+                )
+                | "Parse Data" >> beam.Map(parse_bq_record)
+                | "Split" >> beam.Partition(split_dataset, 2, ratio=[8, 2])
             )
-            
+
             # Create a train_dataset from the data and schema.
             raw_train_dataset = (raw_train_data, raw_metadata)
-            
+
             # Analyze and transform raw_train_dataset to produced transformed_train_dataset and transform_fn.
             transformed_train_dataset, transform_fn = (
-                raw_train_dataset 
-                | 'Analyze & Transform' >> tft_beam.AnalyzeAndTransformDataset(
-                      transformations.preprocessing_fn)
+                raw_train_dataset
+                | "Analyze & Transform"
+                >> tft_beam.AnalyzeAndTransformDataset(transformations.preprocessing_fn)
             )
-            
+
             # Get data and schema separately from the transformed_dataset.
             transformed_train_data, transformed_metadata = transformed_train_dataset
-            
+
             # write transformed train data.
             _ = (
-                transformed_train_data 
-                | 'Write Transformed Train Data' >> beam.io.tfrecordio.WriteToTFRecord(
-                    file_path_prefix=os.path.join(transformed_data_prefix, 'train/data'),
+                transformed_train_data
+                | "Write Transformed Train Data"
+                >> beam.io.tfrecordio.WriteToTFRecord(
+                    file_path_prefix=os.path.join(
+                        transformed_data_prefix, "train/data"
+                    ),
                     file_name_suffix=".gz",
-                    coder=tft.coders.ExampleProtoCoder(transformed_metadata.schema))
+                    coder=tft.coders.ExampleProtoCoder(transformed_metadata.schema),
+                )
             )
-            
+
             # Create a eval_dataset from the data and schema.
             raw_eval_dataset = (raw_eval_data, raw_metadata)
-            
+
             # Transform raw_eval_dataset to produced transformed_eval_dataset using transform_fn.
             transformed_eval_dataset = (
-                (raw_eval_dataset, transform_fn) 
-                | 'Transform' >> tft_beam.TransformDataset()
-            )
-            
+                raw_eval_dataset,
+                transform_fn,
+            ) | "Transform" >> tft_beam.TransformDataset()
+
             # Get data from the transformed_eval_dataset.
             transformed_eval_data, _ = transformed_eval_dataset
-            
+
             # write transformed train data.
             _ = (
-                transformed_eval_data 
-                | 'Write Transformed Eval Data' >> beam.io.tfrecordio.WriteToTFRecord(
-                    file_path_prefix=os.path.join(transformed_data_prefix, 'eval/data'),
+                transformed_eval_data
+                | "Write Transformed Eval Data"
+                >> beam.io.tfrecordio.WriteToTFRecord(
+                    file_path_prefix=os.path.join(transformed_data_prefix, "eval/data"),
                     file_name_suffix=".gz",
-                    coder=tft.coders.ExampleProtoCoder(transformed_metadata.schema))
+                    coder=tft.coders.ExampleProtoCoder(transformed_metadata.schema),
+                )
             )
-            
+
             # Write transform_fn.
-            _ = (
-                transform_fn 
-                | 'Write Transform Artefacts' >> tft_beam.WriteTransformFn(
-                    transform_artefact_dir)
+            _ = transform_fn | "Write Transform Artefacts" >> tft_beam.WriteTransformFn(
+                transform_artefact_dir
             )
-            
+
             if write_raw_data:
                 # write raw eval data.
                 _ = (
-                    raw_eval_data 
-                    | 'Write Raw Eval Data' >> beam.io.tfrecordio.WriteToTFRecord(
+                    raw_eval_data
+                    | "Write Raw Eval Data"
+                    >> beam.io.tfrecordio.WriteToTFRecord(
                         file_path_prefix=exported_data_prefix,
                         file_name_suffix=".tfrecord",
-                        coder=tft.coders.ExampleProtoCoder(raw_metadata.schema))
+                        coder=tft.coders.ExampleProtoCoder(raw_metadata.schema),
+                    )
                 )
-                
- 
+
+
 def convert_to_jsonl(bq_record):
     import json
+
     output = {}
     for key in bq_record:
         output[key] = [bq_record[key]]
@@ -204,36 +217,41 @@ def convert_to_jsonl(bq_record):
 def run_extract_pipeline(args):
 
     pipeline_options = beam.pipeline.PipelineOptions(flags=[], **args)
-    
-    raw_schema_location = args['raw_schema_location']
-    raw_data_query = args['raw_data_query']
 
-    exported_data_prefix = args['exported_data_prefix']
-    temporary_dir = args['temporary_dir']
-    gcs_location = args['gcs_location']
-    project=args['project']
+    raw_schema_location = args["raw_schema_location"]
+    raw_data_query = args["raw_data_query"]
+
+    exported_data_prefix = args["exported_data_prefix"]
+    temporary_dir = args["temporary_dir"]
+    gcs_location = args["gcs_location"]
+    project = args["project"]
 
     source_raw_schema = tfdv.load_schema_text(raw_schema_location)
-    raw_feature_spec = schema_utils.schema_as_feature_spec(source_raw_schema).feature_spec
-    
+    raw_feature_spec = schema_utils.schema_as_feature_spec(
+        source_raw_schema
+    ).feature_spec
+
     raw_metadata = dataset_metadata.DatasetMetadata(
-      dataset_schema.from_feature_spec(raw_feature_spec))
+        dataset_schema.from_feature_spec(raw_feature_spec)
+    )
 
     with beam.Pipeline(options=pipeline_options) as pipeline:
         with tft_beam.Context(temporary_dir):
-            
+
             # Read BigQuery data.
             raw_data = (
                 pipeline
-                  | 'Read Data' >> beam.io.ReadFromBigQuery(
-                      query=raw_data_query, project=project, use_standard_sql=True, gcs_location=gcs_location)
-                  | 'Parse Data' >> beam.Map(convert_to_jsonl)
+                | "Read Data"
+                >> beam.io.ReadFromBigQuery(
+                    query=raw_data_query,
+                    project=project,
+                    use_standard_sql=True,
+                    gcs_location=gcs_location,
+                )
+                | "Parse Data" >> beam.Map(convert_to_jsonl)
             )
-            
+
             # write raw data to GCS as tfrecords.
-            _ = (
-                raw_data 
-                | 'Write Data' >> beam.io.WriteToText(
-                    file_path_prefix=exported_data_prefix,
-                    file_name_suffix=".jsonl")
+            _ = raw_data | "Write Data" >> beam.io.WriteToText(
+                file_path_prefix=exported_data_prefix, file_name_suffix=".jsonl"
             )

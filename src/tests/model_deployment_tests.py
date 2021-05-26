@@ -32,18 +32,19 @@ test_instance = {
     "trip_seconds": [555],
 }
 
-SERVING_DEFAULT_SIGNATURE_NAME = 'serving_default'
+SERVING_DEFAULT_SIGNATURE_NAME = "serving_default"
 
 from src.utils.ucaip_utils import AIPUtils
 
+
 def test_model_artifact():
-    
+
     feature_types = {
         "dropoff_grid": tf.dtypes.string,
         "euclidean": tf.dtypes.float32,
-        "loc_cross":  tf.dtypes.string,
-        "payment_type":  tf.dtypes.string,
-        "pickup_grid":  tf.dtypes.string,
+        "loc_cross": tf.dtypes.string,
+        "payment_type": tf.dtypes.string,
+        "pickup_grid": tf.dtypes.string,
         "trip_miles": tf.dtypes.float32,
         "trip_day": tf.dtypes.int64,
         "trip_hour": tf.dtypes.int64,
@@ -51,72 +52,89 @@ def test_model_artifact():
         "trip_day_of_week": tf.dtypes.int64,
         "trip_seconds": tf.dtypes.int64,
     }
-    
+
     new_test_instance = dict()
     for key in test_instance:
-        new_test_instance[key] =  tf.constant([test_instance[key]], dtype=feature_types[key])
-        
+        new_test_instance[key] = tf.constant(
+            [test_instance[key]], dtype=feature_types[key]
+        )
+
     print(new_test_instance)
-    
+
     project = os.getenv("PROJECT")
     region = os.getenv("REGION")
     model_display_name = os.getenv("MODEL_DISPLAY_NAME")
-    
+
     assert project, "Environment variable PROJECT is None!"
     assert region, "Environment variable REGION is None!"
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
-    
+
     aip_utils = AIPUtils(project, region)
     model_desc = aip_utils.get_model_by_display_name(model_display_name)
     artifact_uri = model_desc.artifact_uri
     logging.info(f"Model artifact uri:{artifact_uri}")
-    assert tf.io.gfile.exists(artifact_uri), f"Model artifact uri {artifact_uri} does not exist!"
-    
+    assert tf.io.gfile.exists(
+        artifact_uri
+    ), f"Model artifact uri {artifact_uri} does not exist!"
+
     saved_model = tf.saved_model.load(artifact_uri)
     logging.info("Model loaded successfully.")
-    
-    assert SERVING_DEFAULT_SIGNATURE_NAME in saved_model.signatures, f"{SERVING_DEFAULT_SIGNATURE_NAME} not in model signatures!"
-    
-    prediction_fn = saved_model.signatures['serving_default']
+
+    assert (
+        SERVING_DEFAULT_SIGNATURE_NAME in saved_model.signatures
+    ), f"{SERVING_DEFAULT_SIGNATURE_NAME} not in model signatures!"
+
+    prediction_fn = saved_model.signatures["serving_default"]
     predictions = prediction_fn(**new_test_instance)
     logging.info("Model produced predictions.")
-    
-    keys = ['classes', 'scores']
+
+    keys = ["classes", "scores"]
     for key in keys:
         assert key in predictions, f"{key} in prediction outputs!"
-    
-    assert predictions['classes'].shape == (1, 2), f"Invalid output classes shape: {predictions['classes'].shape}!"
-    assert predictions['scores'].shape == (1, 2), f"Invalid output scores shape: {predictions['scores'].shape}!"
+
+    assert predictions["classes"].shape == (
+        1,
+        2,
+    ), f"Invalid output classes shape: {predictions['classes'].shape}!"
+    assert predictions["scores"].shape == (
+        1,
+        2,
+    ), f"Invalid output scores shape: {predictions['scores'].shape}!"
     logging.info(f"Prediction output: {predictions}")
-    
-    
+
+
 def test_model_endpoint():
-    
+
     project = os.getenv("PROJECT")
     region = os.getenv("REGION")
     model_display_name = os.getenv("MODEL_DISPLAY_NAME")
     endpoint_display_name = os.getenv("ENDPOINT_DISPLAY_NAME")
-    
+
     assert project, "Environment variable PROJECT is None!"
     assert region, "Environment variable REGION is None!"
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
     assert endpoint_display_name, "Environment variable ENDPOINT_DISPLAY_NAME is None!"
-    
-    
+
     aip_utils = AIPUtils(project, region)
     endpoint = aip_utils.get_endpoint_by_display_name(endpoint_display_name)
-    assert endpoint, f"Endpoint with display name {endpoint_display_name} does not exist! in region {region}"
-    
+    assert (
+        endpoint
+    ), f"Endpoint with display name {endpoint_display_name} does not exist! in region {region}"
+
     logging.info(f"Calling endpoint: {endpoint}.")
-    
+
     response = aip_utils.predict_tabular_classifier(endpoint.name, test_instance)
     prediction = dict(list(response.predictions)[0])
-    
-    keys = ['classes', 'scores']
+
+    keys = ["classes", "scores"]
     for key in keys:
         assert key in prediction, f"{key} in prediction outputs!"
-        
-    assert len(prediction['classes']) == 2, f"Invalid number of output classes: {len(prediction['classes'])}!"
-    assert len(prediction['scores']) == 2, f"Invalid number output scores: {len(prediction['scores'])}!"
-    
+
+    assert (
+        len(prediction["classes"]) == 2
+    ), f"Invalid number of output classes: {len(prediction['classes'])}!"
+    assert (
+        len(prediction["scores"]) == 2
+    ), f"Invalid number output scores: {len(prediction['scores'])}!"
+
     logging.info(f"Prediction output: {prediction}")

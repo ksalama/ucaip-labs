@@ -37,18 +37,17 @@ def run_fn(fn_args):
     try:
         log_dir = fn_args.model_run_dir
     except KeyError:
-        log_dir = os.path.join(
-            os.path.dirname(fn_args.serving_model_dir), "logs")
-        
+        log_dir = os.path.join(os.path.dirname(fn_args.serving_model_dir), "logs")
+
     hyperparams = fn_args.hyperparameters
     if not hyperparams:
         hyperparams = dict()
-        
+
     hyperparams = defaults.update_hyperparams(hyperparams)
     logging.info("Hyperparameter:")
     logging.info(hyperparams)
     logging.info("")
-    
+
     logging.info("Runner executing trainer...")
     classifier = trainer.train(
         train_data_dir=fn_args.train_files,
@@ -58,7 +57,7 @@ def run_fn(fn_args):
         hyperparams=hyperparams,
         log_dir=log_dir,
     )
-    
+
     logging.info("Runner executing exporter...")
     exporter.export_serving_model(
         classifier=classifier,

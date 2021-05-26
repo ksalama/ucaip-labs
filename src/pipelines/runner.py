@@ -26,55 +26,49 @@ from src.model_training import defaults
 
 
 def compile_pipeline(pipeline_definition_file):
-    
+
     pipeline_root = os.path.join(
         config.ARTIFACT_STORE_URI,
         config.PIPELINE_NAME,
     )
-    
+
     managed_pipeline = training_pipeline.create_pipeline(
-        metadata_connection_config=None, 
+        metadata_connection_config=None,
         pipeline_root=pipeline_root,
         num_epochs=data_types.RuntimeParameter(
-            name='num_epochs',
+            name="num_epochs",
             default=defaults.NUM_EPOCHS,
             ptype=int,
         ),
-         batch_size=data_types.RuntimeParameter(
-             name='batch_size',
-             default=defaults.BATCH_SIZE,
-             ptype=int,
+        batch_size=data_types.RuntimeParameter(
+            name="batch_size",
+            default=defaults.BATCH_SIZE,
+            ptype=int,
         ),
-         learning_rate=data_types.RuntimeParameter(
-             name='learning_rate',
-             default=defaults.LEARNING_RATE,
-             ptype=float,
+        learning_rate=data_types.RuntimeParameter(
+            name="learning_rate",
+            default=defaults.LEARNING_RATE,
+            ptype=float,
         ),
-         hidden_units=data_types.RuntimeParameter(
-             name='hidden_units',
-             default=','.join(str(u) for u in defaults.HIDDEN_UNITS),
-             ptype=str,
+        hidden_units=data_types.RuntimeParameter(
+            name="hidden_units",
+            default=",".join(str(u) for u in defaults.HIDDEN_UNITS),
+            ptype=str,
         ),
     )
-    
+
     runner = kubeflow_v2_dag_runner.KubeflowV2DagRunner(
         config=kubeflow_v2_dag_runner.KubeflowV2DagRunnerConfig(
             default_image=config.TFX_IMAGE_URI
         ),
-        output_filename=pipeline_definition_file)
-    
-    return runner.run(managed_pipeline, write_out=True)
-    
-    
-def submit_pipeline(pipeline_definition_file):
-    
-    pipeline_client = AIPlatformClient(
-        project_id=config.PROJECT,
-        region=config.REGION
+        output_filename=pipeline_definition_file,
     )
 
-    pipeline_client.create_run_from_job_spec(
-        pipeline_definition_file)
+    return runner.run(managed_pipeline, write_out=True)
 
 
+def submit_pipeline(pipeline_definition_file):
 
+    pipeline_client = AIPlatformClient(project_id=config.PROJECT, region=config.REGION)
+
+    pipeline_client.create_run_from_job_spec(pipeline_definition_file)

@@ -28,9 +28,10 @@ def update_hyperparams(hyperparams: dict) -> dict:
     if "hidden_units" not in hyperparams:
         hyperparams["hidden_units"] = HIDDEN_UNITS
     else:
-        if not isinstance(hyperparams['hidden_units'], list):
-            hyperparams['hidden_units'] = [
-                int(v) for v in hyperparams['hidden_units'].split(',')]
+        if not isinstance(hyperparams["hidden_units"], list):
+            hyperparams["hidden_units"] = [
+                int(v) for v in hyperparams["hidden_units"].split(",")
+            ]
     if "learning_rate" not in hyperparams:
         hyperparams["learning_rate"] = LEARNING_RATE
     if "batch_size" not in hyperparams:

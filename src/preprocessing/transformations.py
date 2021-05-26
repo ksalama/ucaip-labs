@@ -18,6 +18,7 @@ import tensorflow_transform as tft
 
 from src.common import features
 
+
 def preprocessing_fn(inputs):
     """tf.transform's callback function for preprocessing inputs.
     Args:
@@ -40,8 +41,8 @@ def preprocessing_fn(inputs):
             )
 
     outputs[features.TARGET_FEATURE_NAME] = inputs[features.TARGET_FEATURE_NAME]
-    
+
     for key in outputs:
         outputs[key] = tf.squeeze(outputs[key], -1)
-    
+
     return outputs

@@ -15,16 +15,18 @@
 
 from src.utils.ucaip_utils import AIPUtils
 
+
 def get_training_source_query(
-    project, region, dataset_display_name, data_split, limit=None):
-    
+    project, region, dataset_display_name, data_split, limit=None
+):
+
     aip_utils = AIPUtils(project, region)
-    
+
     dataset = aip_utils.get_dataset_by_display_name(dataset_display_name)
-    bq_source_uri = dataset.metadata['inputConfig']['bigquerySource']['uri']
-    _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split('.')
-    
-    query = f'''
+    bq_source_uri = dataset.metadata["inputConfig"]["bigquerySource"]["uri"]
+    _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split(".")
+
+    query = f"""
     SELECT 
         IF(trip_month IS NULL, -1, trip_month) trip_month,	
         IF(trip_day IS NULL, -1, trip_day) trip_day,
@@ -40,16 +42,15 @@ def get_training_source_query(
         tip_bin
     FROM {bq_dataset_name}.{bq_table_name} 
     WHERE data_split = '{data_split}'
-    '''
+    """
     if limit:
-        query += f'LIMIT {limit}'
+        query += f"LIMIT {limit}"
     return query
 
 
-def get_serving_source_query(
-    bq_dataset_name, bq_table_name, limit=None):
-    
-    query = f'''
+def get_serving_source_query(bq_dataset_name, bq_table_name, limit=None):
+
+    query = f"""
         SELECT 
             IF(trip_month IS NULL, -1, trip_month) trip_month,	
             IF(trip_day IS NULL, -1, trip_day) trip_day,
@@ -64,7 +65,7 @@ def get_serving_source_query(
             IF(loc_cross IS NULL, 'NA', loc_cross) loc_cross
         FROM {bq_dataset_name}.{bq_table_name} 
         WHERE data_split = 'TEST'
-    '''
+    """
     if limit:
-        query += f'\n limit {limit}'
+        query += f"\n limit {limit}"
     return query

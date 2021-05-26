@@ -31,11 +31,11 @@ FEATURE_NAMES = [
     "loc_cross",
 ]
 
-TARGET_FEATURE_NAME = 'tip_bin'
+TARGET_FEATURE_NAME = "tip_bin"
 
-TARGET_LABELS = ['tip<20%', 'tip>=20%']
+TARGET_LABELS = ["tip<20%", "tip>=20%"]
 
-NUMERICAL_FEATURE_NAMES =  [
+NUMERICAL_FEATURE_NAMES = [
     "trip_seconds",
     "trip_miles",
     "euclidean",
@@ -57,6 +57,7 @@ def transformed_name(key: str) -> str:
     """Generate the name of the transformed feature from original name."""
     return f"{key}_xf"
 
+
 def original_name(key: str) -> str:
     """Generate the name of the original feature from transformed name."""
     return key.replace("_xf", "")
@@ -66,5 +67,8 @@ def vocabulary_name(key: str) -> str:
     """Generate the name of the vocabulary feature from original name."""
     return f"{key}_vocab"
 
+
 def categorical_feature_names() -> list:
-    return list(EMBEDDING_CATEGORICAL_FEATURES.keys()) + ONEHOT_CATEGORICAL_FEATURE_NAMES
+    return (
+        list(EMBEDDING_CATEGORICAL_FEATURES.keys()) + ONEHOT_CATEGORICAL_FEATURE_NAMES
+    )

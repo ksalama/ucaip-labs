@@ -30,7 +30,14 @@ from tfx.extensions.google_cloud_ai_platform.trainer import (
 from tfx.extensions.google_cloud_big_query.example_gen.component import (
     BigQueryExampleGen,
 )
-from tfx.components import StatisticsGen, ExampleValidator, Transform, Trainer, Evaluator, Pusher
+from tfx.components import (
+    StatisticsGen,
+    ExampleValidator,
+    Transform,
+    Trainer,
+    Evaluator,
+    Pusher,
+)
 from tfx.dsl.components.common.importer import Importer
 from tfx.dsl.components.common.resolver import Resolver
 from tfx.dsl.experimental import latest_artifacts_resolver
@@ -55,7 +62,7 @@ TRAIN_MODULE_FILE = "src/model_training/runner.py"
 
 
 def create_pipeline(
-    metadata_connection_config: metadata_store_pb2.ConnectionConfig, 
+    metadata_connection_config: metadata_store_pb2.ConnectionConfig,
     pipeline_root: str,
     num_epochs: data_types.RuntimeParameter,
     batch_size: data_types.RuntimeParameter,
@@ -70,7 +77,7 @@ def create_pipeline(
     caip_executor_spec = executor_spec.ExecutorClassSpec(
         ai_platform_trainer_executor.GenericExecutor
     )
-    
+
     # Hyperparameter generation.
     hyperparams_gen = custom_components.hyperparameters_gen(
         num_epochs=num_epochs,
@@ -78,40 +85,42 @@ def create_pipeline(
         learning_rate=learning_rate,
         hidden_units=hidden_units,
     ).with_id("HyperparamsGen")
-    
+
     # Get train source query.
     train_sql_query = datasource_utils.get_training_source_query(
-        config.PROJECT, 
-        config.REGION, 
-        config.DATASET_DISPLAY_NAME, 
-        data_split='UNASSIGNED',
-        limit=int(config.TRAIN_LIMIT)
+        config.PROJECT,
+        config.REGION,
+        config.DATASET_DISPLAY_NAME,
+        data_split="UNASSIGNED",
+        limit=int(config.TRAIN_LIMIT),
     )
 
     train_output_config = example_gen_pb2.Output(
         split_config=example_gen_pb2.SplitConfig(
             splits=[
                 example_gen_pb2.SplitConfig.Split(
-                    name="train", hash_buckets=int(config.NUM_TRAIN_SPLITS)),
+                    name="train", hash_buckets=int(config.NUM_TRAIN_SPLITS)
+                ),
                 example_gen_pb2.SplitConfig.Split(
-                    name="eval", hash_buckets=int(config.NUM_EVAL_SPLITS)),
+                    name="eval", hash_buckets=int(config.NUM_EVAL_SPLITS)
+                ),
             ]
         )
     )
-    
+
     # Train example generation.
     train_example_gen = BigQueryExampleGen(
-        query=train_sql_query, 
+        query=train_sql_query,
         output_config=train_output_config,
     ).with_id("TrainDataGen")
-    
+
     # Get test source query.
     test_sql_query = datasource_utils.get_training_source_query(
-        config.PROJECT, 
-        config.REGION, 
-        config.DATASET_DISPLAY_NAME, 
-        data_split='TEST',
-        limit=int(config.TEST_LIMIT)
+        config.PROJECT,
+        config.REGION,
+        config.DATASET_DISPLAY_NAME,
+        data_split="TEST",
+        limit=int(config.TEST_LIMIT),
     )
 
     test_output_config = example_gen_pb2.Output(
@@ -121,10 +130,10 @@ def create_pipeline(
             ]
         )
     )
-    
+
     # Test example generation.
     test_example_gen = BigQueryExampleGen(
-        query=test_sql_query, 
+        query=test_sql_query,
         output_config=test_output_config,
     ).with_id("TestDataGen")
 
@@ -135,10 +144,10 @@ def create_pipeline(
     ).with_id("SchemaImporter")
 
     # Statistics generation.
-    statistics_gen = StatisticsGen(
-        examples=train_example_gen.outputs.examples
-    ).with_id("StatisticsGen")
-    
+    statistics_gen = StatisticsGen(examples=train_example_gen.outputs.examples).with_id(
+        "StatisticsGen"
+    )
+
     # Example validation.
     example_validator = ExampleValidator(
         statistics=statistics_gen.outputs.statistics,
@@ -151,18 +160,18 @@ def create_pipeline(
         schema=schema_importer.outputs.result,
         module_file=TRANSFORM_MODULE_FILE,
         splits_config=transform_pb2.SplitsConfig(
-            analyze=['train'], transform=['train', 'eval'])
+            analyze=["train"], transform=["train", "eval"]
+        ),
     ).with_id("DataTransformer")
-    
+
     # Add dependency from example_validator to transform.
     transform.add_upstream_node(example_validator)
-    
+
     # Get the latest model to warmstart
     warmstart_model_resolver = Resolver(
         strategy_class=latest_artifacts_resolver.LatestArtifactsResolver,
-        latest_model=tfx.types.Channel(type=tfx.types.standard_artifacts.Model)
+        latest_model=tfx.types.Channel(type=tfx.types.standard_artifacts.Model),
     ).with_id("WarmstartModelResolver")
-
 
     # Model training.
     trainer = Trainer(
@@ -178,67 +187,77 @@ def create_pipeline(
         eval_args=trainer_pb2.EvalArgs(num_steps=None),
         hyperparameters=hyperparams_gen.outputs.hyperparameters,
     ).with_id("ModelTrainer")
-    
+
     # Get the latest blessed model (baseline) for model validation.
     baseline_model_resolver = Resolver(
         strategy_class=latest_blessed_model_resolver.LatestBlessedModelResolver,
         model=tfx.types.Channel(type=tfx.types.standard_artifacts.Model),
-        model_blessing=tfx.types.Channel(type=tfx.types.standard_artifacts.ModelBlessing),
+        model_blessing=tfx.types.Channel(
+            type=tfx.types.standard_artifacts.ModelBlessing
+        ),
     ).with_id("BaselineModelResolver")
 
     # Prepare evaluation config.
     eval_config = tfma.EvalConfig(
         model_specs=[
             tfma.ModelSpec(
-                signature_name='serving_tf_example',
+                signature_name="serving_tf_example",
                 label_key=features.TARGET_FEATURE_NAME,
-                prediction_key='probabilities')
+                prediction_key="probabilities",
+            )
         ],
         slicing_specs=[
             tfma.SlicingSpec(),
         ],
         metrics_specs=[
             tfma.MetricsSpec(
-                metrics=[   
-                    tfma.MetricConfig(class_name='ExampleCount'),
+                metrics=[
+                    tfma.MetricConfig(class_name="ExampleCount"),
                     tfma.MetricConfig(
-                        class_name='BinaryAccuracy',
+                        class_name="BinaryAccuracy",
                         threshold=tfma.MetricThreshold(
                             value_threshold=tfma.GenericValueThreshold(
-                                lower_bound={'value': float(config.ACCURACY_THRESHOLD)}),
+                                lower_bound={"value": float(config.ACCURACY_THRESHOLD)}
+                            ),
                             # Change threshold will be ignored if there is no
                             # baseline model resolved from MLMD (first run).
                             change_threshold=tfma.GenericChangeThreshold(
                                 direction=tfma.MetricDirection.HIGHER_IS_BETTER,
-                                absolute={'value': -1e-10}))),
-            ])
-        ])
+                                absolute={"value": -1e-10},
+                            ),
+                        ),
+                    ),
+                ]
+            )
+        ],
+    )
 
     # Model evaluation.
     evaluator = Evaluator(
         examples=test_example_gen.outputs.examples,
-        example_splits=['test'],
+        example_splits=["test"],
         model=trainer.outputs.model,
-         baseline_model=baseline_model_resolver.outputs.model,
+        baseline_model=baseline_model_resolver.outputs.model,
         eval_config=eval_config,
         schema=schema_importer.outputs.result,
     ).with_id("ModelEvaluator")
 
     exported_model_location = os.path.join(
-        config.MODEL_REGISTRY_URI, config.MODEL_DISPLAY_NAME)
+        config.MODEL_REGISTRY_URI, config.MODEL_DISPLAY_NAME
+    )
     push_destination = tfx.proto.pusher_pb2.PushDestination(
         filesystem=tfx.proto.pusher_pb2.PushDestination.Filesystem(
             base_directory=exported_model_location
         )
     )
-    
+
     # Push custom model to model registry.
     pusher = Pusher(
         model=trainer.outputs.model,
         model_blessing=evaluator.outputs.blessing,
         push_destination=push_destination,
     ).with_id("ModelPusher")
-    
+
     # Upload custom trained model to AI Platform.
     vertex_model_uploader = custom_components.vertex_model_uploader(
         project=config.PROJECT,
@@ -247,7 +266,7 @@ def create_pipeline(
         pushed_model_location=exported_model_location,
         serving_image_uri=config.SERVING_IMAGE_URI,
     ).with_id("VertexUploader")
-    
+
     pipeline_components = [
         hyperparams_gen,
         train_example_gen,
@@ -260,14 +279,14 @@ def create_pipeline(
         trainer,
         baseline_model_resolver,
         evaluator,
-        pusher
+        pusher,
     ]
-    
+
     if int(config.UPLOAD_MODEL):
         pipeline_components.append(vertex_model_uploader)
         # Add dependency from pusher to aip_model_uploader.
         vertex_model_uploader.add_upstream_node(pusher)
-    
+
     logging.info(
         f"Pipeline components: {[component.id for component in pipeline_components]}"
     )
