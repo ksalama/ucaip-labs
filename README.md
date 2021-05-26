@@ -35,7 +35,7 @@ We experiment with creating a [Custom Model](https://cloud.google.com/ai-platfor
 4. Upload the exported model from Cloud Storage to Vertex AI as a Model.
 
 ## Model Deployment
-We use [Cloud Build](https://cloud.google.com/build) test and deploy the uploaded model to AI Plaform prediction.
+We use [Cloud Build](https://cloud.google.com/build) test and deploy the uploaded model to [Vertex AI Prediction](https://cloud.google.com/vertex-ai/docs/predictions/getting-predictions?hl=nn).
 The [03-model-deployment](03-model-deployment.ipynb) configures and executes the [build/model-deployment.yaml](build/model-deployment.yaml)
 file with the following steps:
 1. Creating an Vertex AI Endpoint.
@@ -66,7 +66,7 @@ We build an end-to-end [TFX training pipeline](tfx_pipline) that performs the fo
 
 We have the following notebooks for the ML training pipeline:
 1. The [05-tfx-interactive](05-tfx-interactive.ipynb) notebook covers testing the pipeline components interactively.
-2. The [06-pipeline-deployment](06-pipeline-deployment.ipynb) notebook covers compiling and running the pipeline to Vertex AI Pipelines.
+2. The [06-pipeline-deployment](06-pipeline-deployment.ipynb) notebook covers compiling and running the pipeline to [Vertex AI Pipelines](https://cloud.google.com/vertex-ai/docs/pipelines/introduction?hl=nn).
 
 ## Continuous Training
 
