@@ -18,6 +18,7 @@ import tensorflow_transform as tft
 import tensorflow_data_validation as tfdv
 from tensorflow_transform.tf_metadata import schema_utils
 import tensorflow.keras as keras
+import logging
 
 from src.common import features
 
@@ -93,5 +94,7 @@ def export_serving_model(
             tf.TensorSpec(shape=[None], dtype=tf.string, name="examples")
         ),
     }
-
+    
+    logging.info("Model export started...")
     tf.saved_model.save(classifier, serving_model_dir, signatures=signatures)
+    logging.info("Model export completed.")
