@@ -16,9 +16,11 @@
 This should be a seperate reusably library.
 """
 
+import copy
 from datetime import datetime
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
+from google.protobuf.duration_pb2 import Duration
 from google.cloud.aiplatform import gapic as aip
 from google.cloud import aiplatform_v1beta1 as aip_beta
 import tensorflow.io as tf_io
@@ -48,6 +50,8 @@ class AIPUtils:
         self.prediction_client = aip.PredictionServiceClient(
             client_options=self.client_options)
         self.prediction_client_beta = aip_beta.PredictionServiceClient(
+            client_options=self.client_options)
+        self.monitoring_client_beta = aip_beta.JobServiceClient(
             client_options=self.client_options)
         
         # Validate the uniqueness of the datasets display names.
@@ -274,7 +278,7 @@ class AIPUtils:
             )
         
         return response
-    
+
     
     def deploy_model(
         self,
@@ -377,5 +381,128 @@ class AIPUtils:
             parent=self.parent, batch_prediction_job=batch_prediction_job
         )
         return response
+    
+    
+    def create_monitoring_job(
+        self,
+        job_name: str,
+        dataset_display_name: str,
+        endpoint_display_name: str,
+        target_field: str,
+        log_sample_rate: float=0.1,
+        monitor_interval: int=1440,
+        skew_thresholds: dict=None, 
+        drift_thresholds: dict=None,
+        predict_instance_schema_uri: str="",
+        analysis_instance_schema_uri: str="",
+        notify_emails: str=None,
+    ):
+        
+        
+        dataset = self.get_dataset_by_display_name(dataset_display_name)
+        if not dataset:
+            raise ValueError(f"Dataset {dataset_display_name} does not exist!")
+        endpoint = self.get_endpoint_by_display_name(endpoint_display_name)
+        if not endpoint:
+            raise ValueError(f"Endpoint {endpoint_display_name} does not exist!")
+            
+        model_ids = [model.id for model in endpoint.deployed_models]
+            
+        skew_thresholds = {
+            feature: aip_beta.ThresholdConfig(value=float(value))
+            for feature, value in skew_thresholds.items()
+        }
+        
+        drift_thresholds = {
+            feature: aip_beta.ThresholdConfig(value=float(value))
+            for feature, value in drift_thresholds.items()
+        }
+        
+        skew_config = aip_beta.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
+            skew_thresholds=skew_thresholds
+        )
+        drift_config = aip_beta.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
+            drift_thresholds=drift_thresholds
+        )
+        
+        random_sampling = aip_beta.SamplingStrategy.RandomSampleConfig(sample_rate=log_sample_rate)
+        sampling_config = aip_beta.SamplingStrategy(random_sample_config=random_sampling)
+
+        duration = Duration(seconds=monitor_interval)
+        schedule_config = aip_beta.ModelDeploymentMonitoringScheduleConfig(monitor_interval=duration)
+        
+        dataset = self.get_dataset_by_display_name(dataset_display_name)
+        bq_source_uri = dataset.metadata['inputConfig']['bigquerySource']['uri']
+        
+        training_dataset = aip_beta.ModelMonitoringObjectiveConfig.TrainingDataset(target_field=target_field)
+        training_dataset.bigquery_source = aip_beta.types.io.BigQuerySource(input_uri=bq_source_uri)
+        objective_config = aip_beta.ModelMonitoringObjectiveConfig(
+            training_dataset=training_dataset,
+            training_prediction_skew_detection_config=skew_config,
+            prediction_drift_detection_config=drift_config,
+        )
+        
+        objective_template = aip_beta.ModelDeploymentMonitoringObjectiveConfig(
+            objective_config=objective_config)
+        
+        deployment_objective_configs = []
+        for model_id in model_ids:
+            objective_config = copy.deepcopy(objective_template)
+            objective_config.deployed_model_id = model_id
+            deployment_objective_configs.append(objective_config)
+        
+        alerting_config = None
+        
+        if notify_emails:
+            alerting_config = ModelMonitoringAlertConfig(email_alert_config=email_config)
+        
+        job = aip_beta.ModelDeploymentMonitoringJob(
+            display_name=job_name,
+            endpoint=endpoint.name,
+            model_deployment_monitoring_objective_configs=deployment_objective_configs,
+            logging_sampling_strategy=sampling_config,
+            model_deployment_monitoring_schedule_config=schedule_config,
+            model_monitoring_alert_config=alerting_config,
+            predict_instance_schema_uri=predict_instance_schema_uri,
+            analysis_instance_schema_uri=analysis_instance_schema_uri
+        )
+        
+        response = self.monitoring_client_beta.create_model_deployment_monitoring_job(
+            parent=self.parent, model_deployment_monitoring_job=job
+        )
+        return response
+    
+    
+    def list_monitoring_jobs(self):
+        return self.monitoring_client_beta.list_model_deployment_monitoring_jobs(
+            parent=self.parent)
+    
+    
+    def get_monitoring_job_by_name(self, job_name):
+        job = None
+        for entry in self.list_monitoring_jobs():
+            if entry.display_name == job_name:
+                job = entry
+                break
+        return job
+        
+    def pause_monitoring_job(self, job_name):
+        job = self.get_monitoring_job_by_name(job_name)
+        if not job:
+            raise ValueError(f"Monitoring job {job_name} does not exist!")
+        return self.monitoring_client_beta.pause_model_deployment_monitoring_job(
+            name=job.name)
+
+
+    def delete_monitoring_job(self, job_name):
+        job = self.get_monitoring_job_by_name(job_name)
+        if not job:
+            raise ValueError(f"Monitoring job {job_name} does not exist!")
+        return self.monitoring_client_beta.delete_model_deployment_monitoring_job(
+            name=job.name)
+        
+        
+        
+
         
     
