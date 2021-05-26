@@ -79,10 +79,10 @@ The [07-continuous-training](07-continuous-training.ipynb) notebook covers the f
 3. Test triggering a pipeline.
 
 
-## (TODO) Model Monitoring
+## Model Monitoring
 
 After a model is deployed in for prediciton serving, continuous monitoring is set up to ensure that the model continue to perform as expected.
-The [09-model-monitoring](09-model-monitoring.ipynb) notebook covers configuring model monitoring jobs for skew and dirft detection:
+The [09-model-monitoring](09-model-monitoring.ipynb) notebook covers configuring [Vertex AI Model Monitoring](https://cloud.google.com/vertex-ai/docs/model-monitoring/overview?hl=nn) for skew and dirft detection:
 1. Set skew and drift threshold.
 2. Create a monitoring job for all the models under and endpoint.
 3. List the monitoring jobs.
