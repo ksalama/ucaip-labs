@@ -22,61 +22,11 @@ import tensorflow_data_validation as tfdv
 import apache_beam as beam
 import tensorflow_transform.beam as tft_beam
 from tensorflow_transform.tf_metadata import dataset_metadata
-from tensorflow_transform.tf_metadata import dataset_schema
 from tensorflow_transform.tf_metadata import schema_utils
 
 from src.preprocessing import transformations
 
 RAW_SCHEMA_LOCATION = "src/raw_schema/schema.pbtxt"
-
-
-# TARGET_FEATURE_NAME = 'tip_bin'
-
-# TARGET_LABELS = ['tip>=20%', 'tip<20%']
-
-# NUMERICAL_FEATURE_NAMES =  [
-#     "trip_seconds",
-#     "trip_miles",
-#     "euclidean",
-# ]
-
-# CATEGORICAL_FEATURES = [
-#     "trip_month",
-#     "trip_day",
-#     "trip_hour",
-#     "pickup_grid",
-#     "dropoff_grid",
-#     "loc_cross",
-#     "payment_type",
-#     "trip_day_of_week"
-# ]
-
-
-# def transformed_name(key: str) -> str:
-#     """Generate the name of the transformed feature from original name."""
-#     return f"{key}_xf"
-
-
-# def preprocessing_fn(inputs):
-#     outputs = {}
-
-#     for key in NUMERICAL_FEATURE_NAMES:
-#         outputs[transformed_name(key)] = tft.scale_to_z_score(inputs[key])
-
-#     for key in CATEGORICAL_FEATURES:
-#         outputs[transformed_name(key)] = tft.compute_and_apply_vocabulary(
-#             inputs[key],
-#             num_oov_buckets=1,
-#             vocab_filename=key,
-#         )
-
-#     outputs[TARGET_FEATURE_NAME] = inputs[TARGET_FEATURE_NAME]
-
-#     for key in outputs:
-#         outputs[key] = tf.squeeze(outputs[key], -1)
-
-
-#     return outputs
 
 
 def parse_bq_record(bq_record):
@@ -118,7 +68,7 @@ def run_transform_pipeline(args):
     ).feature_spec
 
     raw_metadata = dataset_metadata.DatasetMetadata(
-        dataset_schema.from_feature_spec(raw_feature_spec)
+        schema_utils.schema_from_feature_spec(raw_feature_spec)
     )
 
     with beam.Pipeline(options=pipeline_options) as pipeline:
@@ -232,7 +182,7 @@ def run_extract_pipeline(args):
     ).feature_spec
 
     raw_metadata = dataset_metadata.DatasetMetadata(
-        dataset_schema.from_feature_spec(raw_feature_spec)
+        schema_utils.schema_from_feature_spec(raw_feature_spec)
     )
 
     with beam.Pipeline(options=pipeline_options) as pipeline:
