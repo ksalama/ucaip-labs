@@ -1,4 +1,4 @@
-# MLOps on Vertex AI
+# (WIP) MLOps on Vertex AI
 
 ## Getting started
 
@@ -73,13 +73,21 @@ We have the following notebooks for the ML training pipeline:
 After testing, compiling, and uploading the pipeline definition to Cloud Storage, the pipeline is executed with respect to a trigger. 
 We use [Cloud Functions](https://cloud.google.com/functions) and [Cloud Pub/Sub](https://cloud.google.com/pubsub) as a triggering mechanism. 
 
-The [07-continuous-training](07-continuous-training) notebook covers the following steps:
+The [07-continuous-training](07-continuous-training.ipynb) notebook covers the following steps:
 1. Create the Cloud Pub/Sub topic.
 2. Deploy the Cloud Function, which is implemented in [src/pipeline_triggering](src/pipeline_triggering).
 3. Test triggering a pipeline.
 
 
 ## (TODO) Model Monitoring
+
+After a model is deployed in for prediciton serving, continuous monitoring is set up to ensure that the model continue to perform as expected.
+The [09-model-monitoring](09-model-monitoring.ipynb) notebook covers configuring model monitoring jobs for skew and dirft detection:
+1. Set skew and drift threshold.
+2. Create a monitoring job for all the models under and endpoint.
+3. List the monitoring jobs.
+4. List artifacts produced by monitoring job.
+5. Pause and delete the monitoring job.
 
 ## (TODO) ML Metadata Tracking
 
