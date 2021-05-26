@@ -80,3 +80,27 @@ def train(
     logging.info("Model training completed.")
 
     return classifier
+
+
+def evaluate(
+    model,
+    data_dir,
+    raw_schema_location,
+    tft_output_dir,
+    hyperparams
+):
+    logging.info(f"Loading raw schema from {raw_schema_location}")
+    raw_schema = tfdv.load_schema_text(raw_schema_location)
+    raw_feature_spec = schema_utils.schema_as_feature_spec(raw_schema).feature_spec
+
+    logging.info(f"Loading tft output from {tft_output_dir}")
+    tft_output = tft.TFTransformOutput(tft_output_dir)
+    transformed_feature_spec = tft_output.transformed_feature_spec()
+    
+    eval_dataset = data.get_dataset(
+        data_dir,
+        transformed_feature_spec,
+        hyperparams["batch_size"],
+    )
+    
+    return model.evaluate(eval_dataset)
