@@ -31,7 +31,7 @@ DATASET_METADATA_SCHEMA_URI = (
 TRAINING_TAKS_DEFINITION_URI = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml"
 
 
-class AIPUtils:
+class VertexUtils:
     def __init__(self, project, region):
         self.project = project
         self.region = region

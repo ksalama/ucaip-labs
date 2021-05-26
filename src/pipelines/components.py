@@ -59,7 +59,7 @@ SCRIPT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
-from src.utils.ucaip_utils import AIPUtils
+from src.utils.vertex_utils import VertexUtils
 
 
 HYPERPARAM_FILENAME = "hyperparameters.json"
@@ -98,7 +98,7 @@ def vertex_model_uploader(
     uploaded_model: OutputArtifact[UploadedModel],
 ):
 
-    aip_utils = AIPUtils(project, region)
+    vertex_utils = VertexUtils(project, region)
 
     pushed_model_dir = os.path.join(
         pushed_model_location, tf.io.gfile.listdir(pushed_model_location)[-1]
@@ -106,7 +106,7 @@ def vertex_model_uploader(
 
     logging.info(f"Model registry location: {pushed_model_dir}")
 
-    response = aip_utils.upload_model(
+    response = vertex_utils.upload_model(
         model_display_name=model_display_name,
         model_artifact_uri=pushed_model_dir,
         serving_image_uri=serving_image_uri,

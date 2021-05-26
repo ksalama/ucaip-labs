@@ -27,7 +27,7 @@ SCRIPT_DIR = os.path.dirname(
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
 from src.pipelines import runner
-from src.utils.ucaip_utils import AIPUtils
+from src.utils.vertex_utils import VertexUtils
 from google.cloud import storage
 
 SERVING_SPEC_FILEPATH = 'build/serving_resources_spec.json'
@@ -75,16 +75,16 @@ def get_args():
 
 def create_endpoint(project, region, endpoint_display_name):
     logging.info(f"Creating endpoint {endpoint_display_name}")
-    aip_utils = AIPUtils(project, region)
-    result = aip_utils.create_endpoint(endpoint_display_name)
+    vertex_utils = VertexUtils(project, region)
+    result = vertex_utils.create_endpoint(endpoint_display_name)
     logging.info(f"Endpoint is ready.")
     return result
 
 
 def deploy_model(project, region, endpoint_display_name, model_display_name, dedicated_serving_resources_spec):
     logging.info(f"Deploying model {model_display_name} to endpoint {endpoint_display_name}")
-    aip_utils = AIPUtils(project, region)
-    result = aip_utils.deploy_model(
+    vertex_utils = VertexUtils(project, region)
+    result = vertex_utils.deploy_model(
         model_display_name,
         endpoint_display_name,
         dedicated_serving_resources_spec).result()

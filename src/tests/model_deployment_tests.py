@@ -34,7 +34,7 @@ test_instance = {
 
 SERVING_DEFAULT_SIGNATURE_NAME = "serving_default"
 
-from src.utils.ucaip_utils import AIPUtils
+from src.utils.vertex_utils import VertexUtils
 
 
 def test_model_artifact():
@@ -69,8 +69,8 @@ def test_model_artifact():
     assert region, "Environment variable REGION is None!"
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
 
-    aip_utils = AIPUtils(project, region)
-    model_desc = aip_utils.get_model_by_display_name(model_display_name)
+    vertex_utils = VertexUtils(project, region)
+    model_desc = vertex_utils.get_model_by_display_name(model_display_name)
     artifact_uri = model_desc.artifact_uri
     logging.info(f"Model artifact uri:{artifact_uri}")
     assert tf.io.gfile.exists(
@@ -115,15 +115,15 @@ def test_model_endpoint():
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
     assert endpoint_display_name, "Environment variable ENDPOINT_DISPLAY_NAME is None!"
 
-    aip_utils = AIPUtils(project, region)
-    endpoint = aip_utils.get_endpoint_by_display_name(endpoint_display_name)
+    vertex_utils = VertexUtils(project, region)
+    endpoint = vertex_utils.get_endpoint_by_display_name(endpoint_display_name)
     assert (
         endpoint
     ), f"Endpoint with display name {endpoint_display_name} does not exist! in region {region}"
 
     logging.info(f"Calling endpoint: {endpoint}.")
 
-    response = aip_utils.predict_tabular_classifier(endpoint.name, test_instance)
+    response = vertex_utils.predict_tabular_classifier(endpoint.name, test_instance)
     prediction = dict(list(response.predictions)[0])
 
     keys = ["classes", "scores"]

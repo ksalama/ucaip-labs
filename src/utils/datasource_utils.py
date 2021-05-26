@@ -13,16 +13,16 @@
 # limitations under the License.
 """Utilities for generating BigQuery data querying scirpts."""
 
-from src.utils.ucaip_utils import AIPUtils
+from src.utils.vertex_utils import VertexUtils
 
 
 def get_training_source_query(
     project, region, dataset_display_name, data_split, limit=None
 ):
 
-    aip_utils = AIPUtils(project, region)
+    vertex_utils = VertexUtils(project, region)
 
-    dataset = aip_utils.get_dataset_by_display_name(dataset_display_name)
+    dataset = vertex_utils.get_dataset_by_display_name(dataset_display_name)
     bq_source_uri = dataset.metadata["inputConfig"]["bigquerySource"]["uri"]
     _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split(".")
 
