@@ -97,10 +97,14 @@ def evaluate(
     tft_output = tft.TFTransformOutput(tft_output_dir)
     transformed_feature_spec = tft_output.transformed_feature_spec()
     
+    logging.info("Model evaluation started...")
     eval_dataset = data.get_dataset(
         data_dir,
         transformed_feature_spec,
         hyperparams["batch_size"],
     )
     
-    return model.evaluate(eval_dataset)
+    evaluation_metrics = model.evaluate(eval_dataset)
+    logging.info("Model evaluation completed.")
+    
+    return evaluation_metrics
