@@ -52,6 +52,16 @@ The [04-prediction-serving](04-prediction-serving.ipynb) notebook covers:
 1. Use the endpoint for online prediction.
 2. Use the uploaded model for batch prediciton.
 
+## Model Monitoring
+
+After a model is deployed in for prediciton serving, continuous monitoring is set up to ensure that the model continue to perform as expected.
+The [05-model-monitoring](05-model-monitoring.ipynb) notebook covers configuring [Vertex AI Model Monitoring](https://cloud.google.com/vertex-ai/docs/model-monitoring/overview?hl=nn) for skew and dirft detection:
+1. Set skew and drift threshold.
+2. Create a monitoring job for all the models under and endpoint.
+3. List the monitoring jobs.
+4. List artifacts produced by monitoring job.
+5. Pause and delete the monitoring job.
+
 ## Training Operationalization
 
 We build an end-to-end [TFX training pipeline](tfx_pipline) that performs the following steps:
@@ -65,31 +75,18 @@ We build an end-to-end [TFX training pipeline](tfx_pipline) that performs the fo
 8. Upload the model to Vertex AI using aip_model_pusher custom python component.
 
 We have the following notebooks for the ML training pipeline:
-1. The [05-tfx-interactive](05-tfx-interactive.ipynb) notebook covers testing the pipeline components interactively.
-2. The [06-pipeline-deployment](06-pipeline-deployment.ipynb) notebook covers compiling and running the pipeline to [Vertex AI Pipelines](https://cloud.google.com/vertex-ai/docs/pipelines/introduction?hl=nn).
+1. The [06-tfx-interactive](06-tfx-interactive.ipynb) notebook covers testing the pipeline components interactively.
+2. The [07-pipeline-deployment](07-pipeline-deployment.ipynb) notebook covers compiling and running the pipeline to [Vertex AI Pipelines](https://cloud.google.com/vertex-ai/docs/pipelines/introduction?hl=nn).
 
 ## Continuous Training
 
 After testing, compiling, and uploading the pipeline definition to Cloud Storage, the pipeline is executed with respect to a trigger. 
 We use [Cloud Functions](https://cloud.google.com/functions) and [Cloud Pub/Sub](https://cloud.google.com/pubsub) as a triggering mechanism. 
 
-The [07-continuous-training](07-continuous-training.ipynb) notebook covers the following steps:
+The [08-continuous-training](08-continuous-training.ipynb) notebook covers the following steps:
 1. Create the Cloud Pub/Sub topic.
 2. Deploy the Cloud Function, which is implemented in [src/pipeline_triggering](src/pipeline_triggering).
 3. Test triggering a pipeline.
-
-
-## Model Monitoring
-
-After a model is deployed in for prediciton serving, continuous monitoring is set up to ensure that the model continue to perform as expected.
-The [09-model-monitoring](09-model-monitoring.ipynb) notebook covers configuring [Vertex AI Model Monitoring](https://cloud.google.com/vertex-ai/docs/model-monitoring/overview?hl=nn) for skew and dirft detection:
-1. Set skew and drift threshold.
-2. Create a monitoring job for all the models under and endpoint.
-3. List the monitoring jobs.
-4. List artifacts produced by monitoring job.
-5. Pause and delete the monitoring job.
-
-## (TODO) ML Metadata Tracking
 
 
 
