@@ -23,6 +23,7 @@ from google.protobuf.struct_pb2 import Value
 from google.protobuf.duration_pb2 import Duration
 from google.cloud.aiplatform import gapic as aip
 from google.cloud import aiplatform_v1beta1 as aip_beta
+from google.cloud import aiplatform as vertex_ai
 import tensorflow.io as tf_io
 
 DATASET_METADATA_SCHEMA_URI = (
@@ -32,9 +33,10 @@ TRAINING_TAKS_DEFINITION_URI = "gs://google-cloud-aiplatform/schema/trainingjob/
 
 
 class VertexUtils:
-    def __init__(self, project, region):
+    def __init__(self, project, region, staging_bucket=None):
         self.project = project
         self.region = region
+        self.staging_bucket = staging_bucket
         self.parent = f"projects/{project}/locations/{region}"
         self.aip_endpoint = f"{region}-aiplatform.googleapis.com"
         self.client_options = {"api_endpoint": self.aip_endpoint}
@@ -69,6 +71,32 @@ class VertexUtils:
 
         # Validate the uniqueness of the endpoint display names.
         self.list_endpoints()
+        
+        
+    def set_experiment(self, experiment):
+        vertex_ai.init(
+            project=self.project,
+            location=self.region,
+            staging_bucket=self.staging_bucket,
+            experiment=experiment
+        )
+        
+    def start_experiment_run(self, experiment_name=None, run_name=None):
+        if experiment_name:
+            self.set_experiment(experiment_name)
+        if not run_name:
+            run_name = f"run-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        vertex_ai.start_run(run_name)
+        return run_name
+    
+    def get_experiment_df(self, experiment_name):
+        return vertex_ai.get_experiment_df(experiment_name)
+    
+    def log_params(self, params):
+        vertex_ai.log_params(params)
+        
+    def log_metrics(self, metrics):
+        vertex_ai.log_metrics(params)
 
     def list_datasets(self):
         datasets = self.dataset_client.list_datasets(parent=self.parent)

@@ -21,8 +21,7 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 import argparse
 
-from google.cloud import aiplatform as vertex_metadata
-
+from src.utils.vertex_utils import VertexUtils
 from src.model_training import defaults, trainer, exporter
 
 dirname = os.path.dirname(__file__)
@@ -70,7 +69,7 @@ def get_args():
     
     parser.add_argument("--project", type=str)
     parser.add_argument("--region", type=str)
-    parser.add_argument("--bucket", type=str)
+    parser.add_argument("--staging-bucket", type=str)
     parser.add_argument("--experiment-name", type=str)
 
     return parser.parse_args()
@@ -84,21 +83,21 @@ def main():
     logging.info(f"Hyperparameter: {hyperparams}")
     logging.info("")
     
+    vertex_utils = VertexUtils(
+        project=args.project,
+        location=args.region, 
+        staging_bucket=args.staging_bucket)
+    
     if args.experiment_name:
-        vertex_metadata.init(
-            project=args.project,
-            location=args.region,
-            staging_bucket=args.bucket,
-            experiment=args.experiment_name,
-        )
+        vertex_utils.set_experiment(experiment=args.experiment_name)
         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
         run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        vertex_metadata.start_run(run_id)
+        vertex_utils.start_experiment_run(run_id)
         logging.info(f"Run {run_id} started.")
         
     
     if args.experiment_name:
-        vertex_metadata.log_params(hyperparams)
+        vertex_utils.log_params(hyperparams)
 
     classifier = trainer.train(
         train_data_dir=args.train_data_dir,
@@ -118,7 +117,7 @@ def main():
     )
     
     if args.experiment_name:
-        vertex_metadata.log_metrics(
+        vertex_utils.log_metrics(
             {"val_loss": val_loss, "val_accuracy": val_accuracy})
 
     exporter.export_serving_model(
