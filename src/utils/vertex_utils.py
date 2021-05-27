@@ -22,7 +22,7 @@ from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 from google.protobuf.duration_pb2 import Duration
 from google.cloud.aiplatform import gapic as aip
-from google.cloud import aiplatform_v1beta1 as aip_beta
+from google.cloud import aiplatform_v1beta1 as vertex_ai_beta
 from google.cloud import aiplatform as vertex_ai
 import tensorflow.io as tf_io
 
@@ -56,10 +56,10 @@ class VertexUtils:
         self.prediction_client = aip.PredictionServiceClient(
             client_options=self.client_options
         )
-        self.prediction_client_beta = aip_beta.PredictionServiceClient(
+        self.prediction_client_beta = vertex_ai_beta.PredictionServiceClient(
             client_options=self.client_options
         )
-        self.monitoring_client_beta = aip_beta.JobServiceClient(
+        self.monitoring_client_beta = vertex_ai_beta.JobServiceClient(
             client_options=self.client_options
         )
 
@@ -71,16 +71,15 @@ class VertexUtils:
 
         # Validate the uniqueness of the endpoint display names.
         self.list_endpoints()
-        
-        
+
     def set_experiment(self, experiment):
         vertex_ai.init(
             project=self.project,
             location=self.region,
             staging_bucket=self.staging_bucket,
-            experiment=experiment
+            experiment=experiment,
         )
-        
+
     def start_experiment_run(self, experiment_name=None, run_name=None):
         if experiment_name:
             self.set_experiment(experiment_name)
@@ -88,13 +87,13 @@ class VertexUtils:
             run_name = f"run-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         vertex_ai.start_run(run_name)
         return run_name
-    
+
     def get_experiment_df(self, experiment_name):
         return vertex_ai.get_experiment_df(experiment_name)
-    
+
     def log_params(self, params):
         vertex_ai.log_params(params)
-        
+
     def log_metrics(self, metrics):
         vertex_ai.log_metrics(params)
 
@@ -429,52 +428,52 @@ class VertexUtils:
         model_ids = [model.id for model in endpoint.deployed_models]
 
         skew_thresholds = {
-            feature: aip_beta.ThresholdConfig(value=float(value))
+            feature: vertex_ai_beta.ThresholdConfig(value=float(value))
             for feature, value in skew_thresholds.items()
         }
 
         drift_thresholds = {
-            feature: aip_beta.ThresholdConfig(value=float(value))
+            feature: vertex_ai_beta.ThresholdConfig(value=float(value))
             for feature, value in drift_thresholds.items()
         }
 
-        skew_config = aip_beta.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
+        skew_config = vertex_ai_beta.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
             skew_thresholds=skew_thresholds
         )
         drift_config = (
-            aip_beta.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
+            vertex_ai_beta.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
                 drift_thresholds=drift_thresholds
             )
         )
 
-        random_sampling = aip_beta.SamplingStrategy.RandomSampleConfig(
+        random_sampling = vertex_ai_beta.SamplingStrategy.RandomSampleConfig(
             sample_rate=log_sample_rate
         )
-        sampling_config = aip_beta.SamplingStrategy(
+        sampling_config = vertex_ai_beta.SamplingStrategy(
             random_sample_config=random_sampling
         )
 
         duration = Duration(seconds=monitor_interval)
-        schedule_config = aip_beta.ModelDeploymentMonitoringScheduleConfig(
+        schedule_config = vertex_ai_beta.ModelDeploymentMonitoringScheduleConfig(
             monitor_interval=duration
         )
 
         dataset = self.get_dataset_by_display_name(dataset_display_name)
         bq_source_uri = dataset.metadata["inputConfig"]["bigquerySource"]["uri"]
 
-        training_dataset = aip_beta.ModelMonitoringObjectiveConfig.TrainingDataset(
+        training_dataset = vertex_ai_beta.ModelMonitoringObjectiveConfig.TrainingDataset(
             target_field=target_field
         )
-        training_dataset.bigquery_source = aip_beta.types.io.BigQuerySource(
+        training_dataset.bigquery_source = vertex_ai_beta.types.io.BigQuerySource(
             input_uri=bq_source_uri
         )
-        objective_config = aip_beta.ModelMonitoringObjectiveConfig(
+        objective_config = vertex_ai_beta.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
             training_prediction_skew_detection_config=skew_config,
             prediction_drift_detection_config=drift_config,
         )
 
-        objective_template = aip_beta.ModelDeploymentMonitoringObjectiveConfig(
+        objective_template = vertex_ai_beta.ModelDeploymentMonitoringObjectiveConfig(
             objective_config=objective_config
         )
 
@@ -491,7 +490,7 @@ class VertexUtils:
                 email_alert_config=email_config
             )
 
-        job = aip_beta.ModelDeploymentMonitoringJob(
+        job = vertex_ai_beta.ModelDeploymentMonitoringJob(
             display_name=job_name,
             endpoint=endpoint.name,
             model_deployment_monitoring_objective_configs=deployment_objective_configs,
