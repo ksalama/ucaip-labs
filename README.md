@@ -29,10 +29,11 @@ The [01-dataset-management](01-dataset-management.ipynb) notebook covers:
 ## Experimentation
 
 We experiment with creating a [Custom Model](https://cloud.google.com/ai-platform-unified/docs/training/create-model-custom-training) the using [02-experimentation](02-experimentation.ipynb) notebook, which covers:
-1. Preparing the data using Dataflow
-2. Implementing a Keras classification model
-3. Training the Keras model in Vertex AI using a [pre-built container](https://cloud.google.com/ai-platform-unified/docs/training/pre-built-containers)
+1. Preparing the data using Dataflow.
+2. Implementing a Keras classification model.
+3. Training the Keras model in Vertex AI using a [pre-built container](https://cloud.google.com/ai-platform-unified/docs/training/pre-built-containers).
 4. Upload the exported model from Cloud Storage to Vertex AI as a Model.
+5. Exract and visualize experiment parameters from [Vertex AI Metadata](https://cloud.google.com/vertex-ai/docs/ml-metadata/introduction).
 
 ## Model Deployment
 We use [Cloud Build](https://cloud.google.com/build) test and deploy the uploaded model to [Vertex AI Prediction](https://cloud.google.com/vertex-ai/docs/predictions/getting-predictions?hl=nn).
