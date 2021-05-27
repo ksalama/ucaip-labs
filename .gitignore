@@ -8,7 +8,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
 develop-eggs/
 dist/
 downloads/
@@ -80,6 +79,7 @@ target/
 # IPython
 profile_default/
 ipython_config.py
+.idea/
 
 # pyenv
 .python-version
