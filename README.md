@@ -90,7 +90,7 @@ The [08-continuous-training](08-continuous-training.ipynb) notebook covers the f
 3. Test triggering a pipeline.
 
 
-# Metadata Tracking
+## Metadata Tracking
 
 You can view the parameters and metrics logged by your experiments, as well as the artifacts and metadata stored by 
 your Vertex AI Pipelines in [Cloud Console](https://pantheon.corp.google.com/vertex-ai/metadata).
