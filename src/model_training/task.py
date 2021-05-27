@@ -66,7 +66,7 @@ def get_args():
     parser.add_argument("--hidden-units", default="64,32", type=str)
 
     parser.add_argument("--num-epochs", default=10, type=int)
-    
+
     parser.add_argument("--project", type=str)
     parser.add_argument("--region", type=str)
     parser.add_argument("--staging-bucket", type=str)
@@ -82,20 +82,18 @@ def main():
     hyperparams = defaults.update_hyperparams(hyperparams)
     logging.info(f"Hyperparameter: {hyperparams}")
     logging.info("")
-    
+
     vertex_utils = VertexUtils(
-        project=args.project,
-        location=args.region, 
-        staging_bucket=args.staging_bucket)
-    
+        project=args.project, location=args.region, staging_bucket=args.staging_bucket
+    )
+
     if args.experiment_name:
         vertex_utils.set_experiment(experiment=args.experiment_name)
         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
         run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         vertex_utils.start_experiment_run(run_id)
         logging.info(f"Run {run_id} started.")
-        
-    
+
     if args.experiment_name:
         vertex_utils.log_params(hyperparams)
 
@@ -107,7 +105,7 @@ def main():
         hyperparams=hyperparams,
         log_dir=args.log_dir,
     )
-    
+
     val_loss, val_accuracy = trainer.evaluate(
         model=classifier,
         data_dir=args.eval_data_dir,
@@ -115,10 +113,9 @@ def main():
         tft_output_dir=args.tft_output_dir,
         hyperparams=hyperparams,
     )
-    
+
     if args.experiment_name:
-        vertex_utils.log_metrics(
-            {"val_loss": val_loss, "val_accuracy": val_accuracy})
+        vertex_utils.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
 
     exporter.export_serving_model(
         classifier=classifier,

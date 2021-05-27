@@ -94,7 +94,7 @@ def export_serving_model(
             tf.TensorSpec(shape=[None], dtype=tf.string, name="examples")
         ),
     }
-    
+
     logging.info("Model export started...")
     tf.saved_model.save(classifier, serving_model_dir, signatures=signatures)
     logging.info("Model export completed.")
