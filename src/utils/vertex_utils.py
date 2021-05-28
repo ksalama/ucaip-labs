@@ -23,7 +23,7 @@ from google.cloud import aiplatform as vertex_ai
 from google.cloud import aiplatform_v1beta1 as vertex_ai_beta
 
 
-DEFAULT_CUSTOM_TRAINING_JOB_PREFIX = 'custom-job'
+DEFAULT_CUSTOM_TRAINING_JOB_PREFIX = "custom-job"
 
 DATASET_METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml"
@@ -33,22 +33,24 @@ TRAINING_TAKS_DEFINITION_URI = "gs://google-cloud-aiplatform/schema/trainingjob/
 
 class VertexClient:
     def __init__(self, project, region, staging_bucket=None):
-        
+
         self.project = project
         self.region = region
         self.staging_bucket = staging_bucket
-        
+
         self.parent = f"projects/{project}/locations/{region}"
         self.client_options = {"api_endpoint": f"{region}-aiplatform.googleapis.com"}
-        self.training_job_client = aip.JobServiceClient(client_options=self.client_options)
+        self.training_job_client = aip.JobServiceClient(
+            client_options=self.client_options
+        )
         self.monitoring_client_beta = vertex_ai_beta.JobServiceClient(
             client_options=self.client_options
         )
-        
+
         vertex_ai.init(
             project=self.project,
             location=self.region,
-            staging_bucket=self.staging_bucket
+            staging_bucket=self.staging_bucket,
         )
 
         # Validate the uniqueness of the datasets display names.
@@ -59,22 +61,24 @@ class VertexClient:
 
         # Validate the uniqueness of the endpoint display names.
         self.list_endpoints()
-        
-        logging.info(f"Uniquness of objects in project:{project} region:{region} validated.")
+
+        logging.info(
+            f"Uniquness of objects in project:{project} region:{region} validated."
+        )
         logging.info(f"Vertex AI client initialized.")
-    
+
     #####################################################################################
-    # Dataset methods 
+    # Dataset methods
     #####################################################################################
-    
+
     def list_datasets(self):
-        datasets =  vertex_ai.TabularDataset.list()
+        datasets = vertex_ai.TabularDataset.list()
         dataset_display_names = [dataset.display_name for dataset in datasets]
         assert len(dataset_display_names) == len(
             set(dataset_display_names)
         ), "Dataset display names are not unique."
         return datasets
-    
+
     def get_dataset_by_display_name(self, display_name: str):
         dataset = None
 
@@ -83,9 +87,9 @@ class VertexClient:
             if entry.display_name == display_name:
                 dataset = entry
                 break
-                
+
         return dataset
-    
+
     def create_dataset_bq(self, display_name: str, bq_uri: str):
         if self.get_dataset_by_display_name(display_name):
             raise ValueError(
@@ -93,12 +97,11 @@ class VertexClient:
             )
 
         return vertex_ai.TabularDataset.create(
-            display_name=display_name,
-            bq_source=bq_uri
+            display_name=display_name, bq_source=bq_uri
         )
-    
+
     #####################################################################################
-    # ML metadata methods 
+    # ML metadata methods
     #####################################################################################
 
     def set_experiment(self, experiment):
@@ -125,17 +128,17 @@ class VertexClient:
 
     def log_metrics(self, metrics):
         vertex_ai.log_metrics(metrics)
-        
+
     #####################################################################################
-    # Model training methods 
+    # Model training methods
     #####################################################################################
-    
+
     def submit_custom_job(
-        self, training_spec: dict, training_dir: str, display_name_prefix: str=None
+        self, training_spec: dict, training_dir: str, display_name_prefix: str = None
     ):
         if not display_name_prefix:
             display_name_prefix = DEFAULT_CUSTOM_TRAINING_JOB_PREFIX
-            
+
         job_display_name = (
             f"train_{display_name_prefix}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
         )
@@ -153,14 +156,13 @@ class VertexClient:
         )
         return job
 
-
     def get_custom_training_job_by_uri(self, job_uri: str):
         return self.training_job_client.get_custom_job(name=job_uri)
-        
+
     #####################################################################################
-    # Model methods 
+    # Model methods
     #####################################################################################
-    
+
     def list_models(self):
         models = vertex_ai.Model.list()
         model_display_names = [model.display_name for model in models]
@@ -183,26 +185,26 @@ class VertexClient:
         model_artifact_uri: str,
         serving_image_uri: str,
         instance_schema_uri: str = None,
-        parameters_schema_uri: str = None
+        parameters_schema_uri: str = None,
     ):
 
         if self.get_model_by_display_name(display_name):
             raise ValueError(
                 f"Model with the Display Name {display_name} already exists."
             )
-        
+
         return vertex_ai.Model.upload(
             display_name=display_name,
             artifact_uri=model_artifact_uri,
             serving_container_image_uri=serving_image_uri,
             parameters_schema_uri=parameters_schema_uri,
-            instance_schema_uri=instance_schema_uri
+            instance_schema_uri=instance_schema_uri,
         )
-    
+
     #####################################################################################
-    # Endpoint methods 
+    # Endpoint methods
     #####################################################################################
-    
+
     def list_endpoints(self):
         endpoints = vertex_ai.Endpoint.list()
         endpoint_display_names = [endpoint.display_name for endpoint in endpoints]
@@ -217,9 +219,9 @@ class VertexClient:
         for entry in endpoints:
             if entry.display_name == endpoint_display_name:
                 endpoint = entry
-                break 
+                break
         return endpoint
-    
+
     def create_endpoint(self, display_name: str, raise_error_if_exists: bool = False):
         endpoint = self.get_endpoint_by_display_name(display_name)
         if endpoint:
@@ -231,21 +233,21 @@ class VertexClient:
         else:
             endpoint = vertex_ai.Endpoint.create(display_name)
         return endpoint
-    
+
     def get_deployed_models(self, endpoint_display_name: str):
         endpoint = self.get_endpoint_by_display_name(endpoint_display_name)
         if not endpoint:
             raise ValueError(
-                f"Endpoint with the Display Name {endpoint_display_name} does not exist.")
-        
+                f"Endpoint with the Display Name {endpoint_display_name} does not exist."
+            )
+
         return endpoint.list_models()
-            
 
     def deploy_model(
         self,
         model_display_name: str,
         endpoint_display_name: str,
-        serving_resources_spec: dict
+        serving_resources_spec: dict,
     ):
 
         model = self.get_model_by_display_name(model_display_name)
@@ -259,22 +261,19 @@ class VertexClient:
             raise ValueError(
                 f"Endpoint with Display Name {endpoint_display_name} does not exists."
             )
-            
-        endpoint.deploy(
-            model=model,
-            **serving_resources_spec
-        )
-        
+
+        endpoint.deploy(model=model, **serving_resources_spec)
+
         for deployed_model in endpoint.list_models():
             if deployed_model.display_name == model_display_name:
                 break
 
         return deployed_model
-    
+
     #####################################################################################
-    # Online prediction methods 
+    # Online prediction methods
     #####################################################################################
-    
+
     def predict(self, endpoint_display_name: str, instances: list):
         endpoint = self.get_endpoint_by_display_name(endpoint_display_name)
         # ISSUE: endpoint.predict craches without this line!
@@ -284,9 +283,9 @@ class VertexClient:
     def explain(self, endpoint_display_name: str, instances: list):
         endpoint = self.get_endpoint_by_display_name(endpoint_display_name)
         return endpoint.explain(instances)
-    
+
     #####################################################################################
-    # Batch prediction methods 
+    # Batch prediction methods
     #####################################################################################
 
     def submit_batch_prediction_job(
@@ -299,7 +298,6 @@ class VertexClient:
         other_configurations: dict = None,
     ):
 
-        
         model = self.get_model_by_display_name(model_display_name)
         if not model:
             raise ValueError(
@@ -307,7 +305,7 @@ class VertexClient:
             )
 
         job_name = f"batch_predict_{model_display_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        
+
         return vertex_ai.BatchPredictionJob.create(
             job_display_name=job_name,
             model_name=model.name,
@@ -315,11 +313,11 @@ class VertexClient:
             gcs_destination_prefix=gcs_destination_prefix,
             instances_format=instances_format,
             predictions_format=predictions_format,
-            **other_configurations
+            **other_configurations,
         )
-    
+
     #####################################################################################
-    # Monitoring methods 
+    # Monitoring methods
     #####################################################################################
 
     def create_monitoring_job(
@@ -359,10 +357,8 @@ class VertexClient:
         skew_config = vertex_ai_beta.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
             skew_thresholds=skew_thresholds
         )
-        drift_config = (
-            vertex_ai_beta.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
-                drift_thresholds=drift_thresholds
-            )
+        drift_config = vertex_ai_beta.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
+            drift_thresholds=drift_thresholds
         )
 
         random_sampling = vertex_ai_beta.SamplingStrategy.RandomSampleConfig(
@@ -378,10 +374,14 @@ class VertexClient:
         )
 
         dataset = self.get_dataset_by_display_name(dataset_display_name)
-        bq_source_uri = dataset.gca_resource.metadata["inputConfig"]["bigquerySource"]["uri"]
+        bq_source_uri = dataset.gca_resource.metadata["inputConfig"]["bigquerySource"][
+            "uri"
+        ]
 
-        training_dataset = vertex_ai_beta.ModelMonitoringObjectiveConfig.TrainingDataset(
-            target_field=target_field
+        training_dataset = (
+            vertex_ai_beta.ModelMonitoringObjectiveConfig.TrainingDataset(
+                target_field=target_field
+            )
         )
         training_dataset.bigquery_source = vertex_ai_beta.types.io.BigQuerySource(
             input_uri=bq_source_uri
@@ -406,7 +406,8 @@ class VertexClient:
 
         if notify_emails:
             email_config = vertex_ai_beta.ModelMonitoringAlertConfig.EmailAlertConfig(
-                user_emails=notify_emails)
+                user_emails=notify_emails
+            )
             alerting_config = vertex_ai_beta.ModelMonitoringAlertConfig(
                 email_alert_config=email_config
             )

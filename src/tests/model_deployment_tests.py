@@ -125,7 +125,8 @@ def test_model_endpoint():
     logging.info(f"Calling endpoint: {endpoint}.")
 
     prediction = vertex_client.predict(
-        endpoint_display_name, [test_instance]).predictions[0]
+        endpoint_display_name, [test_instance]
+    ).predictions[0]
 
     keys = ["classes", "scores"]
     for key in keys:

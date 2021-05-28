@@ -23,7 +23,9 @@ def get_training_source_query(
     vertex_client = VertexClient(project, region)
 
     dataset = vertex_client.get_dataset_by_display_name(dataset_display_name)
-    bq_source_uri = dataset.gca_resource.metadata["inputConfig"]["bigquerySource"]["uri"]
+    bq_source_uri = dataset.gca_resource.metadata["inputConfig"]["bigquerySource"][
+        "uri"
+    ]
     _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split(".")
 
     query = f"""
