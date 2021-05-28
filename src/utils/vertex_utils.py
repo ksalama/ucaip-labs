@@ -95,7 +95,7 @@ class VertexUtils:
         vertex_ai.log_params(params)
 
     def log_metrics(self, metrics):
-        vertex_ai.log_metrics(params)
+        vertex_ai.log_metrics(metrics)
 
     def list_datasets(self):
         datasets = self.dataset_client.list_datasets(parent=self.parent)
