@@ -26,8 +26,7 @@ SCRIPT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
-from src.pipelines import runner
-from src.utils.vertex_utils import VertexUtils
+from src.utils.vertex_utils import VertexClient
 from google.cloud import storage
 
 SERVING_SPEC_FILEPATH = 'build/serving_resources_spec.json'
@@ -75,24 +74,27 @@ def get_args():
 
 def create_endpoint(project, region, endpoint_display_name):
     logging.info(f"Creating endpoint {endpoint_display_name}")
-    vertex_utils = VertexUtils(project, region)
-    result = vertex_utils.create_endpoint(endpoint_display_name)
+    vertex_client = VertexClient(project, region)
+    endpoint = vertex_client.create_endpoint(endpoint_display_name)
     logging.info(f"Endpoint is ready.")
-    return result
+    logging.info(endpoint.gca_resource)
+    return endpoint
 
 
-def deploy_model(project, region, endpoint_display_name, model_display_name, dedicated_serving_resources_spec):
+def deploy_model(project, region, endpoint_display_name, model_display_name, serving_resources_spec):
     logging.info(f"Deploying model {model_display_name} to endpoint {endpoint_display_name}")
-    vertex_utils = VertexUtils(project, region)
-    result = vertex_utils.deploy_model(
+    vertex_client = VertexClient(project, region)
+    deployed_model = vertex_client.deploy_model(
         model_display_name,
         endpoint_display_name,
-        dedicated_serving_resources_spec).result()
-    logging.info(f"Model {model_display_name} is deployed.")
+        serving_resources_spec)
+    logging.info(f"Model is deployed.")
+    logging.info(deployed_model)
     return result
 
 
 def compile_pipeline(pipeline_name):
+    from src.pipelines import runner
     pipeline_definition_file = f"{pipeline_name}.json"
     pipeline_definition = runner.compile_pipeline(pipeline_definition_file)
     return pipeline_definition
@@ -127,14 +129,14 @@ def main():
             raise ValueError("model-display-name must be supplied.")
             
         with open(SERVING_SPEC_FILEPATH) as json_file:
-            dedicated_serving_resources_spec = json.load(json_file)
-        logging.info(f"serving resources: {dedicated_serving_resources_spec}")
+            serving_resources_spec = json.load(json_file)
+        logging.info(f"serving resources: {serving_resources_spec}")
         result = deploy_model(
             args.project, 
             args.region, 
             args.endpoint_display_name, 
             args.model_display_name,
-            dedicated_serving_resources_spec
+            serving_resources_spec
         )
         
     elif args.mode == 'compile-pipeline':

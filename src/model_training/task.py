@@ -21,7 +21,7 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 import argparse
 
-from src.utils.vertex_utils import VertexUtils
+from src.utils.vertex_utils import VertexClient
 from src.model_training import defaults, trainer, exporter
 
 dirname = os.path.dirname(__file__)
@@ -81,10 +81,9 @@ def main():
     hyperparams = vars(args)
     hyperparams = defaults.update_hyperparams(hyperparams)
     logging.info(f"Hyperparameter: {hyperparams}")
-    logging.info("")
 
-    vertex_utils = VertexUtils(
-        project=args.project, location=args.region, staging_bucket=args.staging_bucket
+    vertex_utils = VertexClient(
+        project=args.project, region=args.region, staging_bucket=args.staging_bucket
     )
 
     if args.experiment_name:
@@ -131,4 +130,6 @@ if __name__ == "__main__":
     logging.info(f"TensorFlow Version = {tf.__version__}")
     logging.info(f'TF_CONFIG = {os.environ.get("TF_CONFIG", "Not found")}')
     logging.info(f"DEVICES = {device_lib.list_local_devices()}")
+    logging.info(f"Task started...")
     main()
+    logging.info(f"Task completed.")
