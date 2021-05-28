@@ -82,19 +82,19 @@ def main():
     hyperparams = defaults.update_hyperparams(hyperparams)
     logging.info(f"Hyperparameter: {hyperparams}")
 
-    vertex_utils = VertexClient(
+    vertex_client = VertexClient(
         project=args.project, region=args.region, staging_bucket=args.staging_bucket
     )
 
     if args.experiment_name:
-        vertex_utils.set_experiment(experiment=args.experiment_name)
+        vertex_client.set_experiment(experiment=args.experiment_name)
         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
         run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        vertex_utils.start_experiment_run(run_id)
+        vertex_client.start_experiment_run(run_id)
         logging.info(f"Run {run_id} started.")
 
     if args.experiment_name:
-        vertex_utils.log_params(hyperparams)
+        vertex_client.log_params(hyperparams)
 
     classifier = trainer.train(
         train_data_dir=args.train_data_dir,
@@ -114,7 +114,7 @@ def main():
     )
 
     if args.experiment_name:
-        vertex_utils.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
+        vertex_client.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
 
     exporter.export_serving_model(
         classifier=classifier,
