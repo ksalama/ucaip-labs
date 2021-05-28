@@ -17,15 +17,10 @@ import logging
 import copy
 from datetime import datetime
 
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
 from google.protobuf.duration_pb2 import Duration
-
 from google.cloud.aiplatform import gapic as aip
 from google.cloud import aiplatform as vertex_ai
 from google.cloud import aiplatform_v1beta1 as vertex_ai_beta
-
-import tensorflow.io as tf_io
 
 
 DEFAULT_CUSTOM_TRAINING_JOB_PREFIX = 'custom-job'
@@ -160,7 +155,7 @@ class VertexClient:
 
 
     def get_custom_training_job_by_uri(self, job_uri: str):
-        return self.job_client.get_custom_job(name=job_uri)
+        return self.training_job_client.get_custom_job(name=job_uri)
         
     #####################################################################################
     # Model methods 
@@ -301,7 +296,7 @@ class VertexClient:
         gcs_destination_prefix: str,
         instances_format: str,
         predictions_format: str = "jsonl",
-        other_configurations: dict = {},
+        other_configurations: dict = None,
     ):
 
         
@@ -319,12 +314,9 @@ class VertexClient:
             gcs_source=gcs_source_pattern,
             gcs_destination_prefix=gcs_destination_prefix,
             instances_format=instances_format,
-            predictions_format=instances_format,
+            predictions_format=predictions_format,
             **other_configurations
         )
-    
-    def get_batch_prediction_job_by_uri(self, job_uri: str):
-        return self.job_client.get_batch_prediction_job(name=job_uri)
     
     #####################################################################################
     # Monitoring methods 
@@ -413,7 +405,9 @@ class VertexClient:
         alerting_config = None
 
         if notify_emails:
-            alerting_config = ModelMonitoringAlertConfig(
+            email_config = vertex_ai_beta.ModelMonitoringAlertConfig.EmailAlertConfig(
+                user_emails=notify_emails)
+            alerting_config = vertex_ai_beta.ModelMonitoringAlertConfig(
                 email_alert_config=email_config
             )
 
