@@ -40,7 +40,7 @@ class VertexClient:
 
         self.parent = f"projects/{project}/locations/{region}"
         self.client_options = {"api_endpoint": f"{region}-aiplatform.googleapis.com"}
-        self.training_job_client = aip.JobServiceClient(
+        self.job_client = aip.JobServiceClient(
             client_options=self.client_options
         )
         self.monitoring_client_beta = vertex_ai_beta.JobServiceClient(
@@ -151,13 +151,13 @@ class VertexClient:
             },
         }
 
-        job = self.training_job_client.create_custom_job(
+        job = self.job_client.create_custom_job(
             parent=self.parent, custom_job=custom_job
         )
         return job
 
-    def get_custom_training_job_by_uri(self, job_uri: str):
-        return self.training_job_client.get_custom_job(name=job_uri)
+    def get_custom_job_by_uri(self, job_uri: str):
+        return self.job_client.get_custom_job(name=job_uri)
 
     #####################################################################################
     # Model methods
