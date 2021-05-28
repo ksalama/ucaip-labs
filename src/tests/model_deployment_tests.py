@@ -124,8 +124,8 @@ def test_model_endpoint():
 
     logging.info(f"Calling endpoint: {endpoint}.")
 
-    response = vertex_utils.predict_tabular_classifier(endpoint.name, test_instance)
-    prediction = dict(list(response.predictions)[0])
+    prediction = vertex_client.predict(
+        endpoint_display_name, [test_instance]).predictions[0]
 
     keys = ["classes", "scores"]
     for key in keys:
