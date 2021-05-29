@@ -99,7 +99,6 @@ def main():
     classifier = trainer.train(
         train_data_dir=args.train_data_dir,
         eval_data_dir=args.eval_data_dir,
-        raw_schema_location=RAW_SCHEMA_LOCATION,
         tft_output_dir=args.tft_output_dir,
         hyperparams=hyperparams,
         log_dir=args.log_dir,

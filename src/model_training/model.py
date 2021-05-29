@@ -13,10 +13,7 @@
 # limitations under the License.
 """A DNN keras classification model."""
 
-import os
-import logging
 import tensorflow as tf
-import tensorflow_transform as tft
 from tensorflow import keras
 
 from src.common import features

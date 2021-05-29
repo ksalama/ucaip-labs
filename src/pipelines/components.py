@@ -16,17 +16,9 @@
 
 import sys
 import os
-import time
 import json
-import warnings
 import logging
-from datetime import datetime
-
-import tfx
 import tensorflow as tf
-import tensorflow_data_validation as tfdv
-import tensorflow_model_analysis as tfma
-from tensorflow_transform.tf_metadata import schema_utils
 
 from tfx.types import artifact_utils
 from tfx.utils import io_utils
@@ -45,13 +37,8 @@ from tfx.types.standard_artifacts import (
     ModelBlessing,
 )
 from tfx.types.experimental.simple_artifacts import (
-    File as UploadedModel,
-    Metrics as UploadedModelEvaluation,
+    File as UploadedModel
 )
-
-
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
 
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
@@ -106,7 +93,7 @@ def vertex_model_uploader(
     logging.info(f"Model registry location: {pushed_model_dir}")
 
     vertex_model = vertex_client.upload_model(
-        model_display_name=model_display_name,
+        display_name=model_display_name,
         model_artifact_uri=pushed_model_dir,
         serving_image_uri=serving_image_uri,
     )

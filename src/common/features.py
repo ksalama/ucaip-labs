@@ -13,9 +13,6 @@
 # limitations under the License.
 """Model features metadata utils."""
 
-from typing import List, Dict, Text
-import tensorflow as tf
-
 
 FEATURE_NAMES = [
     "trip_month",

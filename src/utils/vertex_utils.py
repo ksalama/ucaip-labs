@@ -24,11 +24,7 @@ from google.cloud import aiplatform_v1beta1 as vertex_ai_beta
 
 
 DEFAULT_CUSTOM_TRAINING_JOB_PREFIX = "custom-job"
-
-DATASET_METADATA_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml"
-)
-TRAINING_TAKS_DEFINITION_URI = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml"
+DEFAULT_BATCH_PREDICTION_JOB_PREFIX = "prediction-job"
 
 
 class VertexClient:
@@ -134,14 +130,12 @@ class VertexClient:
     #####################################################################################
 
     def submit_custom_job(
-        self, training_spec: dict, training_dir: str, display_name_prefix: str = None
+        self, training_spec: dict, training_dir: str, job_display_name: str = None
     ):
-        if not display_name_prefix:
-            display_name_prefix = DEFAULT_CUSTOM_TRAINING_JOB_PREFIX
-
-        job_display_name = (
-            f"train_{display_name_prefix}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        )
+        if not job_display_name:
+            job_display_name = (
+                f"{DEFAULT_CUSTOM_TRAINING_JOB_PREFIX}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            )
 
         custom_job = {
             "display_name": job_display_name,
@@ -264,6 +258,7 @@ class VertexClient:
 
         endpoint.deploy(model=model, **serving_resources_spec)
 
+        deployed_model = None
         for deployed_model in endpoint.list_models():
             if deployed_model.display_name == model_display_name:
                 break
@@ -295,6 +290,7 @@ class VertexClient:
         gcs_destination_prefix: str,
         instances_format: str,
         predictions_format: str = "jsonl",
+        job_display_name: str = None,
         other_configurations: dict = None,
     ):
 
@@ -304,10 +300,11 @@ class VertexClient:
                 f"Model with Display Name {model_display_name} does not exists."
             )
 
-        job_name = f"batch_predict_{model_display_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        if not job_display_name:
+            job_display_name = f"{DEFAULT_BATCH_PREDICTION_JOB_PREFIX}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
         return vertex_ai.BatchPredictionJob.create(
-            job_display_name=job_name,
+            job_display_name=job_display_name,
             model_name=model.name,
             gcs_source=gcs_source_pattern,
             gcs_destination_prefix=gcs_destination_prefix,

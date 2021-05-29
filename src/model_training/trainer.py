@@ -13,7 +13,6 @@
 # limitations under the License.
 """Train and evaluate the model."""
 
-import os
 import logging
 import tensorflow as tf
 import tensorflow_transform as tft
@@ -28,7 +27,6 @@ from src.model_training import data, model
 def train(
     train_data_dir,
     eval_data_dir,
-    raw_schema_location,
     tft_output_dir,
     hyperparams,
     log_dir,
@@ -37,10 +35,6 @@ def train(
     summary_writer = tf.summary.create_file_writer(log_dir)
     summary_writer.set_as_default()
     summary_writer.init()
-
-    logging.info(f"Loading raw schema from {raw_schema_location}")
-    raw_schema = tfdv.load_schema_text(raw_schema_location)
-    raw_feature_spec = schema_utils.schema_as_feature_spec(raw_schema).feature_spec
 
     logging.info(f"Loading tft output from {tft_output_dir}")
     tft_output = tft.TFTransformOutput(tft_output_dir)
@@ -84,8 +78,6 @@ def train(
 
 def evaluate(model, data_dir, raw_schema_location, tft_output_dir, hyperparams):
     logging.info(f"Loading raw schema from {raw_schema_location}")
-    raw_schema = tfdv.load_schema_text(raw_schema_location)
-    raw_feature_spec = schema_utils.schema_as_feature_spec(raw_schema).feature_spec
 
     logging.info(f"Loading tft output from {tft_output_dir}")
     tft_output = tft.TFTransformOutput(tft_output_dir)

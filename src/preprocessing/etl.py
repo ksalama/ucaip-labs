@@ -14,9 +14,7 @@
 """Data preprocessing pipelines."""
 
 import os
-import sys
 
-import tensorflow as tf
 import tensorflow_transform as tft
 import tensorflow_data_validation as tfdv
 import apache_beam as beam

@@ -14,7 +14,6 @@
 """Test an uploaded model to Vertex AI."""
 
 import os
-import pytest
 import logging
 import tensorflow as tf
 
