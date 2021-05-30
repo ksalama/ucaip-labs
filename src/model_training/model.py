@@ -33,14 +33,14 @@ def create_model_inputs():
     return inputs
 
 
-def create_binary_classifier(tft_output, hyperparams):
+def _create_binary_classifier(feature_vocab_sizes, hyperparams):
     input_layers = create_model_inputs()
 
     layers = []
     for key in input_layers:
         feature_name = features.original_name(key)
         if feature_name in features.EMBEDDING_CATEGORICAL_FEATURES:
-            vocab_size = tft_output.vocabulary_size_by_name(feature_name)
+            vocab_size = feature_vocab_sizes[feature_name]
             embedding_size = features.EMBEDDING_CATEGORICAL_FEATURES[feature_name]
             embedding_output = keras.layers.Embedding(
                 input_dim=vocab_size + 1,
@@ -49,7 +49,7 @@ def create_binary_classifier(tft_output, hyperparams):
             )(input_layers[key])
             layers.append(embedding_output)
         elif feature_name in features.ONEHOT_CATEGORICAL_FEATURE_NAMES:
-            vocab_size = tft_output.vocabulary_size_by_name(feature_name)
+            vocab_size = feature_vocab_sizes[feature_name]
             onehot_layer = keras.layers.experimental.preprocessing.CategoryEncoding(
                 max_tokens=vocab_size,
                 output_mode="binary",
@@ -73,4 +73,12 @@ def create_binary_classifier(tft_output, hyperparams):
     logits = keras.layers.Dense(units=1, name="logits")(feedforward_output)
 
     model = keras.Model(inputs=input_layers, outputs=[logits])
-    return model
+    return model    
+
+
+def create_binary_classifier(tft_output, hyperparams):
+    feature_vocab_sizes = dict()
+    for feature_name in features.categorical_feature_names():
+        feature_vocab_sizes[feature_name] = tft_output.vocabulary_size_by_name(feature_name)
+        
+    return _create_binary_classifier(feature_vocab_sizes, hyperparams)
