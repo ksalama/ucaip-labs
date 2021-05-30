@@ -57,7 +57,7 @@ def get_training_source_query(
     ]
     _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split(".")
 
-    return _get_training_source_query(bq_dataset_name, bq_table_name, data_split, limit)
+    return _get_source_query(bq_dataset_name, bq_table_name, data_split, limit)
 
 
 def get_serving_source_query(bq_dataset_name, bq_table_name, limit=None):
