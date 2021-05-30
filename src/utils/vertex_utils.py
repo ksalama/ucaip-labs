@@ -36,10 +36,14 @@ class VertexClient:
 
         self.parent = f"projects/{project}/locations/{region}"
         self.client_options = {"api_endpoint": f"{region}-aiplatform.googleapis.com"}
-        self.job_client = aip.JobServiceClient(
+        self.job_client = aip.JobServiceClient(client_options=self.client_options)
+        self.job_client_beta = vertex_ai_beta.JobServiceClient(
             client_options=self.client_options
         )
         self.monitoring_client_beta = vertex_ai_beta.JobServiceClient(
+            client_options=self.client_options
+        )
+        self.tensorboard_client_beta = vertex_ai_beta.TensorboardServiceClient(
             client_options=self.client_options
         )
 
@@ -57,6 +61,9 @@ class VertexClient:
 
         # Validate the uniqueness of the endpoint display names.
         self.list_endpoints()
+
+        # Validate the uniqueness of the tensorboards display names.
+        self.list_tensorboard_instances()
 
         logging.info(
             f"Uniquness of objects in project:{project} region:{region} validated."
@@ -100,19 +107,22 @@ class VertexClient:
     # ML metadata methods
     #####################################################################################
 
-    def set_experiment(self, experiment):
+    def set_experiment(self, experiment_name):
+        experiment_name = experiment_name.replace("_", "-")
         vertex_ai.init(
             project=self.project,
             location=self.region,
             staging_bucket=self.staging_bucket,
-            experiment=experiment,
+            experiment=experiment_name,
         )
 
-    def start_experiment_run(self, experiment_name=None, run_name=None):
+    def start_experiment_run(self, run_name=None, experiment_name=None):
         if experiment_name:
+            print("experiment_name is none!")
             self.set_experiment(experiment_name)
         if not run_name:
             run_name = f"run-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        run_name = run_name.replace("_", "-")
         vertex_ai.start_run(run_name)
         return run_name
 
@@ -130,22 +140,27 @@ class VertexClient:
     #####################################################################################
 
     def submit_custom_job(
-        self, training_spec: dict, training_dir: str, job_display_name: str = None
+        self,
+        training_spec: dict,
+        experiment_dir: str,
+        job_display_name: str = None,
+        service_account: str = None,
+        tensorboard_resource_name: str = None,
     ):
         if not job_display_name:
-            job_display_name = (
-                f"{DEFAULT_CUSTOM_TRAINING_JOB_PREFIX}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            )
+            job_display_name = f"{DEFAULT_CUSTOM_TRAINING_JOB_PREFIX}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
         custom_job = {
             "display_name": job_display_name,
             "job_spec": {
                 "worker_pool_specs": training_spec,
-                "base_output_directory": {"output_uri_prefix": training_dir},
+                "base_output_directory": {"output_uri_prefix": experiment_dir},
+                "service_account": service_account,
+                "tensorboard": tensorboard_resource_name,
             },
         }
 
-        job = self.job_client.create_custom_job(
+        job = self.job_client_beta.create_custom_job(
             parent=self.parent, custom_job=custom_job
         )
         return job
@@ -453,3 +468,30 @@ class VertexClient:
         return self.monitoring_client_beta.delete_model_deployment_monitoring_job(
             name=job.name
         )
+
+    #####################################################################################
+    # TensorBoards methods
+    #####################################################################################
+
+    def list_tensorboard_instances(self):
+        tensorboards = self.tensorboard_client_beta.list_tensorboards(
+            parent=self.parent
+        )
+        tensorboard_display_names = [
+            tensorboard.display_name for tensorboard in tensorboards
+        ]
+        assert len(tensorboard_display_names) == len(
+            set(tensorboard_display_names)
+        ), "TensorBoard display names are not unique."
+        return tensorboards
+
+    def get_tensorboard_by_display_name(self, display_name: str):
+        tensorboard_instance = None
+
+        tensorboard_instances = self.list_tensorboard_instances()
+        for entry in tensorboard_instances:
+            if entry.display_name == display_name:
+                tensorboard_instance = entry
+                break
+
+        return tensorboard_instance

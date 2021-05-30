@@ -32,10 +32,6 @@ def train(
     log_dir,
 ):
 
-    summary_writer = tf.summary.create_file_writer(log_dir)
-    summary_writer.set_as_default()
-    summary_writer.init()
-
     logging.info(f"Loading tft output from {tft_output_dir}")
     tft_output = tft.TFTransformOutput(tft_output_dir)
     transformed_feature_spec = tft_output.transformed_feature_spec()
@@ -59,6 +55,7 @@ def train(
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor="val_loss", patience=5, restore_best_weights=True
     )
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
 
     classifier = model.create_binary_classifier(tft_output, hyperparams)
 
@@ -69,7 +66,7 @@ def train(
         train_dataset,
         epochs=hyperparams["num_epochs"],
         validation_data=eval_dataset,
-        callbacks=[early_stopping],
+        callbacks=[early_stopping, tensorboard_callback],
     )
     logging.info("Model training completed.")
 
