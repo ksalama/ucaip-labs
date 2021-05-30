@@ -36,9 +36,7 @@ from tfx.types.standard_artifacts import (
     ModelEvaluation,
     ModelBlessing,
 )
-from tfx.types.experimental.simple_artifacts import (
-    File as UploadedModel
-)
+from tfx.types.experimental.simple_artifacts import File as UploadedModel
 
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
