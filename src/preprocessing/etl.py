@@ -146,7 +146,7 @@ def run_transform_pipeline(args):
                     raw_eval_data
                     | "Write Raw Eval Data"
                     >> beam.io.tfrecordio.WriteToTFRecord(
-                        file_path_prefix=exported_data_prefix,
+                        file_path_prefix=os.path.join(exported_data_prefix, "data"),
                         file_name_suffix=".tfrecord",
                         coder=tft.coders.ExampleProtoCoder(raw_metadata.schema),
                     )
