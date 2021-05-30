@@ -27,7 +27,28 @@ steps:
   id: 'Clone Repository'
   
 
-# Run unit tests.
+# Run datasource_utils unit tests.
+- name: '$_CICD_IMAGE_URI'
+  entrypoint: 'pytest'
+  args: ['src/tests/datasource_utils_tests.py', '-s']
+  dir: 'ucaip-labs'
+  env: 
+  - 'PROJECT=$_PROJECT'  
+  - 'BQ_LOCATION=$_BQ_LOCATION'
+  - 'BQ_DATASET_NAME=$_BQ_DATASET_NAME'
+  - 'BQ_TABLE_NAME=$_BQ_TABLE_NAME'  
+  id: 'Unit Test Datasource Utils'
+  waitFor: ['Clone Repository']
+
+
+# Run model unit tests.
+- name: '$_CICD_IMAGE_URI'
+  entrypoint: 'pytest'
+  args: ['src/tests/model_tests.py', '-s']
+  dir: 'ucaip-labs'
+  id: 'Unit Test Model'
+  waitFor: ['Clone Repository']
+  timeout: 1800s
 
 
 # Test e2e pipeline using local runner.
@@ -46,7 +67,7 @@ steps:
   - 'UPLOAD_MODEL=$_UPLOAD_MODEL'
   - 'ACCURACY_THRESHOLD=$_ACCURACY_THRESHOLD'
   id: 'Local Test E2E Pipeline'
-  waitFor: ['Clone Repository']
+  waitFor: ['Unit Test Datasource Utils', 'Unit Test Model']
   timeout: 1800s
 
 
