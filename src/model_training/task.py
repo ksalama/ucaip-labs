@@ -71,6 +71,7 @@ def get_args():
     parser.add_argument("--region", type=str)
     parser.add_argument("--staging-bucket", type=str)
     parser.add_argument("--experiment-name", type=str)
+    parser.add_argument("--run-name", type=str)
 
     return parser.parse_args()
 
@@ -87,9 +88,13 @@ def main():
     )
 
     if args.experiment_name:
-        vertex_client.set_experiment(experiment=args.experiment_name)
+        vertex_client.set_experiment(experiment_name=args.experiment_name)
         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
-        run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+        run_id = args.run_name
+        if not run_id:
+            run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
         vertex_client.start_experiment_run(run_id)
         logging.info(f"Run {run_id} started.")
 
@@ -101,7 +106,7 @@ def main():
         eval_data_dir=args.eval_data_dir,
         tft_output_dir=args.tft_output_dir,
         hyperparams=hyperparams,
-        log_dir=args.log_dir,
+        log_dir=arg.log_dir,
     )
 
     val_loss, val_accuracy = trainer.evaluate(
@@ -117,7 +122,7 @@ def main():
 
     exporter.export_serving_model(
         classifier=classifier,
-        serving_model_dir=args.model_dir,
+        serving_model_dir=arg.model_dir,
         raw_schema_location=RAW_SCHEMA_LOCATION,
         tft_output_dir=args.tft_output_dir,
     )
