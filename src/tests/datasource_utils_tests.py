@@ -53,15 +53,15 @@ def test_training_query():
     bq_table_name = os.getenv("BQ_TABLE_NAME")
 
     assert project, "Environment variable PROJECT is None!"
-    assert region, "Environment variable REGION is None!"
+    assert location, "Environment variable BQ_LOCATION is None!"
     assert bq_dataset_name, "Environment variable BQ_DATASET_NAME is None!"
     assert bq_table_name, "Environment variable BQ_TABLE_NAME is None!"
 
     logging.info(f"BigQuery Source: {project}.{bq_dataset_name}.{bq_table_name}")
     
     query = datasource_utils._get_source_query(
-        bq_dataset_name=BQ_DATASET_NAME, 
-        bq_table_name=BQ_TABLE_NAME,
+        bq_dataset_name=bq_dataset_name, 
+        bq_table_name=bq_table_name,
         data_split='UNASSIGNED', 
         limit=LIMIT
     )
@@ -81,15 +81,15 @@ def test_serving_query():
     bq_table_name = os.getenv("BQ_TABLE_NAME")
 
     assert project, "Environment variable PROJECT is None!"
-    assert region, "Environment variable REGION is None!"
+    assert location, "Environment variable BQ_LOCATION is None!"
     assert bq_dataset_name, "Environment variable BQ_DATASET_NAME is None!"
     assert bq_table_name, "Environment variable BQ_TABLE_NAME is None!"
 
     logging.info(f"BigQuery Source: {project}.{bq_dataset_name}.{bq_table_name}")
     
     query = datasource_utils._get_source_query(
-        bq_dataset_name=BQ_DATASET_NAME, 
-        bq_table_name=BQ_TABLE_NAME,
+        bq_dataset_name=bq_dataset_name, 
+        bq_table_name=bq_table_name,
         data_split=None, 
         limit=LIMIT
     )
