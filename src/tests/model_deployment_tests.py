@@ -14,7 +14,6 @@
 """Test an uploaded model to Vertex AI."""
 
 import os
-import pytest
 import logging
 import tensorflow as tf
 
@@ -34,7 +33,7 @@ test_instance = {
 
 SERVING_DEFAULT_SIGNATURE_NAME = "serving_default"
 
-from src.utils.vertex_utils import VertexUtils
+from src.utils.vertex_utils import VertexClient
 
 
 def test_model_artifact():
@@ -69,9 +68,10 @@ def test_model_artifact():
     assert region, "Environment variable REGION is None!"
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
 
-    vertex_utils = VertexUtils(project, region)
-    model_desc = vertex_utils.get_model_by_display_name(model_display_name)
-    artifact_uri = model_desc.artifact_uri
+    vertex_client = VertexClient(project, region)
+    model = vertex_client.get_model_by_display_name(model_display_name)
+
+    artifact_uri = model.gca_resource.artifact_uri
     logging.info(f"Model artifact uri:{artifact_uri}")
     assert tf.io.gfile.exists(
         artifact_uri
@@ -115,16 +115,17 @@ def test_model_endpoint():
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
     assert endpoint_display_name, "Environment variable ENDPOINT_DISPLAY_NAME is None!"
 
-    vertex_utils = VertexUtils(project, region)
-    endpoint = vertex_utils.get_endpoint_by_display_name(endpoint_display_name)
+    vertex_client = VertexClient(project, region)
+    endpoint = vertex_client.get_endpoint_by_display_name(endpoint_display_name)
     assert (
         endpoint
     ), f"Endpoint with display name {endpoint_display_name} does not exist! in region {region}"
 
     logging.info(f"Calling endpoint: {endpoint}.")
 
-    response = vertex_utils.predict_tabular_classifier(endpoint.name, test_instance)
-    prediction = dict(list(response.predictions)[0])
+    prediction = vertex_client.predict(
+        endpoint_display_name, [test_instance]
+    ).predictions[0]
 
     keys = ["classes", "scores"]
     for key in keys:

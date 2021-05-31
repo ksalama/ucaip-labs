@@ -74,7 +74,6 @@ def export_serving_model(
     raw_feature_spec = schema_utils.schema_as_feature_spec(raw_schema).feature_spec
 
     tft_output = tft.TFTransformOutput(tft_output_dir)
-    transformed_feature_spec = tft_output.transformed_feature_spec()
 
     features_input_signature = {
         feature_name: tf.TensorSpec(

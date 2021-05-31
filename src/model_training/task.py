@@ -21,7 +21,7 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 import argparse
 
-from src.utils.vertex_utils import VertexUtils
+from src.utils.vertex_utils import VertexClient
 from src.model_training import defaults, trainer, exporter
 
 dirname = os.path.dirname(__file__)
@@ -71,6 +71,7 @@ def get_args():
     parser.add_argument("--region", type=str)
     parser.add_argument("--staging-bucket", type=str)
     parser.add_argument("--experiment-name", type=str)
+    parser.add_argument("--run-name", type=str)
 
     return parser.parse_args()
 
@@ -81,29 +82,31 @@ def main():
     hyperparams = vars(args)
     hyperparams = defaults.update_hyperparams(hyperparams)
     logging.info(f"Hyperparameter: {hyperparams}")
-    logging.info("")
 
-    vertex_utils = VertexUtils(
-        project=args.project, location=args.region, staging_bucket=args.staging_bucket
+    vertex_client = VertexClient(
+        project=args.project, region=args.region, staging_bucket=args.staging_bucket
     )
 
     if args.experiment_name:
-        vertex_utils.set_experiment(experiment=args.experiment_name)
+        vertex_client.set_experiment(experiment_name=args.experiment_name)
         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
-        run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        vertex_utils.start_experiment_run(run_id)
+
+        run_id = args.run_name
+        if not run_id:
+            run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+        vertex_client.start_experiment_run(run_id)
         logging.info(f"Run {run_id} started.")
 
     if args.experiment_name:
-        vertex_utils.log_params(hyperparams)
+        vertex_client.log_params(hyperparams)
 
     classifier = trainer.train(
         train_data_dir=args.train_data_dir,
         eval_data_dir=args.eval_data_dir,
-        raw_schema_location=RAW_SCHEMA_LOCATION,
         tft_output_dir=args.tft_output_dir,
         hyperparams=hyperparams,
-        log_dir=args.log_dir,
+        log_dir=arg.log_dir,
     )
 
     val_loss, val_accuracy = trainer.evaluate(
@@ -115,11 +118,11 @@ def main():
     )
 
     if args.experiment_name:
-        vertex_utils.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
+        vertex_client.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
 
     exporter.export_serving_model(
         classifier=classifier,
-        serving_model_dir=args.model_dir,
+        serving_model_dir=arg.model_dir,
         raw_schema_location=RAW_SCHEMA_LOCATION,
         tft_output_dir=args.tft_output_dir,
     )
@@ -131,4 +134,6 @@ if __name__ == "__main__":
     logging.info(f"TensorFlow Version = {tf.__version__}")
     logging.info(f'TF_CONFIG = {os.environ.get("TF_CONFIG", "Not found")}')
     logging.info(f"DEVICES = {device_lib.list_local_devices()}")
+    logging.info(f"Task started...")
     main()
+    logging.info(f"Task completed.")

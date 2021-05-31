@@ -53,7 +53,6 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 from src.pipelines import config
 from src.pipelines import components as custom_components
 from src.common import features
-from src.model_training import runner
 from src.utils import datasource_utils
 
 RAW_SCHEMA_DIR = "src/raw_schema"

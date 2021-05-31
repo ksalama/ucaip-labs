@@ -35,6 +35,9 @@ We experiment with creating a [Custom Model](https://cloud.google.com/ai-platfor
 4. Upload the exported model from Cloud Storage to Vertex AI as a Model.
 5. Exract and visualize experiment parameters from [Vertex AI Metadata](https://cloud.google.com/vertex-ai/docs/ml-metadata/introduction).
 
+We use [Vertex TensorBoard](https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-overview) 
+and [Vertex ML Metadata](https://cloud.google.com/vertex-ai/docs/ml-metadata/introduction) to  track, visualize, and compare ML experiments.
+
 ## Model Deployment
 We use [Cloud Build](https://cloud.google.com/build) test and deploy the uploaded model to [Vertex AI Prediction](https://cloud.google.com/vertex-ai/docs/predictions/getting-predictions?hl=nn).
 The [03-model-deployment](03-model-deployment.ipynb) configures and executes the [build/model-deployment.yaml](build/model-deployment.yaml)
@@ -94,6 +97,27 @@ The [08-continuous-training](08-continuous-training.ipynb) notebook covers the f
 
 You can view the parameters and metrics logged by your experiments, as well as the artifacts and metadata stored by 
 your Vertex AI Pipelines in [Cloud Console](https://pantheon.corp.google.com/vertex-ai/metadata).
+
+## Disclaimer
+
+This is not an official Google product but sample code provided for an educational purpose.
+
+---
+
+Copyright 2021 Google LLC.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at: http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+
 
 
 

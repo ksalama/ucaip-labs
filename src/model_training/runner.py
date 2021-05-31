@@ -14,14 +14,9 @@
 """A run_fn method called by the TFX Trainer component."""
 
 import os
-import json
 import logging
-import tensorflow_transform as tft
-import tensorflow_data_validation as tfdv
-from tensorflow_transform.tf_metadata import schema_utils
 
-from src.common import features
-from src.model_training import data, model, trainer, exporter, defaults
+from src.model_training import trainer, exporter, defaults
 
 
 # TFX Trainer will call this function.
@@ -52,7 +47,6 @@ def run_fn(fn_args):
     classifier = trainer.train(
         train_data_dir=fn_args.train_files,
         eval_data_dir=fn_args.eval_files,
-        raw_schema_location=fn_args.schema_path,
         tft_output_dir=fn_args.transform_output,
         hyperparams=hyperparams,
         log_dir=log_dir,

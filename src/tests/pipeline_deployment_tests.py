@@ -13,14 +13,10 @@
 # limitations under the License.
 """Test training pipeline using local runner."""
 
-import pytest
 import sys
 import os
-import kfp
-import tfx
 from tfx.orchestration.local.local_dag_runner import LocalDagRunner
 import tensorflow as tf
-import ml_metadata as mlmd
 from ml_metadata.proto import metadata_store_pb2
 import logging
 
@@ -47,8 +43,6 @@ def test_e2e_pipeline():
     model_display_name = os.getenv("MODEL_DISPLAY_NAME")
     dataset_display_name = os.getenv("DATASET_DISPLAY_NAME")
     gcs_location = os.getenv("GCS_LOCATION")
-    train_limit = os.getenv("TRAIN_LIMIT", 1000)
-    test_limit = os.getenv("TEST_LIMIT", 100)
     model_registry = os.getenv("MODEL_REGISTRY_URI")
     upload_model = os.getenv("UPLOAD_MODEL")
 
