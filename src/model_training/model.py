@@ -73,12 +73,14 @@ def _create_binary_classifier(feature_vocab_sizes, hyperparams):
     logits = keras.layers.Dense(units=1, name="logits")(feedforward_output)
 
     model = keras.Model(inputs=input_layers, outputs=[logits])
-    return model    
+    return model
 
 
 def create_binary_classifier(tft_output, hyperparams):
     feature_vocab_sizes = dict()
     for feature_name in features.categorical_feature_names():
-        feature_vocab_sizes[feature_name] = tft_output.vocabulary_size_by_name(feature_name)
-        
+        feature_vocab_sizes[feature_name] = tft_output.vocabulary_size_by_name(
+            feature_name
+        )
+
     return _create_binary_classifier(feature_vocab_sizes, hyperparams)

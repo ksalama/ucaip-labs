@@ -15,6 +15,7 @@
 
 from src.utils.vertex_utils import VertexClient
 
+
 def _get_source_query(bq_dataset_name, bq_table_name, data_split, limit=None):
     query = f"""
     SELECT 
@@ -43,7 +44,7 @@ def _get_source_query(bq_dataset_name, bq_table_name, data_split, limit=None):
         query += f"LIMIT {limit}"
 
     return query
-    
+
 
 def get_training_source_query(
     project, region, dataset_display_name, data_split, limit=None
@@ -62,4 +63,6 @@ def get_training_source_query(
 
 def get_serving_source_query(bq_dataset_name, bq_table_name, limit=None):
 
-    return _get_source_query(bq_dataset_name, bq_table_name, data_split=None, limit=None)
+    return _get_source_query(
+        bq_dataset_name, bq_table_name, data_split=None, limit=None
+    )

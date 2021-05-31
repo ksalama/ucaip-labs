@@ -28,22 +28,23 @@ root.addHandler(handler)
 
 LIMIT = 100
 
-TARGET_COLUMN = 'tip_bin'
+TARGET_COLUMN = "tip_bin"
 
 EXPECTED_TRAINING_COLUMNS = [
-    'trip_month',
-    'trip_day',
-    'trip_day_of_week',
-    'trip_hour',
-    'trip_seconds',
-    'trip_miles',
-    'payment_type',
-    'pickup_grid',
-    'dropoff_grid',
-    'euclidean',
-    'loc_cross',
-    'tip_bin'
+    "trip_month",
+    "trip_day",
+    "trip_day_of_week",
+    "trip_hour",
+    "trip_seconds",
+    "trip_miles",
+    "payment_type",
+    "pickup_grid",
+    "dropoff_grid",
+    "euclidean",
+    "loc_cross",
+    "tip_bin",
 ]
+
 
 def test_training_query():
 
@@ -58,12 +59,12 @@ def test_training_query():
     assert bq_table_name, "Environment variable BQ_TABLE_NAME is None!"
 
     logging.info(f"BigQuery Source: {project}.{bq_dataset_name}.{bq_table_name}")
-    
+
     query = datasource_utils._get_source_query(
-        bq_dataset_name=bq_dataset_name, 
+        bq_dataset_name=bq_dataset_name,
         bq_table_name=bq_table_name,
-        data_split='UNASSIGNED', 
-        limit=LIMIT
+        data_split="UNASSIGNED",
+        limit=LIMIT,
     )
 
     bq_client = bigquery.Client(project=project, location=location)
@@ -71,8 +72,8 @@ def test_training_query():
     columns = set(df.columns)
     assert columns == set(EXPECTED_TRAINING_COLUMNS)
     assert df.shape == (LIMIT, 12)
-    
-    
+
+
 def test_serving_query():
 
     project = os.getenv("PROJECT")
@@ -86,12 +87,12 @@ def test_serving_query():
     assert bq_table_name, "Environment variable BQ_TABLE_NAME is None!"
 
     logging.info(f"BigQuery Source: {project}.{bq_dataset_name}.{bq_table_name}")
-    
+
     query = datasource_utils._get_source_query(
-        bq_dataset_name=bq_dataset_name, 
+        bq_dataset_name=bq_dataset_name,
         bq_table_name=bq_table_name,
-        data_split=None, 
-        limit=LIMIT
+        data_split=None,
+        limit=LIMIT,
     )
 
     bq_client = bigquery.Client(project=project, location=location)
