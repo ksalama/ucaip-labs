@@ -18,7 +18,6 @@ import copy
 from datetime import datetime
 
 from google.protobuf.duration_pb2 import Duration
-from google.cloud.aiplatform import gapic as aip
 from google.cloud import aiplatform as vertex_ai
 from google.cloud import aiplatform_v1beta1 as vertex_ai_beta
 
@@ -36,7 +35,7 @@ class VertexClient:
 
         self.parent = f"projects/{project}/locations/{region}"
         self.client_options = {"api_endpoint": f"{region}-aiplatform.googleapis.com"}
-        self.job_client = aip.JobServiceClient(client_options=self.client_options)
+
         self.job_client_beta = vertex_ai_beta.JobServiceClient(
             client_options=self.client_options
         )
@@ -62,11 +61,11 @@ class VertexClient:
         # Validate the uniqueness of the endpoint display names.
         self.list_endpoints()
 
-        # Validate the uniqueness of the tensorboards display names.
+        # Validate the uniqueness of the tensorboard display names.
         self.list_tensorboard_instances()
 
         logging.info(
-            f"Uniquness of objects in project:{project} region:{region} validated."
+            f"Uniqueness of objects in project:{project} region:{region} validated."
         )
         logging.info(f"Vertex AI client initialized.")
 
@@ -166,7 +165,7 @@ class VertexClient:
         return job
 
     def get_custom_job_by_uri(self, job_uri: str):
-        return self.job_client.get_custom_job(name=job_uri)
+        return self.job_client_beta.get_custom_job(name=job_uri)
 
     #####################################################################################
     # Model methods
@@ -286,7 +285,7 @@ class VertexClient:
 
     def predict(self, endpoint_display_name: str, instances: list):
         endpoint = self.get_endpoint_by_display_name(endpoint_display_name)
-        # ISSUE: endpoint.predict craches without this line!
+        # ISSUE: endpoint.predict crashes without this line!
         endpoint = vertex_ai.Endpoint(endpoint.gca_resource.name)
         return endpoint.predict(instances)
 
