@@ -21,7 +21,7 @@ cd ucaip-labs
 pip install -r requirements.txt
 ```
 
-## Data Analysis and Preparation
+## Dataset Management
 
 The [Chicago Taxi Trips](https://pantheon.corp.google.com/marketplace/details/city-of-chicago-public-data/chicago-taxi-trips) dataset is one ofof [public datasets hosted with BigQuery](https://cloud.google.com/bigquery/public-data/), which includes taxi trips from 2013 to the present, reported to the City of Chicago in its role as a regulatory agency. The task is to predict whether a given trip will result in a tip > 20%.
 
@@ -104,7 +104,7 @@ The [08-model-monitoring](08-model-monitoring.ipynb) notebook covers configuring
 ## Metadata Tracking
 
 You can view the parameters and metrics logged by your experiments, as well as the artifacts and metadata stored by 
-your Vertex AI Pipelines in [Cloud Console](https://pantheon.corp.google.com/vertex-ai/metadata).
+your Vertex AI Pipelines in [Cloud Console](https://console.cloud.google.com/vertex-ai/metadata).
 
 ## Disclaimer
 
