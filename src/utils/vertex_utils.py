@@ -39,9 +39,6 @@ class VertexClient:
         self.job_client_beta = vertex_ai_beta.JobServiceClient(
             client_options=self.client_options
         )
-        self.monitoring_client_beta = vertex_ai_beta.JobServiceClient(
-            client_options=self.client_options
-        )
         self.tensorboard_client_beta = vertex_ai_beta.TensorboardServiceClient(
             client_options=self.client_options
         )
@@ -434,13 +431,13 @@ class VertexClient:
             analysis_instance_schema_uri=analysis_instance_schema_uri,
         )
 
-        response = self.monitoring_client_beta.create_model_deployment_monitoring_job(
+        response = self.job_client_beta.create_model_deployment_monitoring_job(
             parent=self.parent, model_deployment_monitoring_job=job
         )
         return response
 
     def list_monitoring_jobs(self):
-        return self.monitoring_client_beta.list_model_deployment_monitoring_jobs(
+        return self.job_client_beta.list_model_deployment_monitoring_jobs(
             parent=self.parent
         )
 
@@ -456,7 +453,7 @@ class VertexClient:
         job = self.get_monitoring_job_by_name(job_name)
         if not job:
             raise ValueError(f"Monitoring job {job_name} does not exist!")
-        return self.monitoring_client_beta.pause_model_deployment_monitoring_job(
+        return self.job_client_beta.pause_model_deployment_monitoring_job(
             name=job.name
         )
 
@@ -464,7 +461,7 @@ class VertexClient:
         job = self.get_monitoring_job_by_name(job_name)
         if not job:
             raise ValueError(f"Monitoring job {job_name} does not exist!")
-        return self.monitoring_client_beta.delete_model_deployment_monitoring_job(
+        return self.job_client_beta.delete_model_deployment_monitoring_job(
             name=job.name
         )
 
