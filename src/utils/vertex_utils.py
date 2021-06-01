@@ -18,7 +18,6 @@ import copy
 from datetime import datetime
 
 from google.protobuf.duration_pb2 import Duration
-from google.cloud.aiplatform import gapic as aip
 from google.cloud import aiplatform as vertex_ai
 from google.cloud import aiplatform_v1beta1 as vertex_ai_beta
 
@@ -36,11 +35,8 @@ class VertexClient:
 
         self.parent = f"projects/{project}/locations/{region}"
         self.client_options = {"api_endpoint": f"{region}-aiplatform.googleapis.com"}
-        self.job_client = aip.JobServiceClient(client_options=self.client_options)
+
         self.job_client_beta = vertex_ai_beta.JobServiceClient(
-            client_options=self.client_options
-        )
-        self.monitoring_client_beta = vertex_ai_beta.JobServiceClient(
             client_options=self.client_options
         )
         self.tensorboard_client_beta = vertex_ai_beta.TensorboardServiceClient(
@@ -62,11 +58,11 @@ class VertexClient:
         # Validate the uniqueness of the endpoint display names.
         self.list_endpoints()
 
-        # Validate the uniqueness of the tensorboards display names.
+        # Validate the uniqueness of the tensorboard display names.
         self.list_tensorboard_instances()
 
         logging.info(
-            f"Uniquness of objects in project:{project} region:{region} validated."
+            f"Uniqueness of objects in project:{project} region:{region} validated."
         )
         logging.info(f"Vertex AI client initialized.")
 
@@ -166,7 +162,7 @@ class VertexClient:
         return job
 
     def get_custom_job_by_uri(self, job_uri: str):
-        return self.job_client.get_custom_job(name=job_uri)
+        return self.job_client_beta.get_custom_job(name=job_uri)
 
     #####################################################################################
     # Model methods
@@ -286,7 +282,7 @@ class VertexClient:
 
     def predict(self, endpoint_display_name: str, instances: list):
         endpoint = self.get_endpoint_by_display_name(endpoint_display_name)
-        # ISSUE: endpoint.predict craches without this line!
+        # ISSUE: endpoint.predict crashes without this line!
         endpoint = vertex_ai.Endpoint(endpoint.gca_resource.name)
         return endpoint.predict(instances)
 
@@ -435,13 +431,13 @@ class VertexClient:
             analysis_instance_schema_uri=analysis_instance_schema_uri,
         )
 
-        response = self.monitoring_client_beta.create_model_deployment_monitoring_job(
+        response = self.job_client_beta.create_model_deployment_monitoring_job(
             parent=self.parent, model_deployment_monitoring_job=job
         )
         return response
 
     def list_monitoring_jobs(self):
-        return self.monitoring_client_beta.list_model_deployment_monitoring_jobs(
+        return self.job_client_beta.list_model_deployment_monitoring_jobs(
             parent=self.parent
         )
 
@@ -457,7 +453,7 @@ class VertexClient:
         job = self.get_monitoring_job_by_name(job_name)
         if not job:
             raise ValueError(f"Monitoring job {job_name} does not exist!")
-        return self.monitoring_client_beta.pause_model_deployment_monitoring_job(
+        return self.job_client_beta.pause_model_deployment_monitoring_job(
             name=job.name
         )
 
@@ -465,7 +461,7 @@ class VertexClient:
         job = self.get_monitoring_job_by_name(job_name)
         if not job:
             raise ValueError(f"Monitoring job {job_name} does not exist!")
-        return self.monitoring_client_beta.delete_model_deployment_monitoring_job(
+        return self.job_client_beta.delete_model_deployment_monitoring_job(
             name=job.name
         )
 
