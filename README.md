@@ -12,14 +12,14 @@ This example implements the end-to-end [MLOps process](https://services.google.c
 2. Start your AI Notebook instance.
 3. Open the JupyterLab then open a new Terminal
 4. Clone the repository to your AI Notebook instance:
-```
-git clone https://github.com/ksalama/ucaip-labs.git
-cd ucaip-labs
-```
+    ```
+    git clone https://github.com/ksalama/ucaip-labs.git
+    cd ucaip-labs
+    ```
 5. Run the following commands to install the required packages:
-```
-pip install -r requirements.txt
-```
+    ```
+    pip install -r requirements.txt
+    ```
 
 ## Dataset Management
 
