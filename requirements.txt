@@ -1,6 +1,7 @@
 tfx==0.30
+apache-beam==2.29.0
 kfp==1.6.2
-pip install google-cloud-aiplatform[tensorboard]
+google-cloud-aiplatform[tensorboard]
 google-cloud-aiplatform==1.0.0
 google-auth==1.30.1
 google-auth-oauthlib==0.4.4
