@@ -453,9 +453,7 @@ class VertexClient:
         job = self.get_monitoring_job_by_name(job_name)
         if not job:
             raise ValueError(f"Monitoring job {job_name} does not exist!")
-        return self.job_client_beta.pause_model_deployment_monitoring_job(
-            name=job.name
-        )
+        return self.job_client_beta.pause_model_deployment_monitoring_job(name=job.name)
 
     def delete_monitoring_job(self, job_name):
         job = self.get_monitoring_job_by_name(job_name)
