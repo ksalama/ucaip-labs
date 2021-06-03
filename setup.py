@@ -2,8 +2,8 @@ import setuptools
 
 REQUIRED_PACKAGES = [
     "google-cloud-aiplatform==1.0.0",
-    "tensorflow-transform==0.27.0",
-    "tensorflow-data-validation==0.27.0",
+    "tensorflow-transform==0.30.0",
+    "tensorflow-data-validation==0.30.0",
 ]
 
 setuptools.setup(
