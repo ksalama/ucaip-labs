@@ -36,7 +36,7 @@ def trigger_pipeline(event, context):
         raise ValueError("Environment variable GCS_PIPELINE_FILE_LOCATION is not set.")
 
     if parameter_names:
-        parameter_names = set(parameter_names.split(","))
+        parameter_names = set(parameter_names.split("-"))
     else:
         parameter_names = []
 
