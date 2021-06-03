@@ -18,6 +18,7 @@ cd ucaip-labs
 ```
 5. Run the following commands to install the required packages:
 ```
+pip install tfx==0.30.0
 pip install -r requirements.txt
 ```
 
