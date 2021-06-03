@@ -127,7 +127,8 @@ class VertexClient:
         if experiment_name:
             experiment_name = experiment_name.replace("_", "-")
             experiment_df = experiment_df[
-                experiment_df.experiment_name==experiment_name]
+                experiment_df.experiment_name == experiment_name
+            ]
         return experiment_df
 
     def log_params(self, params):
