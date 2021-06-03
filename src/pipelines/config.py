@@ -17,7 +17,7 @@ import os
 
 DATASET_DISPLAY_NAME = os.getenv("DATASET_DISPLAY_NAME", "chicago_taxi_tips")
 MODEL_DISPLAY_NAME = os.getenv(
-    "MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}_classifier_custom"
+    "MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}_classifier"
 )
 
 DATA_SPLIT_COLUMN = "data_split"
@@ -25,14 +25,14 @@ EXCLUDE_COLUMNS = ",".join(["trip_start_timestamp"])
 TRAIN_LIMIT = os.getenv("TRAIN_LIMIT", "0")
 TEST_LIMIT = os.getenv("TEST_LIMIT", "0")
 
-PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{DATASET_DISPLAY_NAME}_train_pipeline")
+PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{MODEL_DISPLAY_NAME}_train_pipeline")
 PIPELINE_NAME = PIPELINE_NAME.replace("_", "-")
 
 PROJECT = os.getenv("PROJECT", "ksalama-cloudml")
 REGION = os.getenv("REGION", "us-central1")
 
 GCS_LOCATION = os.getenv(
-    "GCS_LOCATION", "gs://ksalama-cloudml-us/ucaip_demo/chicago_taxi"
+    "GCS_LOCATION", "gs://ksalama-cloudml-us/ucaip_demo/"
 )
 
 ARTIFACT_STORE_URI = os.path.join(GCS_LOCATION, "tfx_arficats")

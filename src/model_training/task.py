@@ -106,7 +106,7 @@ def main():
         eval_data_dir=args.eval_data_dir,
         tft_output_dir=args.tft_output_dir,
         hyperparams=hyperparams,
-        log_dir=arg.log_dir,
+        log_dir=args.log_dir,
     )
 
     val_loss, val_accuracy = trainer.evaluate(
@@ -120,12 +120,16 @@ def main():
     if args.experiment_name:
         vertex_client.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
 
-    exporter.export_serving_model(
-        classifier=classifier,
-        serving_model_dir=arg.model_dir,
-        raw_schema_location=RAW_SCHEMA_LOCATION,
-        tft_output_dir=args.tft_output_dir,
-    )
+    try:
+        exporter.export_serving_model(
+            classifier=classifier,
+            serving_model_dir=args.model_dir,
+            raw_schema_location=RAW_SCHEMA_LOCATION,
+            tft_output_dir=args.tft_output_dir,
+        )
+    except:
+        # Swallow Ignored Errors while exporting the model.
+        pass
 
 
 if __name__ == "__main__":
