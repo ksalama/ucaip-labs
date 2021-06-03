@@ -12,15 +12,15 @@ This example implements the end-to-end [MLOps process](https://services.google.c
 2. Start your AI Notebook instance.
 3. Open the JupyterLab then open a new Terminal
 4. Clone the repository to your AI Notebook instance:
-```
-git clone https://github.com/ksalama/ucaip-labs.git
-cd ucaip-labs
-```
+    ```
+    git clone https://github.com/ksalama/ucaip-labs.git
+    cd ucaip-labs
+    ```
 5. Run the following commands to install the required packages:
-```
-pip install tfx==0.30.0
-pip install -r requirements.txt
-```
+    ```
+    pip install tfx==0.30.0
+    pip install -r requirements.txt
+    ```
 
 ## Dataset Management
 
@@ -49,7 +49,7 @@ The [03-training-formalization](02-tfx-interactive.ipynb) notebook covers implem
 
 ## Training Operationalization
 
-The end-to-end TFX training pipeline implementation is in the [src/pipelines][src/pipelines] directory, which covers the following steps:
+The end-to-end TFX training pipeline implementation is in the [src/pipelines](src/pipelines) directory, which covers the following steps:
 1. Receive hyperparameters using hyperparam_gen custom python component.
 2. Extract data from BigQuery using BigQueryExampleGen.
 3. Validate the raw data using StatisticsGen and ExampleValidator.
