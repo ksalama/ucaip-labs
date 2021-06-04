@@ -23,7 +23,6 @@ from google.cloud import aiplatform_v1beta1 as vertex_ai_beta
 
 
 DEFAULT_CUSTOM_TRAINING_JOB_PREFIX = "custom-job"
-DEFAULT_BATCH_PREDICTION_JOB_PREFIX = "prediction-job"
 
 
 class VertexClient:
@@ -309,6 +308,7 @@ class VertexClient:
         predictions_format: str = "jsonl",
         job_display_name: str = None,
         other_configurations: dict = None,
+        sync: bool = True,
     ):
 
         model = self.get_model_by_display_name(model_display_name)
@@ -318,7 +318,7 @@ class VertexClient:
             )
 
         if not job_display_name:
-            job_display_name = f"{DEFAULT_BATCH_PREDICTION_JOB_PREFIX}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            job_display_name = f"{model_display_name}_prediction-job_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
         return vertex_ai.BatchPredictionJob.create(
             job_display_name=job_display_name,
@@ -327,6 +327,7 @@ class VertexClient:
             gcs_destination_prefix=gcs_destination_prefix,
             instances_format=instances_format,
             predictions_format=predictions_format,
+            sync=sync,
             **other_configurations,
         )
 
