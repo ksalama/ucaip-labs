@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""TFX pipeline definition."""
+"""TFX training pipeline definition."""
 
 import os
 import sys
@@ -61,12 +61,12 @@ TRAIN_MODULE_FILE = "src/model_training/runner.py"
 
 
 def create_pipeline(
-    metadata_connection_config: metadata_store_pb2.ConnectionConfig,
     pipeline_root: str,
     num_epochs: data_types.RuntimeParameter,
     batch_size: data_types.RuntimeParameter,
     learning_rate: data_types.RuntimeParameter,
     hidden_units: data_types.RuntimeParameter,
+    metadata_connection_config: metadata_store_pb2.ConnectionConfig = None,
 ):
 
     local_executor_spec = executor_spec.ExecutorClassSpec(
