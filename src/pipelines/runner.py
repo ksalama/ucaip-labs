@@ -24,7 +24,7 @@ from src.pipelines import config, training_pipeline, prediction_pipeline
 from src.model_training import defaults
 
 
-def compile_pipeline(pipeline_definition_file):
+def compile_training_pipeline(pipeline_definition_file):
 
     pipeline_root = os.path.join(
         config.ARTIFACT_STORE_URI,
