@@ -64,5 +64,5 @@ def get_training_source_query(
 def get_serving_source_query(bq_dataset_name, bq_table_name, limit=None):
 
     return _get_source_query(
-        bq_dataset_name, bq_table_name, data_split=None, limit=None
+        bq_dataset_name, bq_table_name, data_split=None, limit=limit
     )
