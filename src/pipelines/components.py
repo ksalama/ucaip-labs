@@ -180,6 +180,7 @@ def datastore_prediction_writer(
     pipeline_args = json.loads(beam_args)
     pipeline_args["prediction_results_uri"] = prediction_results_uri
     pipeline_args["datastore_kind"] = datastore_kind
+    pipeline_args["predictions_format"] = predictions_format
 
     logging.info(f"Storing predictions to Datastore kind: {datastore_kind}")
     etl.run_store_predictions_pipeline(pipeline_args)

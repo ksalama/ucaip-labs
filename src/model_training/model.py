@@ -17,7 +17,6 @@ import tensorflow as tf
 from tensorflow import keras
 
 from src.common import features
-from src.model_training import defaults
 
 
 def create_model_inputs():

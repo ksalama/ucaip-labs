@@ -18,10 +18,7 @@ import sys
 import json
 import logging
 
-import tfx
 from tfx.orchestration import pipeline, data_types
-from tfx.dsl.components.common.importer import Importer
-
 from ml_metadata.proto import metadata_store_pb2
 
 SCRIPT_DIR = os.path.dirname(
@@ -31,7 +28,6 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
 from src.pipelines import config
 from src.pipelines import components as custom_components
-from src.common import features
 from src.utils import datasource_utils
 
 
