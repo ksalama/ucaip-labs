@@ -74,12 +74,12 @@ def test_e2e_pipeline():
     runner = LocalDagRunner()
 
     pipeline = training_pipeline.create_pipeline(
-        metadata_connection_config=metadata_connection_config,
         pipeline_root=pipeline_root,
         num_epochs=NUM_EPOCHS,
         batch_size=BATCH_SIZE,
         learning_rate=LEARNING_RATE,
         hidden_units=HIDDEN_UNITS,
+        metadata_connection_config=metadata_connection_config,
     )
 
     runner.run(pipeline)
