@@ -91,6 +91,7 @@ The [07-prediction-serving](07-prediction-serving.ipynb) notebook covers:
 
 1. Use the endpoint for online prediction.
 2. Use the uploaded model for batch prediciton.
+3. Run the batch prediction using Vertex AI Pipelines.
 
 ## Model Monitoring
 
