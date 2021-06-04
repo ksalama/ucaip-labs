@@ -28,15 +28,9 @@ from tfx.dsl.component.experimental.annotations import (
     OutputArtifact,
     Parameter,
 )
-from tfx.types.standard_artifacts import (
-    Artifact,
-    PushedModel,
-    HyperParameters,
-    Schema,
-    ModelEvaluation,
-    ModelBlessing,
-)
+from tfx.types.standard_artifacts import HyperParameters
 from tfx.types.experimental.simple_artifacts import File as UploadedModel
+from tfx.types.experimental.simple_artifacts import Dataset
 
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
@@ -44,9 +38,12 @@ SCRIPT_DIR = os.path.dirname(
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
 from src.utils.vertex_utils import VertexClient
+from src.preprocessing import etl
 
 
 HYPERPARAM_FILENAME = "hyperparameters.json"
+SERVING_DATA_PREFIX = "serving-data-"
+PREDICTION_RESULTS_PREFIX = "prediction.results-*"
 
 
 @component
@@ -99,3 +96,91 @@ def vertex_model_uploader(
     model_uri = vertex_model.gca_resource.name
     logging.info(f"Model uploaded to AI Platform: {model_uri}")
     uploaded_model.set_string_custom_property("model_uri", model_uri)
+
+
+@component
+def bigquery_data_gen(
+    sql_query: Parameter[str],
+    output_data_format: Parameter[str],
+    beam_args: Parameter[str],
+    serving_dataset: OutputArtifact[Dataset],
+):
+
+    output_dir = os.path.join(
+        artifact_utils.get_single_uri([serving_dataset]), SERVING_DATA_PREFIX
+    )
+
+    pipeline_args = json.loads(beam_args)
+    pipeline_args["sql_query"] = sql_query
+    pipeline_args["exported_data_prefix"] = output_dir
+    pipeline_args["output_data_format"] = output_data_format
+
+    logging.info("Data extraction started. Source query:")
+    logging.info("{sql_query}")
+    etl.run_extract_pipeline(pipeline_args)
+    logging.info("Data extraction completed.")
+
+
+@component
+def vertex_batch_prediction(
+    project: Parameter[str],
+    region: Parameter[str],
+    model_display_name: Parameter[str],
+    instances_format: Parameter[str],
+    predictions_format: Parameter[str],
+    job_resources: Parameter[str],
+    serving_dataset: InputArtifact[Dataset],
+    prediction_results: OutputArtifact[Dataset],
+):
+
+    job_resources = json.loads(job_resources)
+    gcs_source_pattern = (
+        os.path.join(
+            artifact_utils.get_single_uri([serving_dataset]), SERVING_DATA_PREFIX
+        )
+        + "*.jsonl"
+    )
+
+    gcs_destination_prefix = artifact_utils.get_single_uri([prediction_results])
+
+    vertex_client = VertexClient(project, region)
+    logging.info("Submitting Vertex AI batch prediction job...")
+    batch_prediction_job = vertex_client.submit_batch_prediction_job(
+        model_display_name=model_display_name,
+        gcs_source_pattern=gcs_source_pattern,
+        gcs_destination_prefix=gcs_destination_prefix,
+        instances_format=instances_format,
+        predictions_format=predictions_format,
+        other_configurations=job_resources,
+    )
+    logging.info("Batch prediction job completed.")
+    prediction_results.set_string_custom_property(
+        "batch_prediction_job", batch_prediction_job.gca_resource.name
+    )
+
+
+@component
+def datastore_prediction_writer(
+    datastore_kind: Parameter[str],
+    predictions_format: Parameter[str],
+    beam_args: Parameter[str],
+    prediction_results: InputArtifact[Dataset],
+):
+
+    prediction_results_dir = os.path.join(
+        artifact_utils.get_single_uri([prediction_results])
+    )
+    prediction_results_dir = os.path.join(
+        prediction_results_dir, tf.io.gfile.listdir(prediction_results_dir)[0]
+    )
+    prediction_results_uri = os.path.join(
+        prediction_results_dir, PREDICTION_RESULTS_PREFIX
+    )
+
+    pipeline_args = json.loads(beam_args)
+    pipeline_args["prediction_results_uri"] = prediction_results_uri
+    pipeline_args["datastore_kind"] = datastore_kind
+
+    logging.info(f"Storing predictions to Datastore kind: {datastore_kind}")
+    etl.run_store_predictions_pipeline(pipeline_args)
+    logging.info("Predictions are stored.")
