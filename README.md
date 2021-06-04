@@ -19,6 +19,7 @@ This example implements the end-to-end [MLOps process](https://services.google.c
 5. Run the following commands to install the required packages:
     ```
     pip install tfx==0.30.0
+    pip install tensorflow==2.4.1
     pip install -r requirements.txt
     ```
 
