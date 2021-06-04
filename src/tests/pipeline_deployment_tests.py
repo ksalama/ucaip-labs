@@ -20,8 +20,8 @@ import tensorflow as tf
 from ml_metadata.proto import metadata_store_pb2
 import logging
 
-from src.pipelines import config
-from src.pipelines import training_pipeline
+from src.tfx_pipelines import config
+from src.tfx_pipelines import training_pipeline
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)

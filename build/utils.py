@@ -94,7 +94,7 @@ def deploy_model(project, region, endpoint_display_name, model_display_name, ser
 
 
 def compile_pipeline(pipeline_name):
-    from src.pipelines import runner
+    from src.tfx_pipelines import runner
     pipeline_definition_file = f"{pipeline_name}.json"
     pipeline_definition = runner.compile_training_pipeline(pipeline_definition_file)
     return pipeline_definition

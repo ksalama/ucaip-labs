@@ -26,8 +26,8 @@ SCRIPT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
-from src.pipelines import config
-from src.pipelines import components as custom_components
+from src.tfx_pipelines import config
+from src.tfx_pipelines import components as custom_components
 from src.utils import datasource_utils
 
 

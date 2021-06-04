@@ -50,7 +50,7 @@ The [03-training-formalization](02-tfx-interactive.ipynb) notebook covers implem
 
 ## Training Operationalization
 
-The end-to-end TFX training pipeline implementation is in the [src/pipelines](src/pipelines) directory, which covers the following steps:
+The end-to-end TFX training pipeline implementation is in the [src/pipelines](src/tfx_pipelines) directory, which covers the following steps:
 1. Receive hyperparameters using hyperparam_gen custom python component.
 2. Extract data from BigQuery using BigQueryExampleGen.
 3. Validate the raw data using StatisticsGen and ExampleValidator.

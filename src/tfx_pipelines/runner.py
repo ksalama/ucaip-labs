@@ -20,7 +20,7 @@ from tfx.orchestration import data_types
 from tfx.orchestration.kubeflow.v2 import kubeflow_v2_dag_runner
 
 
-from src.pipelines import config, training_pipeline, prediction_pipeline
+from src.tfx_pipelines import config, training_pipeline, prediction_pipeline
 from src.model_training import defaults
 
 
