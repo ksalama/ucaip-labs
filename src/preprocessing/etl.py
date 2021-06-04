@@ -166,22 +166,11 @@ def run_extract_pipeline(args):
 
     pipeline_options = beam.pipeline.PipelineOptions(flags=[], **args)
 
-    raw_schema_location = args["raw_schema_location"]
-    raw_data_query = args["raw_data_query"]
-
+    sql_query = args["sql_query"]
     exported_data_prefix = args["exported_data_prefix"]
     temporary_dir = args["temporary_dir"]
     gcs_location = args["gcs_location"]
     project = args["project"]
-
-    source_raw_schema = tfdv.load_schema_text(raw_schema_location)
-    raw_feature_spec = schema_utils.schema_as_feature_spec(
-        source_raw_schema
-    ).feature_spec
-
-    raw_metadata = dataset_metadata.DatasetMetadata(
-        schema_utils.schema_from_feature_spec(raw_feature_spec)
-    )
 
     with beam.Pipeline(options=pipeline_options) as pipeline:
         with tft_beam.Context(temporary_dir):
@@ -191,7 +180,7 @@ def run_extract_pipeline(args):
                 pipeline
                 | "Read Data"
                 >> beam.io.ReadFromBigQuery(
-                    query=raw_data_query,
+                    query=sql_query,
                     project=project,
                     use_standard_sql=True,
                     gcs_location=gcs_location,
@@ -199,7 +188,7 @@ def run_extract_pipeline(args):
                 | "Parse Data" >> beam.Map(convert_to_jsonl)
             )
 
-            # write raw data to GCS as tfrecords.
+            # Write raw data to GCS as JSONL files.
             _ = raw_data | "Write Data" >> beam.io.WriteToText(
                 file_path_prefix=exported_data_prefix, file_name_suffix=".jsonl"
             )
