@@ -32,7 +32,6 @@ def compile_pipeline(pipeline_definition_file):
     )
 
     managed_pipeline = training_pipeline.create_pipeline(
-        metadata_connection_config=None,
         pipeline_root=pipeline_root,
         num_epochs=data_types.RuntimeParameter(
             name="num_epochs",
