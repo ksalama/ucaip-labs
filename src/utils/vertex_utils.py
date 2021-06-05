@@ -196,12 +196,26 @@ class VertexClient:
         serving_image_uri: str,
         instance_schema_uri: str = None,
         parameters_schema_uri: str = None,
+        explanation_config: dict = None,
     ):
 
         if self.get_model_by_display_name(display_name):
             raise ValueError(
                 f"Model with the Display Name {display_name} already exists."
             )
+            
+        explanation_metadata = None
+        explanation_parameters = None
+        
+        if explanation_config:
+            explanation_metadata = vertex_ai.explain.ExplanationMetadata(
+                inputs=explanation_config['inputs'],
+                outputs=explanation_config['outputs']
+            )
+            explanation_parameters = vertex_ai.explain.ExplanationParameters(
+                explanation_config["params"]
+            )
+
 
         return vertex_ai.Model.upload(
             display_name=display_name,
@@ -209,6 +223,8 @@ class VertexClient:
             serving_container_image_uri=serving_image_uri,
             parameters_schema_uri=parameters_schema_uri,
             instance_schema_uri=instance_schema_uri,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters
         )
 
     #####################################################################################
@@ -293,6 +309,8 @@ class VertexClient:
 
     def explain(self, endpoint_display_name: str, instances: list):
         endpoint = self.get_endpoint_by_display_name(endpoint_display_name)
+        # ISSUE: endpoint.predict crashes without this line!
+        endpoint = vertex_ai.Endpoint(endpoint.gca_resource.name)
         return endpoint.explain(instances)
 
     #####################################################################################
