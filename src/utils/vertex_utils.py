@@ -203,19 +203,18 @@ class VertexClient:
             raise ValueError(
                 f"Model with the Display Name {display_name} already exists."
             )
-            
+
         explanation_metadata = None
         explanation_parameters = None
-        
+
         if explanation_config:
             explanation_metadata = vertex_ai.explain.ExplanationMetadata(
-                inputs=explanation_config['inputs'],
-                outputs=explanation_config['outputs']
+                inputs=explanation_config["inputs"],
+                outputs=explanation_config["outputs"],
             )
             explanation_parameters = vertex_ai.explain.ExplanationParameters(
                 explanation_config["params"]
             )
-
 
         return vertex_ai.Model.upload(
             display_name=display_name,
@@ -224,7 +223,7 @@ class VertexClient:
             parameters_schema_uri=parameters_schema_uri,
             instance_schema_uri=instance_schema_uri,
             explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters
+            explanation_parameters=explanation_parameters,
         )
 
     #####################################################################################
