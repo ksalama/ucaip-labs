@@ -76,6 +76,7 @@ def vertex_model_uploader(
     model_display_name: Parameter[str],
     pushed_model_location: Parameter[str],
     serving_image_uri: Parameter[str],
+    explanation_config: Parameter[str],
     uploaded_model: OutputArtifact[UploadedModel],
 ):
 
@@ -87,10 +88,16 @@ def vertex_model_uploader(
 
     logging.info(f"Model registry location: {pushed_model_dir}")
 
+    try:
+        explanation_config = json.loads(explanation_config)
+    except:
+        explanation_config = None
+
     vertex_model = vertex_client.upload_model(
         display_name=model_display_name,
         model_artifact_uri=pushed_model_dir,
         serving_image_uri=serving_image_uri,
+        explanation_config=explanation_config,
     )
 
     model_uri = vertex_model.gca_resource.name
