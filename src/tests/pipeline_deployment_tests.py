@@ -20,8 +20,8 @@ import tensorflow as tf
 from ml_metadata.proto import metadata_store_pb2
 import logging
 
-from src.pipelines import config
-from src.pipelines import training_pipeline
+from src.tfx_pipelines import config
+from src.tfx_pipelines import training_pipeline
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)
@@ -74,12 +74,12 @@ def test_e2e_pipeline():
     runner = LocalDagRunner()
 
     pipeline = training_pipeline.create_pipeline(
-        metadata_connection_config=metadata_connection_config,
         pipeline_root=pipeline_root,
         num_epochs=NUM_EPOCHS,
         batch_size=BATCH_SIZE,
         learning_rate=LEARNING_RATE,
         hidden_units=HIDDEN_UNITS,
+        metadata_connection_config=metadata_connection_config,
     )
 
     runner.run(pipeline)

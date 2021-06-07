@@ -19,6 +19,7 @@ This example implements the end-to-end [MLOps process](https://services.google.c
 5. Run the following commands to install the required packages:
     ```
     pip install tfx==0.30.0
+    pip install tensorflow==2.4.1
     pip install -r requirements.txt
     ```
 
@@ -49,7 +50,7 @@ The [03-training-formalization](02-tfx-interactive.ipynb) notebook covers implem
 
 ## Training Operationalization
 
-The end-to-end TFX training pipeline implementation is in the [src/pipelines](src/pipelines) directory, which covers the following steps:
+The end-to-end TFX training pipeline implementation is in the [src/pipelines](src/tfx_pipelines) directory, which covers the following steps:
 1. Receive hyperparameters using hyperparam_gen custom python component.
 2. Extract data from BigQuery using BigQueryExampleGen.
 3. Validate the raw data using StatisticsGen and ExampleValidator.
@@ -90,6 +91,7 @@ The [07-prediction-serving](07-prediction-serving.ipynb) notebook covers:
 
 1. Use the endpoint for online prediction.
 2. Use the uploaded model for batch prediciton.
+3. Run the batch prediction using Vertex AI Pipelines.
 
 ## Model Monitoring
 

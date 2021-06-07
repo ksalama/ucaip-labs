@@ -24,6 +24,7 @@ DATA_SPLIT_COLUMN = "data_split"
 EXCLUDE_COLUMNS = ",".join(["trip_start_timestamp"])
 TRAIN_LIMIT = os.getenv("TRAIN_LIMIT", "0")
 TEST_LIMIT = os.getenv("TEST_LIMIT", "0")
+SERVE_LIMIT = os.getenv("SERVE_LIMIT", "0")
 
 PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{MODEL_DISPLAY_NAME}_train_pipeline")
 PIPELINE_NAME = PIPELINE_NAME.replace("_", "-")
@@ -31,11 +32,9 @@ PIPELINE_NAME = PIPELINE_NAME.replace("_", "-")
 PROJECT = os.getenv("PROJECT", "ksalama-cloudml")
 REGION = os.getenv("REGION", "us-central1")
 
-GCS_LOCATION = os.getenv(
-    "GCS_LOCATION", "gs://ksalama-cloudml-us/ucaip_demo/"
-)
+GCS_LOCATION = os.getenv("GCS_LOCATION", "gs://ksalama-cloudml-us/ucaip_demo/")
 
-ARTIFACT_STORE_URI = os.path.join(GCS_LOCATION, "tfx_arficats")
+ARTIFACT_STORE_URI = os.path.join(GCS_LOCATION, "tfx_artficats")
 MODEL_REGISTRY_URI = os.getenv(
     "MODEL_REGISTRY_URI",
     os.path.join(GCS_LOCATION, "model_registry"),
@@ -60,7 +59,7 @@ BEAM_DATAFLOW_PIPELINE_ARGS = [
     f"--project={PROJECT}",
     f"--temp_location={os.path.join(GCS_LOCATION, 'temp')}",
     f"--region={REGION}",
-    "--runner=DataflowRunner",
+    f"--runner={BEAM_RUNNER}",
 ]
 
 
@@ -74,6 +73,29 @@ AI_PLATFORM_TRAINING_ARGS = {
 
 SERVING_RUNTIME = os.getenv("SERVING_RUNTIME", "tf2-cpu.2-4")
 SERVING_IMAGE_URI = f"gcr.io/cloud-aiplatform/prediction/{SERVING_RUNTIME}:latest"
+
+BATCH_PREDICTION_BQ_DATASET_NAME = os.getenv(
+    "BATCH_PREDICTION_BQ_DATASET_NAME", "playground_us"
+)
+BATCH_PREDICTION_BQ_TABLE_NAME = os.getenv(
+    "BATCH_PREDICTION_BQ_TABLE_NAME", "chicago_taxitrips_prep"
+)
+BATCH_PREDICTION_BEAM_ARGS = {
+    "runner": f"{BEAM_RUNNER}",
+    "temporary_dir": os.path.join(GCS_LOCATION, "temp"),
+    "gcs_location": os.path.join(GCS_LOCATION, "temp"),
+    "project": PROJECT,
+    "region": REGION,
+    "setup_file": "./setup.py",
+}
+BATCH_PREDICTION_JOB_RESOURCES = {
+    "machine_type": "n1-standard-2",
+    #'accelerator_count': 1,
+    #'accelerator_type': 'NVIDIA_TESLA_T4'
+    "starting_replica_count": 1,
+    "max_replica_count": 10,
+}
+DATASTORE_PREDICTION_KIND = f"{MODEL_DISPLAY_NAME}-predictions"
 
 ENABLE_CACHE = os.getenv("ENABLE_CACHE", "0")
 UPLOAD_MODEL = os.getenv("UPLOAD_MODEL", "1")

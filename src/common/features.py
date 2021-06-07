@@ -69,3 +69,27 @@ def categorical_feature_names() -> list:
     return (
         list(EMBEDDING_CATEGORICAL_FEATURES.keys()) + ONEHOT_CATEGORICAL_FEATURE_NAMES
     )
+
+
+def generate_explanation_config():
+    explanation_config = {
+        "inputs": {},
+        "outputs": {},
+        "params": {"sampled_shapley_attribution": {"path_count": 10}},
+    }
+
+    for feature_name in FEATURE_NAMES:
+        if feature_name in NUMERICAL_FEATURE_NAMES:
+            explanation_config["inputs"][feature_name] = {
+                "input_tensor_name": feature_name,
+                "modality": "numeric",
+            }
+        else:
+            explanation_config["inputs"][feature_name] = {
+                "input_tensor_name": feature_name,
+                "modality": "categorical",
+            }
+
+    explanation_config["outputs"] = {"scores": {"output_tensor_name": "scores"}}
+
+    return explanation_config

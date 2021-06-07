@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""TFX pipeline definition."""
+"""TFX training pipeline definition."""
 
 import os
 import sys
@@ -50,8 +50,8 @@ SCRIPT_DIR = os.path.dirname(
 )
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
-from src.pipelines import config
-from src.pipelines import components as custom_components
+from src.tfx_pipelines import config
+from src.tfx_pipelines import components as custom_components
 from src.common import features
 from src.utils import datasource_utils
 
@@ -61,12 +61,12 @@ TRAIN_MODULE_FILE = "src/model_training/runner.py"
 
 
 def create_pipeline(
-    metadata_connection_config: metadata_store_pb2.ConnectionConfig,
     pipeline_root: str,
     num_epochs: data_types.RuntimeParameter,
     batch_size: data_types.RuntimeParameter,
     learning_rate: data_types.RuntimeParameter,
     hidden_units: data_types.RuntimeParameter,
+    metadata_connection_config: metadata_store_pb2.ConnectionConfig = None,
 ):
 
     local_executor_spec = executor_spec.ExecutorClassSpec(
@@ -258,12 +258,14 @@ def create_pipeline(
     ).with_id("ModelPusher")
 
     # Upload custom trained model to AI Platform.
+    explanation_config = json.dumps(features.generate_explanation_config())
     vertex_model_uploader = custom_components.vertex_model_uploader(
         project=config.PROJECT,
         region=config.REGION,
         model_display_name=config.MODEL_DISPLAY_NAME,
         pushed_model_location=exported_model_location,
         serving_image_uri=config.SERVING_IMAGE_URI,
+        explanation_config=explanation_config,
     ).with_id("VertexUploader")
 
     pipeline_components = [

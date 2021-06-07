@@ -13,12 +13,13 @@
 # limitations under the License.
 """Functions for exporting the model for serving."""
 
+import logging
+
 import tensorflow as tf
 import tensorflow_transform as tft
 import tensorflow_data_validation as tfdv
 from tensorflow_transform.tf_metadata import schema_utils
 import tensorflow.keras as keras
-import logging
 
 from src.common import features
 

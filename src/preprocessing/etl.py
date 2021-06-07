@@ -18,9 +18,11 @@ import os
 import tensorflow_transform as tft
 import tensorflow_data_validation as tfdv
 import apache_beam as beam
+from apache_beam.io.gcp.datastore.v1new.datastoreio import WriteToDatastore
 import tensorflow_transform.beam as tft_beam
 from tensorflow_transform.tf_metadata import dataset_metadata
 from tensorflow_transform.tf_metadata import schema_utils
+
 
 from src.preprocessing import transformations
 
@@ -166,22 +168,11 @@ def run_extract_pipeline(args):
 
     pipeline_options = beam.pipeline.PipelineOptions(flags=[], **args)
 
-    raw_schema_location = args["raw_schema_location"]
-    raw_data_query = args["raw_data_query"]
-
+    sql_query = args["sql_query"]
     exported_data_prefix = args["exported_data_prefix"]
     temporary_dir = args["temporary_dir"]
     gcs_location = args["gcs_location"]
     project = args["project"]
-
-    source_raw_schema = tfdv.load_schema_text(raw_schema_location)
-    raw_feature_spec = schema_utils.schema_as_feature_spec(
-        source_raw_schema
-    ).feature_spec
-
-    raw_metadata = dataset_metadata.DatasetMetadata(
-        schema_utils.schema_from_feature_spec(raw_feature_spec)
-    )
 
     with beam.Pipeline(options=pipeline_options) as pipeline:
         with tft_beam.Context(temporary_dir):
@@ -191,7 +182,7 @@ def run_extract_pipeline(args):
                 pipeline
                 | "Read Data"
                 >> beam.io.ReadFromBigQuery(
-                    query=raw_data_query,
+                    query=sql_query,
                     project=project,
                     use_standard_sql=True,
                     gcs_location=gcs_location,
@@ -199,7 +190,48 @@ def run_extract_pipeline(args):
                 | "Parse Data" >> beam.Map(convert_to_jsonl)
             )
 
-            # write raw data to GCS as tfrecords.
+            # Write raw data to GCS as JSONL files.
             _ = raw_data | "Write Data" >> beam.io.WriteToText(
                 file_path_prefix=exported_data_prefix, file_name_suffix=".jsonl"
             )
+
+
+def parse_prediction_results(jsonl):
+    import uuid
+    import json
+
+    prediction_results = json.loads(jsonl)["prediction"]
+    prediction_id = str(uuid.uuid4())
+    scores = prediction_results["scores"]
+    classes = prediction_results["classes"]
+
+    return {"prediction_id": prediction_id, "scores": scores, "classes": classes}
+
+
+def create_datastore_entity(prediction_response, kind):
+    from apache_beam.io.gcp.datastore.v1new.types import Entity
+    from apache_beam.io.gcp.datastore.v1new.types import Key
+
+    user_id = prediction_response.pop("prediction_id")
+    key = Key([kind, user_id])
+    prediction_entity = Entity(key)
+    prediction_entity.set_properties(prediction_response)
+    return prediction_entity
+
+
+def run_store_predictions_pipeline(args):
+
+    project = args["project"]
+    datastore_kind = args["datastore_kind"]
+    prediction_results_uri = args["prediction_results_uri"]
+
+    pipeline_options = beam.options.pipeline_options.PipelineOptions(args)
+    with beam.Pipeline(options=pipeline_options) as pipeline:
+        _ = (
+            pipeline
+            | "ReadFromJSONL" >> beam.io.ReadFromText(prediction_results_uri)
+            | "ParsePredictionResults" >> beam.Map(parse_prediction_results)
+            | "ConvertToDatastoreEntity"
+            >> beam.Map(create_datastore_entity, datastore_kind)
+            | "WriteToDatastore" >> WriteToDatastore(project=project)
+        )
