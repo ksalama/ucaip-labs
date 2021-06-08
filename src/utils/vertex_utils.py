@@ -26,11 +26,14 @@ DEFAULT_CUSTOM_TRAINING_JOB_PREFIX = "custom-job"
 
 
 class VertexClient:
-    def __init__(self, project, region, staging_bucket=None):
+    _unique_display_names = True
+    
+    def __init__(self, project, region, staging_bucket=None, unique_display_names=True):
 
         self.project = project
         self.region = region
         self.staging_bucket = staging_bucket
+        self._unique_display_names = unique_display_names
 
         self.parent = f"projects/{project}/locations/{region}"
         self.client_options = {"api_endpoint": f"{region}-aiplatform.googleapis.com"}
@@ -49,16 +52,20 @@ class VertexClient:
         )
 
         # Validate the uniqueness of the datasets display names.
-        self.list_datasets()
+        if unique_display_names:
+            self.list_datasets()
 
         # Validate the uniqueness of the model display names.
-        self.list_models()
+        if unique_display_names:
+            self.list_models()
 
         # Validate the uniqueness of the endpoint display names.
-        self.list_endpoints()
+        if unique_display_names:
+            self.list_endpoints()
 
         # Validate the uniqueness of the tensorboard display names.
-        self.list_tensorboard_instances()
+        if unique_display_names:
+            self.list_tensorboard_instances()
 
         logging.info(
             f"Uniqueness of objects in project:{project} region:{region} validated."
@@ -72,9 +79,10 @@ class VertexClient:
     def list_datasets(self):
         datasets = vertex_ai.TabularDataset.list()
         dataset_display_names = [dataset.display_name for dataset in datasets]
-        assert len(dataset_display_names) == len(
-            set(dataset_display_names)
-        ), "Dataset display names are not unique."
+        if self._unique_display_names:
+            assert len(dataset_display_names) == len(
+                set(dataset_display_names)
+            ), "Dataset display names are not unique."
         return datasets
 
     def get_dataset_by_display_name(self, display_name: str):
