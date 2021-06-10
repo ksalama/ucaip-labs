@@ -26,14 +26,12 @@ DEFAULT_CUSTOM_TRAINING_JOB_PREFIX = "custom-job"
 
 
 class VertexClient:
-    _unique_display_names = True
     
-    def __init__(self, project, region, staging_bucket=None, unique_display_names=True):
+    def __init__(self, project, region, staging_bucket=None):
 
         self.project = project
         self.region = region
         self.staging_bucket = staging_bucket
-        self._unique_display_names = unique_display_names
 
         self.parent = f"projects/{project}/locations/{region}"
         self.client_options = {"api_endpoint": f"{region}-aiplatform.googleapis.com"}
@@ -52,20 +50,24 @@ class VertexClient:
         )
 
         # Validate the uniqueness of the datasets display names.
-        if unique_display_names:
-            self.list_datasets()
+        '''
+        self.list_datasets()
+        '''
 
         # Validate the uniqueness of the model display names.
-        if unique_display_names:
-            self.list_models()
+        '''
+        self.list_models()
+        '''
 
         # Validate the uniqueness of the endpoint display names.
-        if unique_display_names:
-            self.list_endpoints()
+        '''
+        self.list_endpoints()
+        '''
 
         # Validate the uniqueness of the tensorboard display names.
-        if unique_display_names:
-            self.list_tensorboard_instances()
+        '''
+        self.list_tensorboard_instances()
+        '''
 
         logging.info(
             f"Uniqueness of objects in project:{project} region:{region} validated."
@@ -76,19 +78,20 @@ class VertexClient:
     # Dataset methods
     #####################################################################################
 
-    def list_datasets(self):
+    def list_datasets(self, unique_name: bool=True):
         datasets = vertex_ai.TabularDataset.list()
         dataset_display_names = [dataset.display_name for dataset in datasets]
-        if self._unique_display_names:
+            
+        if unique_name:
             assert len(dataset_display_names) == len(
                 set(dataset_display_names)
             ), "Dataset display names are not unique."
         return datasets
 
-    def get_dataset_by_display_name(self, display_name: str):
+    def get_dataset_by_display_name(self, display_name: str, unique_name: bool=False):
         dataset = None
 
-        datasets = self.list_datasets()
+        datasets = self.list_datasets(unique_name)
         for entry in datasets:
             if entry.display_name == display_name:
                 dataset = entry
@@ -96,8 +99,8 @@ class VertexClient:
 
         return dataset
 
-    def create_dataset_bq(self, display_name: str, bq_uri: str):
-        if self.get_dataset_by_display_name(display_name):
+    def create_dataset_bq(self, display_name: str, bq_uri: str, unique_name: bool=True):
+        if self.get_dataset_by_display_name(display_name, unique_name):
             raise ValueError(
                 f"Dataset with the Display Name {display_name} already exists."
             )
