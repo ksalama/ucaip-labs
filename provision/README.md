@@ -1,7 +1,7 @@
 # (WIP) Setting up MLOps environment on Google Cloud
 
 1. [Create a GCP Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#console) and [enable billing](https://cloud.google.com/billing/docs/how-to/modify-project).
-2. [create a Cloud Storage bucket](https://cloud.google.com/storage/docs/creating-buckets).
+2. [Create a Cloud Storage bucket](https://cloud.google.com/storage/docs/creating-buckets).
 3. [Enable the required APIs](https://cloud.google.com/endpoints/docs/openapi/enable-api).
 4. [Create an AI Notebook instance](https://cloud.google.com/ai-platform/notebooks/docs/create-new).
 5. [Create a Vertex TensorBoard instance](https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training).
