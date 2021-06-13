@@ -19,6 +19,5 @@ TODOs: Automate the environment setup using Terraform
     *  Cloud Build > Vertex AI User, BigQuery User
     *  AI Platform Service Agent > Dataflow User, BigQuery User
 
-5. Build AI Notebook Instance base container image
 6. Create AI Notebook Instance
-7. Build Cloud Build container image 
+7. Install required libraries
