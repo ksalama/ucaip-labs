@@ -50,6 +50,7 @@ def run_fn(fn_args):
         tft_output_dir=fn_args.transform_output,
         hyperparams=hyperparams,
         log_dir=log_dir,
+        base_model_dir=fn_args.base_model
     )
 
     logging.info("Runner executing exporter...")
