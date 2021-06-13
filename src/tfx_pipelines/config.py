@@ -15,23 +15,8 @@
 
 import os
 
-DATASET_DISPLAY_NAME = os.getenv("DATASET_DISPLAY_NAME", "chicago_taxi_tips")
-MODEL_DISPLAY_NAME = os.getenv(
-    "MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}_classifier"
-)
-
-DATA_SPLIT_COLUMN = "data_split"
-EXCLUDE_COLUMNS = ",".join(["trip_start_timestamp"])
-TRAIN_LIMIT = os.getenv("TRAIN_LIMIT", "0")
-TEST_LIMIT = os.getenv("TEST_LIMIT", "0")
-SERVE_LIMIT = os.getenv("SERVE_LIMIT", "0")
-
-PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{MODEL_DISPLAY_NAME}_train_pipeline")
-PIPELINE_NAME = PIPELINE_NAME.replace("_", "-")
-
 PROJECT = os.getenv("PROJECT", "ksalama-cloudml")
 REGION = os.getenv("REGION", "us-central1")
-
 GCS_LOCATION = os.getenv("GCS_LOCATION", "gs://ksalama-cloudml-us/ucaip_demo/")
 
 ARTIFACT_STORE_URI = os.path.join(GCS_LOCATION, "tfx_artficats")
@@ -40,6 +25,18 @@ MODEL_REGISTRY_URI = os.getenv(
     os.path.join(GCS_LOCATION, "model_registry"),
 )
 
+DATASET_DISPLAY_NAME = os.getenv("DATASET_DISPLAY_NAME", "chicago-taxi-tips")
+MODEL_DISPLAY_NAME = os.getenv(
+    "MODEL_DISPLAY_NAME", f"{DATASET_DISPLAY_NAME}-classifier"
+)
+PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{MODEL_DISPLAY_NAME}-train-pipeline")
+
+DATA_SPLIT_COLUMN = "data_split"
+EXCLUDE_COLUMNS = ",".join(["trip_start_timestamp"])
+TRAIN_LIMIT = os.getenv("TRAIN_LIMIT", "0")
+TEST_LIMIT = os.getenv("TEST_LIMIT", "0")
+SERVE_LIMIT = os.getenv("SERVE_LIMIT", "0")
+
 NUM_TRAIN_SPLITS = os.getenv("NUM_TRAIN_SPLITS", "4")
 NUM_EVAL_SPLITS = os.getenv("NUM_EVAL_SPLITS", "1")
 ACCURACY_THRESHOLD = os.getenv("ACCURACY_THRESHOLD", "0.8")
@@ -47,7 +44,7 @@ ACCURACY_THRESHOLD = os.getenv("ACCURACY_THRESHOLD", "0.8")
 USE_KFP_SA = os.getenv("USE_KFP_SA", "False")
 
 TFX_IMAGE_URI = os.getenv(
-    "TFX_IMAGE_URI", f"gcr.io/{PROJECT}/tfx_{DATASET_DISPLAY_NAME}:latest"
+    "TFX_IMAGE_URI", f"gcr.io/{PROJECT}/tfx-{DATASET_DISPLAY_NAME}:latest"
 )
 
 BEAM_RUNNER = os.getenv("BEAM_RUNNER", "DirectRunner")
