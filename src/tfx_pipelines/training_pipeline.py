@@ -258,7 +258,7 @@ def create_pipeline(
         push_destination=push_destination,
     ).with_id("ModelPusher")
 
-    # Upload custom trained model to AI Platform.
+    # Upload custom trained model to Vertex AI.
     explanation_config = json.dumps(features.generate_explanation_config())
     vertex_model_uploader = custom_components.vertex_model_uploader(
         project=config.PROJECT,
