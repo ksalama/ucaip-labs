@@ -28,6 +28,7 @@ def train(
     tft_output_dir,
     hyperparams,
     log_dir,
+    base_model_dir=None
 ):
 
     logging.info(f"Loading tft output from {tft_output_dir}")
@@ -54,9 +55,13 @@ def train(
         monitor="val_loss", patience=5, restore_best_weights=True
     )
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
-
+    
     classifier = model.create_binary_classifier(tft_output, hyperparams)
-
+    if base_model_dir:
+        try:
+            classifier = keras.load_model(base_model_dir)
+        except: pass
+        
     classifier.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
     logging.info("Model training started...")
