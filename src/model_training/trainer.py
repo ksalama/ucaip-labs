@@ -60,7 +60,7 @@ def train(
     if base_model_dir:
         try:
             classifier = keras.load_model(base_model_dir)
-        else: pass
+        except: pass
         
     classifier.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
