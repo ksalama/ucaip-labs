@@ -502,22 +502,23 @@ class VertexClient:
     # TensorBoards methods
     #####################################################################################
 
-    def list_tensorboard_instances(self):
+    def list_tensorboard_instances(self, unique_name: bool=True):
         tensorboards = self.tensorboard_client_beta.list_tensorboards(
             parent=self.parent
         )
         tensorboard_display_names = [
             tensorboard.display_name for tensorboard in tensorboards
         ]
-        assert len(tensorboard_display_names) == len(
-            set(tensorboard_display_names)
-        ), "TensorBoard display names are not unique."
+        if unique_name:
+            assert len(tensorboard_display_names) == len(
+                set(tensorboard_display_names)
+            ), "TensorBoard display names are not unique."
         return tensorboards
 
-    def get_tensorboard_by_display_name(self, display_name: str):
+    def get_tensorboard_by_display_name(self, display_name: str, unique_name: bool=True):
         tensorboard_instance = None
 
-        tensorboard_instances = self.list_tensorboard_instances()
+        tensorboard_instances = self.list_tensorboard_instances(unique_name)
         for entry in tensorboard_instances:
             if entry.display_name == display_name:
                 tensorboard_instance = entry
