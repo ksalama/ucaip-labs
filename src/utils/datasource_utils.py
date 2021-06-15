@@ -56,7 +56,6 @@ def get_training_source_query(
     bq_source_uri = dataset.gca_resource.metadata["inputConfig"]["bigquerySource"][
         "uri"
     ]
-    print(bq_source_uri)
     _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split(".")
 
     return _get_source_query(bq_dataset_name, bq_table_name, ML_use, limit)
