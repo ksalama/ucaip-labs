@@ -57,7 +57,7 @@ def run_transform_pipeline(args):
     write_raw_data = args["write_raw_data"]
     exported_data_prefix = args["exported_data_prefix"]
     transformed_data_prefix = args["transformed_data_prefix"]
-    transform_artefact_dir = args["transform_artefact_dir"]
+    transform_artifact_dir = args["transform_artifact_dir"]
     temporary_dir = args["temporary_dir"]
     gcs_location = args["gcs_location"]
     project = args["project"]
@@ -138,8 +138,8 @@ def run_transform_pipeline(args):
             )
 
             # Write transform_fn.
-            _ = transform_fn | "Write Transform Artefacts" >> tft_beam.WriteTransformFn(
-                transform_artefact_dir
+            _ = transform_fn | "Write Transform Artifacts" >> tft_beam.WriteTransformFn(
+                transform_artifact_dir
             )
 
             if write_raw_data:

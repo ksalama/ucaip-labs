@@ -100,7 +100,7 @@ class VertexClient:
         return dataset
 
     def create_dataset_bq(self, display_name: str, bq_uri: str, unique_name: bool=True):
-        if self.get_dataset_by_display_name(display_name, unique_name):
+        if unique_name and self.get_dataset_by_display_name(display_name, unique_name):
             raise ValueError(
                 f"Dataset with the Display Name {display_name} already exists."
             )
