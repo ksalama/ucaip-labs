@@ -130,6 +130,9 @@ class VertexClient:
             ]
         return experiment_df
 
+    def get_pipeline_metadata_df(self, pipeline_name=None):
+        return vertex_ai.get_pipeline_df(pipeline_name)
+
     def log_params(self, params):
         vertex_ai.log_params(params)
 
