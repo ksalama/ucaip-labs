@@ -70,7 +70,9 @@ def test_model_artifact():
 
     vertex_client = VertexClient(project, region)
     model = vertex_client.get_model_by_display_name(model_display_name)
-    assert model, f"A model with display name {model_display_name} is not does not exist!"
+    assert (
+        model
+    ), f"A model with display name {model_display_name} is not does not exist!"
 
     artifact_uri = model.gca_resource.artifact_uri
     logging.info(f"Model artifact uri:{artifact_uri}")
