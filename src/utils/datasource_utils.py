@@ -13,7 +13,7 @@
 # limitations under the License.
 """Utilities for generating BigQuery data querying scirpts."""
 
-from src.utils.vertex_utils import VertexClient
+from google.cloud import aiplatform as vertex_ai
 
 
 def _get_source_query(bq_dataset_name, bq_table_name, ML_use, limit=None):
@@ -50,9 +50,8 @@ def get_training_source_query(
     project, region, dataset_display_name, ML_use, limit=None
 ):
 
-    vertex_client = VertexClient(project, region)
-
-    dataset = vertex_client.get_dataset_by_display_name(dataset_display_name)
+    datasets = vertex_ai.TabularDataset.list(filter=f"display_name={dataset_display_name}")
+    dataset = datasets[0]
     bq_source_uri = dataset.gca_resource.metadata["inputConfig"]["bigquerySource"][
         "uri"
     ]

@@ -74,7 +74,7 @@ def test_transform_pipeline():
         project=project,
         region=region,
         dataset_display_name=dataset_display_name,
-        data_split=DATA_SPLIT,
+        ML_use=DATA_SPLIT,
         limit=LIMIT,
     )
 

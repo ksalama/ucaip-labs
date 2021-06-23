@@ -32,12 +32,13 @@ from tfx.types.standard_artifacts import HyperParameters
 from tfx.types.experimental.simple_artifacts import File as UploadedModel
 from tfx.types.experimental.simple_artifacts import Dataset
 
+from google.cloud import aiplatform as vertex_ai
+
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
 )
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
-from src.utils.vertex_utils import VertexClient
 from src.preprocessing import etl
 
 
@@ -80,7 +81,10 @@ def vertex_model_uploader(
     uploaded_model: OutputArtifact[UploadedModel],
 ):
 
-    vertex_client = VertexClient(project, region)
+    vertex_ai.init(
+        project=project,
+        location=region
+    )
 
     pushed_model_dir = os.path.join(
         pushed_model_location, tf.io.gfile.listdir(pushed_model_location)[-1]
@@ -89,15 +93,25 @@ def vertex_model_uploader(
     logging.info(f"Model registry location: {pushed_model_dir}")
 
     try:
-        explanation_config = json.loads(explanation_config)
+        explanation_metadata = vertex_ai.explain.ExplanationMetadata(
+            inputs=explanation_config["inputs"],
+            outputs=explanation_config["outputs"],
+        )
+        explanation_parameters = vertex_ai.explain.ExplanationParameters(
+            explanation_config["params"]
+        )
     except:
-        explanation_config = None
-
-    vertex_model = vertex_client.upload_model(
+        explanation_metadata = None
+        explanation_parameters = None
+    
+    vertex_model = vertex_ai.Model.upload(
         display_name=model_display_name,
-        model_artifact_uri=pushed_model_dir,
-        serving_image_uri=serving_image_uri,
-        explanation_config=explanation_config,
+        artifact_uri=pushed_model_dir,
+        serving_container_image_uri=serving_image_uri,
+        parameters_schema_uri=None,
+        instance_schema_uri=None,
+        explanation_metadata=explanation_metadata,
+        explanation_parameters=explanation_parameters,
     )
 
     model_uri = vertex_model.gca_resource.name

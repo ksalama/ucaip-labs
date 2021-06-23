@@ -16,6 +16,7 @@
 import os
 import sys
 import logging
+import json
 
 import tensorflow_model_analysis as tfma
 
@@ -90,7 +91,7 @@ def create_pipeline(
         config.PROJECT,
         config.REGION,
         config.DATASET_DISPLAY_NAME,
-        data_split="UNASSIGNED",
+        ML_use="UNASSIGNED",
         limit=int(config.TRAIN_LIMIT),
     )
 
@@ -118,7 +119,7 @@ def create_pipeline(
         config.PROJECT,
         config.REGION,
         config.DATASET_DISPLAY_NAME,
-        data_split="TEST",
+        ML_use="TEST",
         limit=int(config.TEST_LIMIT),
     )
 
