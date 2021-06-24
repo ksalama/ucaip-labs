@@ -17,6 +17,8 @@ import os
 import logging
 import tensorflow as tf
 
+from google.cloud import aiplatform as vertex_ai
+
 test_instance = {
     "dropoff_grid": ["POINT(-87.6 41.9)"],
     "euclidean": [2064.2696],
@@ -32,8 +34,6 @@ test_instance = {
 }
 
 SERVING_DEFAULT_SIGNATURE_NAME = "serving_default"
-
-from src.utils.vertex_utils import VertexClient
 
 
 def test_model_artifact():
@@ -67,9 +67,14 @@ def test_model_artifact():
     assert project, "Environment variable PROJECT is None!"
     assert region, "Environment variable REGION is None!"
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
-
-    vertex_client = VertexClient(project, region)
-    model = vertex_client.get_model_by_display_name(model_display_name)
+    
+    vertex_ai.init(
+        project=project,
+        location=region
+    )
+    
+    models = vertex_ai.Model.list(filter=f'display_name={model_display_name}')
+    model = models[0]
 
     artifact_uri = model.gca_resource.artifact_uri
     logging.info(f"Model artifact uri:{artifact_uri}")
@@ -114,18 +119,23 @@ def test_model_endpoint():
     assert region, "Environment variable REGION is None!"
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
     assert endpoint_display_name, "Environment variable ENDPOINT_DISPLAY_NAME is None!"
-
-    vertex_client = VertexClient(project, region)
-    endpoint = vertex_client.get_endpoint_by_display_name(endpoint_display_name)
+    
+    vertex_ai.init(
+        project=project,
+        location=region
+    )
+    
+    endpoints = vertex_ai.Endpoint.list(filter=f'display_name={endpoint_display_name}')
+    endpoint = vertex_ai.Endpoint(endpoints[0].resource_name)
+    
     assert (
         endpoint
     ), f"Endpoint with display name {endpoint_display_name} does not exist! in region {region}"
 
     logging.info(f"Calling endpoint: {endpoint}.")
-
-    prediction = vertex_client.predict(
-        endpoint_display_name, [test_instance]
-    ).predictions[0]
+    
+    predictions = endpoint.predict([test_instance])
+    prediction = predictions[0][0]
 
     keys = ["classes", "scores"]
     for key in keys:
