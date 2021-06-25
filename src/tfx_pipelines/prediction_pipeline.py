@@ -28,7 +28,7 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
 from src.tfx_pipelines import config
 from src.tfx_pipelines import components as custom_components
-from src.utils import datasource_utils
+from src.common import datasource_utils
 
 
 def create_pipeline(

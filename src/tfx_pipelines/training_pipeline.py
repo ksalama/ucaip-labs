@@ -53,8 +53,7 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
 from src.tfx_pipelines import config
 from src.tfx_pipelines import components as custom_components
-from src.common import features
-from src.utils import datasource_utils
+from src.common import features, datasource_utils
 
 RAW_SCHEMA_DIR = "src/raw_schema"
 TRANSFORM_MODULE_FILE = "src/preprocessing/transformations.py"
@@ -91,7 +90,7 @@ def create_pipeline(
         config.PROJECT,
         config.REGION,
         config.DATASET_DISPLAY_NAME,
-        data_split="UNASSIGNED",
+        ml_use="UNASSIGNED",
         limit=int(config.TRAIN_LIMIT),
     )
 
@@ -119,7 +118,7 @@ def create_pipeline(
         config.PROJECT,
         config.REGION,
         config.DATASET_DISPLAY_NAME,
-        data_split="TEST",
+        ml_use="TEST",
         limit=int(config.TEST_LIMIT),
     )
 
@@ -181,7 +180,7 @@ def create_pipeline(
         module_file=TRAIN_MODULE_FILE,
         transformed_examples=transform.outputs.transformed_examples,
         schema=schema_importer.outputs.result,
-        base_model=warmstart_model_resolver.outputs.latest_model,
+        #base_model=warmstart_model_resolver.outputs.latest_model,
         transform_graph=transform.outputs.transform_graph,
         train_args=trainer_pb2.TrainArgs(num_steps=0),
         eval_args=trainer_pb2.EvalArgs(num_steps=None),
@@ -237,7 +236,7 @@ def create_pipeline(
         examples=test_example_gen.outputs.examples,
         example_splits=["test"],
         model=trainer.outputs.model,
-        baseline_model=baseline_model_resolver.outputs.model,
+        #baseline_model=baseline_model_resolver.outputs.model,
         eval_config=eval_config,
         schema=schema_importer.outputs.result,
     ).with_id("ModelEvaluator")
@@ -277,9 +276,9 @@ def create_pipeline(
         schema_importer,
         example_validator,
         transform,
-        warmstart_model_resolver,
+        #warmstart_model_resolver,
         trainer,
-        baseline_model_resolver,
+        #baseline_model_resolver,
         evaluator,
         pusher,
     ]
