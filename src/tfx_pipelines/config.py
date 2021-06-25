@@ -19,7 +19,7 @@ PROJECT = os.getenv("PROJECT", "ksalama-cloudml")
 REGION = os.getenv("REGION", "us-central1")
 GCS_LOCATION = os.getenv("GCS_LOCATION", "gs://ksalama-cloudml-us/ucaip_demo/")
 
-ARTIFACT_STORE_URI = os.path.join(GCS_LOCATION, "tfx_artifcats")
+ARTIFACT_STORE_URI = os.path.join(GCS_LOCATION, "tfx_artifacts")
 MODEL_REGISTRY_URI = os.getenv(
     "MODEL_REGISTRY_URI",
     os.path.join(GCS_LOCATION, "model_registry"),

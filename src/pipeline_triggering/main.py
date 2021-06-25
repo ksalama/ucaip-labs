@@ -26,7 +26,6 @@ def trigger_pipeline(event, context):
     project = os.getenv("PROJECT")
     region = os.getenv("REGION")
     gcs_pipeline_file_location = os.getenv("GCS_PIPELINE_FILE_LOCATION")
-    parameter_names = os.getenv("PARAMETER_NAMES")
 
     if not project:
         raise ValueError("Environment variable PROJECT is not set.")
@@ -34,11 +33,6 @@ def trigger_pipeline(event, context):
         raise ValueError("Environment variable REGION is not set.")
     if not gcs_pipeline_file_location:
         raise ValueError("Environment variable GCS_PIPELINE_FILE_LOCATION is not set.")
-
-    if parameter_names:
-        parameter_names = set(parameter_names.split("-"))
-    else:
-        parameter_names = []
 
     storage_client = storage.Client()
 
@@ -59,10 +53,6 @@ def trigger_pipeline(event, context):
     logging.info(f"Event data: {data}")
 
     parameter_values = json.loads(data)
-
-    for key in list(parameter_values.keys()):
-        if key not in parameter_names:
-            parameter_values.pop(key)
 
     api_client = AIPlatformClient(project_id=project, region=region)
 
