@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""The entrypoint for the Vertex AI training job."""
+"""The entrypoint for the uCAIP traing job."""
 
 import os
 import sys
@@ -21,7 +21,9 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 import argparse
 
-from src.utils.vertex_utils import VertexClient
+from google.cloud import aiplatform as vertex_ai
+from google.cloud import aiplatform_v1beta1 as vertex_ai_beta
+
 from src.model_training import defaults, trainer, exporter
 
 dirname = os.path.dirname(__file__)
@@ -83,23 +85,23 @@ def main():
     hyperparams = defaults.update_hyperparams(hyperparams)
     logging.info(f"Hyperparameter: {hyperparams}")
 
-    vertex_client = VertexClient(
-        project=args.project, region=args.region, staging_bucket=args.staging_bucket
-    )
-
     if args.experiment_name:
-        vertex_client.set_experiment(experiment_name=args.experiment_name)
+        vertex_ai.init(
+            project=args.project,
+            staging_bucket=args.staging_bucket,
+            experiment=args.experiment_name,
+        )
+
         logging.info(f"Using Vertex AI experiment: {args.experiment_name}")
 
         run_id = args.run_name
         if not run_id:
             run_id = f"run-gcp-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-        vertex_client.start_experiment_run(run_id)
+        vertex_ai.start_run(run_id)
         logging.info(f"Run {run_id} started.")
 
-    if args.experiment_name:
-        vertex_client.log_params(hyperparams)
+        vertex_ai.log_params(hyperparams)
 
     classifier = trainer.train(
         train_data_dir=args.train_data_dir,
@@ -118,7 +120,7 @@ def main():
     )
 
     if args.experiment_name:
-        vertex_client.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
+        vertex_ai.log_metrics({"val_loss": val_loss, "val_accuracy": val_accuracy})
 
     try:
         exporter.export_serving_model(
