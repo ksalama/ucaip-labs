@@ -20,13 +20,14 @@ import sys
 import logging
 import json
 
+from google.cloud import aiplatform as vertex_ai
+
 
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
 )
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 
-from src.utils.vertex_utils import VertexClient
 from google.cloud import storage
 
 SERVING_SPEC_FILEPATH = 'build/serving_resources_spec.json'
@@ -74,8 +75,20 @@ def get_args():
 
 def create_endpoint(project, region, endpoint_display_name):
     logging.info(f"Creating endpoint {endpoint_display_name}")
-    vertex_client = VertexClient(project, region)
-    endpoint = vertex_client.create_endpoint(endpoint_display_name)
+    vertex_ai.init(
+        project=project,
+        location=region
+    )
+    
+    endpoints = vertex_ai.Endpoint.list(
+        filter=f'display_name={endpoint_display_name}', 
+        order_by="update_time")
+    
+    if len(endpoints) > 0:
+        logging.info(f"Endpoint {endpoint_display_name} already exists.")
+        endpoint = endpoints[-1]
+    else:
+        endpoint = vertex_ai.Endpoint.create(endpoint_display_name)
     logging.info(f"Endpoint is ready.")
     logging.info(endpoint.gca_resource)
     return endpoint
@@ -83,11 +96,22 @@ def create_endpoint(project, region, endpoint_display_name):
 
 def deploy_model(project, region, endpoint_display_name, model_display_name, serving_resources_spec):
     logging.info(f"Deploying model {model_display_name} to endpoint {endpoint_display_name}")
-    vertex_client = VertexClient(project, region)
-    deployed_model = vertex_client.deploy_model(
-        model_display_name,
-        endpoint_display_name,
-        serving_resources_spec)
+    vertex_ai.init(
+        project=project,
+        location=region
+    )
+    
+    model = vertex_ai.Model.list(
+        filter=f'display_name={model_display_name}',
+        order_by="update_time"
+    )[-1]
+    
+    endpoint = vertex_ai.Endpoint.list(
+        filter=f'display_name={endpoint_display_name}',
+        order_by="update_time"
+    )[-1]
+
+    deloyed_model = endpoint.deploy(model=model, **serving_resources_spec)
     logging.info(f"Model is deployed.")
     logging.info(deployed_model)
     return deployed_model
