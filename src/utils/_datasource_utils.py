@@ -13,10 +13,11 @@
 # limitations under the License.
 """Utilities for generating BigQuery data querying scirpts."""
 
-from src.utils.vertex_utils import VertexClient
+
+from google.cloud import aiplatform as vertex_ai
 
 
-def _get_source_query(bq_dataset_name, bq_table_name, data_split, limit=None):
+def _get_source_query(bq_dataset_name, bq_table_name, ml_use, limit=None):
     query = f"""
     SELECT 
         IF(trip_month IS NULL, -1, trip_month) trip_month,
@@ -30,11 +31,11 @@ def _get_source_query(bq_dataset_name, bq_table_name, data_split, limit=None):
         IF(dropoff_grid IS NULL, 'NA', dropoff_grid) dropoff_grid,
         IF(euclidean IS NULL, -1, euclidean) euclidean,
         IF(loc_cross IS NULL, 'NA', loc_cross) loc_cross"""
-    if data_split:
+    if ml_use:
         query += f""",
         tip_bin
     FROM {bq_dataset_name}.{bq_table_name} 
-    WHERE data_split = '{data_split}'
+    WHERE ML_use = '{ml_use}'
     """
     else:
         query += f"""
@@ -47,22 +48,20 @@ def _get_source_query(bq_dataset_name, bq_table_name, data_split, limit=None):
 
 
 def get_training_source_query(
-    project, region, dataset_display_name, data_split, limit=None
+    project, region, dataset_display_name, ml_use, limit=None
 ):
 
-    vertex_client = VertexClient(project, region)
-
-    dataset = vertex_client.get_dataset_by_display_name(dataset_display_name)
+    dataset = vertex_ai.TabularDataset.list(
+        filter=f"display_name={dataset_display_name}", order_by="update_time"
+    )[-1]
     bq_source_uri = dataset.gca_resource.metadata["inputConfig"]["bigquerySource"][
         "uri"
     ]
     _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split(".")
 
-    return _get_source_query(bq_dataset_name, bq_table_name, data_split, limit)
+    return _get_source_query(bq_dataset_name, bq_table_name, ml_use, limit)
 
 
 def get_serving_source_query(bq_dataset_name, bq_table_name, limit=None):
 
-    return _get_source_query(
-        bq_dataset_name, bq_table_name, data_split=None, limit=limit
-    )
+    return _get_source_query(bq_dataset_name, bq_table_name, ml_use=None, limit=limit)
