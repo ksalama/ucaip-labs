@@ -3,7 +3,13 @@
 You can use the [Terraform](https://www.terraform.io/) scripts in the `terraform` folder to automatically provision the environment required by the samples. 
 
 The scripts perform the following actions:
-1. Enable the required Cloud APIs.
+
+1. Enable the required Cloud APIs
+    * **Essentials**: compute, iam, iamcredentials
+    * **ML**: notebooks, aiplatform
+    * **Data**: dataflow, bigquery, bigquerydatatransfer
+    * **CI/CD**: cloudbuild, container, artifactregistry
+    * **Operations**: cloudtrace, monitoring, logging, cloudresourcemanager
 2. Create a regional GCS bucket.
 3. Create an instance of Vertex Notebooks.
 4. Create service accounts for Vertex Training and Vertex Pipelines.
