@@ -63,7 +63,7 @@ def test_training_query():
     query = datasource_utils._get_source_query(
         bq_dataset_name=bq_dataset_name,
         bq_table_name=bq_table_name,
-        data_split="UNASSIGNED",
+        ml_use="UNASSIGNED",
         limit=LIMIT,
     )
 
@@ -91,7 +91,7 @@ def test_serving_query():
     query = datasource_utils._get_source_query(
         bq_dataset_name=bq_dataset_name,
         bq_table_name=bq_table_name,
-        data_split=None,
+        ml_use=None,
         limit=LIMIT,
     )
 

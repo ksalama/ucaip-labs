@@ -31,7 +31,7 @@ MODEL_DISPLAY_NAME = os.getenv(
 )
 PIPELINE_NAME = os.getenv("PIPELINE_NAME", f"{MODEL_DISPLAY_NAME}-train-pipeline")
 
-DATA_SPLIT_COLUMN = "data_split"
+ML_USE_COLUMN = "ml_use"
 EXCLUDE_COLUMNS = ",".join(["trip_start_timestamp"])
 TRAIN_LIMIT = os.getenv("TRAIN_LIMIT", "0")
 TEST_LIMIT = os.getenv("TEST_LIMIT", "0")
