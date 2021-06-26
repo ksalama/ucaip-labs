@@ -30,7 +30,7 @@ handler.setLevel(logging.INFO)
 root.addHandler(handler)
 
 OUTPUT_DIR = "test_etl_output_dir"
-DATA_SPLIT = "UNASSIGNED"
+ML_USE = "UNASSIGNED"
 LIMIT = 100
 
 EXPECTED_FEATURE_SPEC = {
@@ -74,7 +74,7 @@ def test_transform_pipeline():
         project=project,
         region=region,
         dataset_display_name=dataset_display_name,
-        data_split=DATA_SPLIT,
+        ml_use=ML_USE,
         limit=LIMIT,
     )
 
