@@ -18,7 +18,7 @@ import os
 import logging
 from google.cloud import bigquery
 
-from src.utils import datasource_utils
+from src.common import datasource_utils
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)

@@ -21,7 +21,7 @@ import tensorflow as tf
 from tensorflow.io import FixedLenFeature
 
 from src.preprocessing import etl
-from src.utils import datasource_utils
+from src.comm import datasource_utils
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)

@@ -33,7 +33,7 @@ test_instance = {
 
 SERVING_DEFAULT_SIGNATURE_NAME = "serving_default"
 
-from src.utils.vertex_utils import VertexClient
+from google.cloud import aiplatform as vertex_ai
 
 
 def test_model_artifact():
@@ -68,12 +68,18 @@ def test_model_artifact():
     assert region, "Environment variable REGION is None!"
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
 
-    vertex_client = VertexClient(project, region)
-    model = vertex_client.get_model_by_display_name(model_display_name)
-    assert (
-        model
-    ), f"A model with display name {model_display_name} is not does not exist!"
+    vertex_ai.init(project=project, location=region,)
 
+    models = vertex_ai.Model.list(
+        filter=f'display_name={model_display_name}',
+        order_by="update_time"
+    )
+
+    assert (
+        models
+    ), f"No model with display name {model_display_name} exists!"
+
+    model = models[-1]
     artifact_uri = model.gca_resource.artifact_uri
     logging.info(f"Model artifact uri:{artifact_uri}")
     assert tf.io.gfile.exists(
@@ -118,17 +124,18 @@ def test_model_endpoint():
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
     assert endpoint_display_name, "Environment variable ENDPOINT_DISPLAY_NAME is None!"
 
-    vertex_client = VertexClient(project, region)
-    endpoint = vertex_client.get_endpoint_by_display_name(endpoint_display_name)
+    endpoints = vertex_ai.Endpoint.list(
+        filter=f'display_name={endpoint_display_name}',
+        order_by="update_time"
+    )
     assert (
-        endpoint
+        endpoints
     ), f"Endpoint with display name {endpoint_display_name} does not exist! in region {region}"
 
+    endpoint = endpoints[-1]
     logging.info(f"Calling endpoint: {endpoint}.")
 
-    prediction = vertex_client.predict(
-        endpoint_display_name, [test_instance]
-    ).predictions[0]
+    prediction = endpoint.predict([test_instance]).predictions[0]
 
     keys = ["classes", "scores"]
     for key in keys:
