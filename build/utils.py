@@ -111,7 +111,7 @@ def deploy_model(project, region, endpoint_display_name, model_display_name, ser
         order_by="update_time"
     )[-1]
 
-    deloyed_model = endpoint.deploy(model=model, **serving_resources_spec)
+    deployed_model = endpoint.deploy(model=model, **serving_resources_spec)
     logging.info(f"Model is deployed.")
     logging.info(deployed_model)
     return deployed_model
