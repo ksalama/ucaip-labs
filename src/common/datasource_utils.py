@@ -16,52 +16,42 @@
 
 from google.cloud import aiplatform as vertex_ai
 
-
-def _get_source_query(bq_dataset_name, bq_table_name, ml_use, limit=None):
-    query = f"""
-    SELECT 
-        IF(trip_month IS NULL, -1, trip_month) trip_month,
-        IF(trip_day IS NULL, -1, trip_day) trip_day,
-        IF(trip_day_of_week IS NULL, -1, trip_day_of_week) trip_day_of_week,
-        IF(trip_hour IS NULL, -1, trip_hour) trip_hour,
-        IF(trip_seconds IS NULL, -1, trip_seconds) trip_seconds,
-        IF(trip_miles IS NULL, -1, trip_miles) trip_miles,
-        IF(payment_type IS NULL, 'NA', payment_type) payment_type,
-        IF(pickup_grid IS NULL, 'NA', pickup_grid) pickup_grid,
-        IF(dropoff_grid IS NULL, 'NA', dropoff_grid) dropoff_grid,
-        IF(euclidean IS NULL, -1, euclidean) euclidean,
-        IF(loc_cross IS NULL, 'NA', loc_cross) loc_cross"""
-    if ml_use:
-        query += f""",
-        tip_bin
-    FROM {bq_dataset_name}.{bq_table_name} 
-    WHERE ML_use = '{ml_use}'
-    """
-    else:
-        query += f"""
-    FROM {bq_dataset_name}.{bq_table_name} 
-    """
-    if limit:
-        query += f"LIMIT {limit}"
-
-    return query
-
-
-def get_training_source_query(
-    project, region, dataset_display_name, ml_use, limit=None
-):
-
-    dataset = vertex_ai.TabularDataset.list(
-        filter=f"display_name={dataset_display_name}", order_by="update_time"
-    )[-1]
+def get_bq_uri(dataset_display_name):
+    datasets = vertex_ai.TabularDataset.list(filter=f"display_name={dataset_display_name}")
+    dataset = datasets[0]
     bq_source_uri = dataset.gca_resource.metadata["inputConfig"]["bigquerySource"][
         "uri"
     ]
     _, bq_dataset_name, bq_table_name = bq_source_uri.replace("g://", "").split(".")
+    return bq_source_uri, bq_dataset_name, bq_table_name
 
-    return _get_source_query(bq_dataset_name, bq_table_name, ml_use, limit)
+def create_bq_source_query(dataset_display_name, missing, label_column=None, ML_use=None, limit=None):
+    _, bq_dataset_name, bq_table_name = get_bq_uri(dataset_display_name)
 
+    query = """
+    SELECT
+"""
+    for column, transform in missing.items():
+        if isinstance(transform, str):
+            query += f"""        IF({column} IS NULL, '{transform}', {column}) {column},
+"""
+        else:
+            query += f"""        IF({column} IS NULL, {transform}, {column}) {column},
+"""
 
-def get_serving_source_query(bq_dataset_name, bq_table_name, limit=None):
+    if label_column:
+        query += f"""        {label_column}
+"""
 
-    return _get_source_query(bq_dataset_name, bq_table_name, ml_use=None, limit=limit)
+    query += f"""    FROM {bq_dataset_name}.{bq_table_name}
+"""
+
+    if ML_use:
+        query += f"""    WHERE ML_use = '{ML_use}'
+"""
+
+    if limit:
+        query += f"""    LIMIT {limit}"""
+
+    return query
+

@@ -17,6 +17,7 @@ import tensorflow as tf
 import tensorflow_transform as tft
 
 from src.common import features
+from src.model_training import features as feature_info
 
 
 def preprocessing_fn(inputs):
@@ -29,8 +30,8 @@ def preprocessing_fn(inputs):
 
     outputs = {}
 
-    for key in features.FEATURE_NAMES:
-        if key in features.NUMERICAL_FEATURE_NAMES:
+    for key in feature_info.FEATURE_NAMES:
+        if key in feature_info.NUMERICAL_FEATURE_NAMES:
             outputs[features.transformed_name(key)] = tft.scale_to_z_score(inputs[key])
 
         elif key in features.categorical_feature_names():
@@ -40,7 +41,7 @@ def preprocessing_fn(inputs):
                 vocab_filename=key,
             )
 
-    outputs[features.TARGET_FEATURE_NAME] = inputs[features.TARGET_FEATURE_NAME]
+    outputs[feature_info.TARGET_FEATURE_NAME] = inputs[feature_info.TARGET_FEATURE_NAME]
 
     for key in outputs:
         outputs[key] = tf.squeeze(outputs[key], -1)
