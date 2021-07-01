@@ -21,7 +21,7 @@ import tensorflow_data_validation as tfdv
 from tensorflow_transform.tf_metadata import schema_utils
 import tensorflow.keras as keras
 
-from src.common import features
+from . import features
 
 
 def _get_serve_tf_examples_fn(classifier, tft_output, raw_feature_spec):

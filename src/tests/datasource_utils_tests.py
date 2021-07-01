@@ -45,26 +45,39 @@ EXPECTED_TRAINING_COLUMNS = [
     "tip_bin",
 ]
 
+    
+MISSING = {
+    'trip_month': -1,
+    'trip_day': -1,
+    'trip_day_of_week': -1,
+    'trip_hour': -1,
+    'trip_seconds': -1,
+    'trip_miles': -1,
+    'payment_type': 'NA',
+    'pickup_grid': 'NA',
+     'dropoff_grid': 'NA',
+    'euclidean': -1,
+    'loc_cross': 'NA'
+}
 
 def test_training_query():
 
     project = os.getenv("PROJECT")
     location = os.getenv("BQ_LOCATION")
-    bq_dataset_name = os.getenv("BQ_DATASET_NAME")
-    bq_table_name = os.getenv("BQ_TABLE_NAME")
+    dataset_display_name = os.getenv("DATASET_DISPLAY_NAME")
 
     assert project, "Environment variable PROJECT is None!"
     assert location, "Environment variable BQ_LOCATION is None!"
-    assert bq_dataset_name, "Environment variable BQ_DATASET_NAME is None!"
-    assert bq_table_name, "Environment variable BQ_TABLE_NAME is None!"
+    assert dataset_display_name, "Environment variable DATASET_DISPLAY_NAME is None!"
 
-    logging.info(f"BigQuery Source: {project}.{bq_dataset_name}.{bq_table_name}")
-
-    query = datasource_utils._get_source_query(
-        bq_dataset_name=bq_dataset_name,
-        bq_table_name=bq_table_name,
-        ml_use="UNASSIGNED",
-        limit=LIMIT,
+    logging.info(f"Dataset: {dataset_display_name}")
+    
+    query = datasource_utils.create_bq_source_query(
+        dataset_display_name=dataset_display_name,
+        missing=MISSING,
+        label_column=TARGET_COLUMN,
+        ML_use='UNASSIGNED',
+        limit=LIMIT
     )
 
     bq_client = bigquery.Client(project=project, location=location)
@@ -79,20 +92,20 @@ def test_serving_query():
     project = os.getenv("PROJECT")
     location = os.getenv("BQ_LOCATION")
     bq_dataset_name = os.getenv("BQ_DATASET_NAME")
-    bq_table_name = os.getenv("BQ_TABLE_NAME")
+    dataset_display_name = os.getenv("DATASET_DISPLAY_NAME")
 
     assert project, "Environment variable PROJECT is None!"
     assert location, "Environment variable BQ_LOCATION is None!"
-    assert bq_dataset_name, "Environment variable BQ_DATASET_NAME is None!"
-    assert bq_table_name, "Environment variable BQ_TABLE_NAME is None!"
+    assert dataset_display_name, "Environment variable DATASET_DISPLAY_NAME is None!"
 
-    logging.info(f"BigQuery Source: {project}.{bq_dataset_name}.{bq_table_name}")
-
-    query = datasource_utils._get_source_query(
-        bq_dataset_name=bq_dataset_name,
-        bq_table_name=bq_table_name,
-        ml_use=None,
-        limit=LIMIT,
+    logging.info(f"Dataset: {dataset_display_name}")
+    
+   
+    query = datasource_utils.create_bq_source_query(
+        dataset_display_name=dataset_display_name,
+        missing=MISSING,
+        ML_use=None,
+        limit=LIMIT
     )
 
     bq_client = bigquery.Client(project=project, location=location)

@@ -54,11 +54,24 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 from src.tfx_pipelines import config
 from src.tfx_pipelines import components as custom_components
 from src.common import features, datasource_utils
+from src.model_training import features as feature_info
 
 RAW_SCHEMA_DIR = "src/raw_schema"
 TRANSFORM_MODULE_FILE = "src/preprocessing/transformations.py"
 TRAIN_MODULE_FILE = "src/model_training/runner.py"
 
+MISSING = {
+    'trip_month': -1,
+    'trip_day': -1,
+    'trip_day_of_week': -1,
+    'trip_hour': -1,
+    'trip_seconds': -1,
+    'trip_miles': -1,
+    'payment_type': 'NA',
+    'pickup_grid': 'NA',
+    'dropoff_grid': 'NA',
+    'euclidean': -1,
+}
 
 def create_pipeline(
     pipeline_root: str,
@@ -86,11 +99,10 @@ def create_pipeline(
     ).with_id("HyperparamsGen")
 
     # Get train source query.
-    train_sql_query = datasource_utils.get_training_source_query(
-        config.PROJECT,
-        config.REGION,
-        config.DATASET_DISPLAY_NAME,
-        ml_use="UNASSIGNED",
+    train_sql_query = datasource_utils.create_bq_source_query(
+        dataset_display_name=config.DATASET_DISPLAY_NAME,
+        missing=MISSING,
+        ML_use="UNASSIGNED",
         limit=int(config.TRAIN_LIMIT),
     )
 
@@ -114,11 +126,10 @@ def create_pipeline(
     ).with_id("TrainDataGen")
 
     # Get test source query.
-    test_sql_query = datasource_utils.get_training_source_query(
-        config.PROJECT,
-        config.REGION,
-        config.DATASET_DISPLAY_NAME,
-        ml_use="TEST",
+    test_sql_query = datasource_utils.create_bq_source_query(
+        dataset_display_name=config.DATASET_DISPLAY_NAME,
+        missing=MISSING,
+        ML_use="TEST",
         limit=int(config.TEST_LIMIT),
     )
 
@@ -201,7 +212,7 @@ def create_pipeline(
         model_specs=[
             tfma.ModelSpec(
                 signature_name="serving_tf_example",
-                label_key=features.TARGET_FEATURE_NAME,
+                label_key=feature_info.TARGET_FEATURE_NAME,
                 prediction_key="probabilities",
             )
         ],
