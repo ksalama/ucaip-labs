@@ -36,6 +36,7 @@ def create_pipeline(
     pipeline_root: str,
     metadata_connection_config: metadata_store_pb2.ConnectionConfig = None,
 ):
+    """Returns a batch prediction pipeline using TFX."""
 
     # Get source query.
     sql_query = datasource_utils.create_bq_source_query(

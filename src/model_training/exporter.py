@@ -21,7 +21,7 @@ import tensorflow_data_validation as tfdv
 from tensorflow_transform.tf_metadata import schema_utils
 import tensorflow.keras as keras
 
-from . import features
+from src.common import features
 
 
 def _get_serve_tf_examples_fn(classifier, tft_output, raw_feature_spec):
@@ -70,6 +70,7 @@ def _get_serve_features_fn(classifier, tft_output):
 def export_serving_model(
     classifier, serving_model_dir, raw_schema_location, tft_output_dir
 ):
+    """Exports the classifier as a SavedModel with serving signatures."""
 
     raw_schema = tfdv.load_schema_text(raw_schema_location)
     raw_feature_spec = schema_utils.schema_as_feature_spec(raw_schema).feature_spec

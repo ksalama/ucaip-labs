@@ -30,6 +30,7 @@ def train(
     log_dir,
     base_model_dir=None,
 ):
+    """Invokes model.fit method and returns a trained classifier."""
 
     logging.info(f"Loading tft output from {tft_output_dir}")
     tft_output = tft.TFTransformOutput(tft_output_dir)
@@ -78,6 +79,8 @@ def train(
 
 
 def evaluate(model, data_dir, raw_schema_location, tft_output_dir, hyperparams):
+    """Invokes model.evaluate method and returns evaluation_metrics."""
+
     logging.info(f"Loading raw schema from {raw_schema_location}")
 
     logging.info(f"Loading tft output from {tft_output_dir}")

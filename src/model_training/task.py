@@ -32,6 +32,8 @@ RAW_SCHEMA_LOCATION = os.path.join(dirname, "raw_schema/schema.pbtxt")
 
 
 def get_args():
+    """Defines and parse commandline arguments."""
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

@@ -45,20 +45,21 @@ EXPECTED_TRAINING_COLUMNS = [
     "tip_bin",
 ]
 
-    
+
 MISSING = {
-    'trip_month': -1,
-    'trip_day': -1,
-    'trip_day_of_week': -1,
-    'trip_hour': -1,
-    'trip_seconds': -1,
-    'trip_miles': -1,
-    'payment_type': 'NA',
-    'pickup_grid': 'NA',
-     'dropoff_grid': 'NA',
-    'euclidean': -1,
-    'loc_cross': 'NA'
+    "trip_month": -1,
+    "trip_day": -1,
+    "trip_day_of_week": -1,
+    "trip_hour": -1,
+    "trip_seconds": -1,
+    "trip_miles": -1,
+    "payment_type": "NA",
+    "pickup_grid": "NA",
+    "dropoff_grid": "NA",
+    "euclidean": -1,
+    "loc_cross": "NA",
 }
+
 
 def test_training_query():
 
@@ -71,13 +72,13 @@ def test_training_query():
     assert dataset_display_name, "Environment variable DATASET_DISPLAY_NAME is None!"
 
     logging.info(f"Dataset: {dataset_display_name}")
-    
+
     query = datasource_utils.create_bq_source_query(
         dataset_display_name=dataset_display_name,
         missing=MISSING,
         label_column=TARGET_COLUMN,
-        ML_use='UNASSIGNED',
-        limit=LIMIT
+        ML_use="UNASSIGNED",
+        limit=LIMIT,
     )
 
     bq_client = bigquery.Client(project=project, location=location)
@@ -99,13 +100,12 @@ def test_serving_query():
     assert dataset_display_name, "Environment variable DATASET_DISPLAY_NAME is None!"
 
     logging.info(f"Dataset: {dataset_display_name}")
-    
-   
+
     query = datasource_utils.create_bq_source_query(
         dataset_display_name=dataset_display_name,
         missing=MISSING,
         ML_use=None,
-        limit=LIMIT
+        limit=LIMIT,
     )
 
     bq_client = bigquery.Client(project=project, location=location)

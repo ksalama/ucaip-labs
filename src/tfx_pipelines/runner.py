@@ -25,6 +25,7 @@ from src.model_training import defaults
 
 
 def compile_training_pipeline(pipeline_definition_file):
+    """Returns the training pipeline definition."""
 
     pipeline_root = os.path.join(
         config.ARTIFACT_STORE_URI,
@@ -66,6 +67,7 @@ def compile_training_pipeline(pipeline_definition_file):
 
 
 def compile_prediction_pipeline(pipeline_definition_file):
+    """Returns the prediction pipeline definition."""
 
     pipeline_root = os.path.join(
         config.ARTIFACT_STORE_URI,
@@ -87,6 +89,7 @@ def compile_prediction_pipeline(pipeline_definition_file):
 
 
 def submit_pipeline(pipeline_definition_file):
+    """Submits a pipeline definition file to Vertex pipelines."""
 
     pipeline_client = AIPlatformClient(project_id=config.PROJECT, region=config.REGION)
     pipeline_client.create_run_from_job_spec(pipeline_definition_file)

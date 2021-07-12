@@ -30,6 +30,7 @@ RAW_SCHEMA_LOCATION = "src/raw_schema/schema.pbtxt"
 
 
 def parse_bq_record(bq_record):
+    """Parses a bq_record to a dictionary."""
     output = {}
     for key in bq_record:
         output[key] = [bq_record[key]]
@@ -37,6 +38,7 @@ def parse_bq_record(bq_record):
 
 
 def split_dataset(bq_row, num_partitions, ratio):
+    """Returns a partition number for a given bq_row."""
     import json
 
     assert num_partitions == len(ratio)
@@ -50,6 +52,7 @@ def split_dataset(bq_row, num_partitions, ratio):
 
 
 def run_transform_pipeline(args):
+    """Runs a Beam pipeline to preprocess the data using TensorFlow Transform."""
 
     pipeline_options = beam.pipeline.PipelineOptions(flags=[], **args)
 
@@ -156,6 +159,7 @@ def run_transform_pipeline(args):
 
 
 def convert_to_jsonl(bq_record):
+    """Converts bq_record to a jsonl formatted text."""
     import json
 
     output = {}
@@ -165,6 +169,7 @@ def convert_to_jsonl(bq_record):
 
 
 def run_extract_pipeline(args):
+    """Runs a Beam pipeline to extract data from BigQuery as JSONL files."""
 
     pipeline_options = beam.pipeline.PipelineOptions(flags=[], **args)
 
@@ -197,6 +202,7 @@ def run_extract_pipeline(args):
 
 
 def parse_prediction_results(jsonl):
+    """Parses JSONL prediction results to a dictionary."""
     import uuid
     import json
 
@@ -209,6 +215,8 @@ def parse_prediction_results(jsonl):
 
 
 def create_datastore_entity(prediction_response, kind):
+    """Creates a Datastore entity."""
+
     from apache_beam.io.gcp.datastore.v1new.types import Entity
     from apache_beam.io.gcp.datastore.v1new.types import Key
 
@@ -220,6 +228,7 @@ def create_datastore_entity(prediction_response, kind):
 
 
 def run_store_predictions_pipeline(args):
+    """Runs a Beam pipeline to store JSONL data to Datastore."""
 
     project = args["project"]
     datastore_kind = args["datastore_kind"]

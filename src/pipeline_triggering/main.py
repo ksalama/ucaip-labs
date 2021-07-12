@@ -22,6 +22,7 @@ import base64
 
 
 def trigger_pipeline(event, context):
+    """A Cloud Function for triggering a Vertex pipeline given a Pub/Sub event."""
 
     project = os.getenv("PROJECT")
     region = os.getenv("REGION")

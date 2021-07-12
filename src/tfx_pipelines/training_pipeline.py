@@ -61,17 +61,18 @@ TRANSFORM_MODULE_FILE = "src/preprocessing/transformations.py"
 TRAIN_MODULE_FILE = "src/model_training/runner.py"
 
 MISSING = {
-    'trip_month': -1,
-    'trip_day': -1,
-    'trip_day_of_week': -1,
-    'trip_hour': -1,
-    'trip_seconds': -1,
-    'trip_miles': -1,
-    'payment_type': 'NA',
-    'pickup_grid': 'NA',
-    'dropoff_grid': 'NA',
-    'euclidean': -1,
+    "trip_month": -1,
+    "trip_day": -1,
+    "trip_day_of_week": -1,
+    "trip_hour": -1,
+    "trip_seconds": -1,
+    "trip_miles": -1,
+    "payment_type": "NA",
+    "pickup_grid": "NA",
+    "dropoff_grid": "NA",
+    "euclidean": -1,
 }
+
 
 def create_pipeline(
     pipeline_root: str,
@@ -81,6 +82,7 @@ def create_pipeline(
     hidden_units: data_types.RuntimeParameter,
     metadata_connection_config: metadata_store_pb2.ConnectionConfig = None,
 ):
+    """Returns a TFX training pipeline."""
 
     local_executor_spec = executor_spec.ExecutorClassSpec(
         trainer_executor.GenericExecutor

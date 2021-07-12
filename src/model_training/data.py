@@ -15,16 +15,22 @@
 
 import tensorflow as tf
 
-from . import features as feature_info
+from src.common import features
 
 
-def _gzip_reader_fn(filenames):
-    """Small utility returning a record reader that can read gzip'ed files."""
+def _gzip_reader_fn(filenames: list):
+    """Returns a record reader that can read gzip'ed files."""
     return tf.data.TFRecordDataset(filenames, compression_type="GZIP")
 
 
-def get_dataset(file_pattern, feature_spec, batch_size=200, upsampling_factor=2.0):
+def get_dataset(
+    file_pattern: str,
+    feature_spec: dict,
+    batch_size: int = 200,
+    upsampling_factor: float = 2.0,
+):
     """Generates features and label for tuning/training.
+
     Args:
       file_pattern: input tfrecord file pattern.
       feature_spec: a dictionary of feature specifications.
@@ -39,7 +45,7 @@ def get_dataset(file_pattern, feature_spec, batch_size=200, upsampling_factor=2.
         file_pattern=file_pattern,
         batch_size=batch_size,
         features=feature_spec,
-        label_key=feature_info.TARGET_FEATURE_NAME,
+        label_key=features.TARGET_FEATURE_NAME,
         reader=_gzip_reader_fn,
         num_epochs=1,
         drop_final_batch=True,

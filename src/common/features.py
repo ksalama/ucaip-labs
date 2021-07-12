@@ -13,7 +13,7 @@
 # limitations under the License.
 """Model features metadata utils."""
 
-'''
+
 FEATURE_NAMES = [
     "trip_month",
     "trip_day",
@@ -48,9 +48,6 @@ EMBEDDING_CATEGORICAL_FEATURES = {
 }
 
 ONEHOT_CATEGORICAL_FEATURE_NAMES = ["payment_type", "trip_day_of_week"]
-'''
-
-from src.model_training import features as feature_info
 
 
 def transformed_name(key: str) -> str:
@@ -70,7 +67,7 @@ def vocabulary_name(key: str) -> str:
 
 def categorical_feature_names() -> list:
     return (
-        list(feature_info.EMBEDDING_CATEGORICAL_FEATURES.keys()) + feature_info.ONEHOT_CATEGORICAL_FEATURE_NAMES
+        list(EMBEDDING_CATEGORICAL_FEATURES.keys()) + ONEHOT_CATEGORICAL_FEATURE_NAMES
     )
 
 
@@ -81,8 +78,8 @@ def generate_explanation_config():
         "params": {"sampled_shapley_attribution": {"path_count": 10}},
     }
 
-    for feature_name in feature_info.FEATURE_NAMES:
-        if feature_name in feature_info.NUMERICAL_FEATURE_NAMES:
+    for feature_name in FEATURE_NAMES:
+        if feature_name in NUMERICAL_FEATURE_NAMES:
             explanation_config["inputs"][feature_name] = {
                 "input_tensor_name": feature_name,
                 "modality": "numeric",

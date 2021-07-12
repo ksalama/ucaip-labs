@@ -31,6 +31,8 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 SERVING_SPEC_FILEPATH = 'build/serving_resources_spec.json'
 
 def get_args():
+    """Define an parse commandline arguments."""
+    
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -67,6 +69,8 @@ def get_args():
 
 
 def create_endpoint(project, region, endpoint_display_name):
+    """Create a Vertex endpoint."""
+    
     logging.info(f"Creating endpoint {endpoint_display_name}")
     vertex_ai.init(
         project=project,
@@ -88,6 +92,8 @@ def create_endpoint(project, region, endpoint_display_name):
 
 
 def deploy_model(project, region, endpoint_display_name, model_display_name, serving_resources_spec):
+    """Deploy a model to a Vertex endpoint."""
+    
     logging.info(f"Deploying model {model_display_name} to endpoint {endpoint_display_name}")
     vertex_ai.init(
         project=project,
@@ -111,6 +117,8 @@ def deploy_model(project, region, endpoint_display_name, model_display_name, ser
 
 
 def compile_pipeline(pipeline_name):
+    """Create a .json file with the pipeline definition."""
+    
     from src.tfx_pipelines import runner
     pipeline_definition_file = f"{pipeline_name}.json"
     pipeline_definition = runner.compile_training_pipeline(pipeline_definition_file)

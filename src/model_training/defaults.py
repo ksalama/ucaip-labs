@@ -25,6 +25,8 @@ NUM_EVAL_STEPS = 100
 
 
 def update_hyperparams(hyperparams: dict) -> dict:
+    """Updates the hyperparams dictionary with default values."""
+
     if "hidden_units" not in hyperparams:
         hyperparams["hidden_units"] = HIDDEN_UNITS
     else:

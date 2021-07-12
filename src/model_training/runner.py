@@ -22,9 +22,11 @@ from src.model_training import trainer, exporter, defaults
 # TFX Trainer will call this function.
 def run_fn(fn_args):
     """Train the model based on given args.
+
     Args:
       fn_args: Holds args used to train the model as name/value pairs.
     """
+
     logging.info("Runner started...")
     logging.info(f"fn_args: {fn_args}")
     logging.info("")

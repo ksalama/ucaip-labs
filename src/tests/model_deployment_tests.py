@@ -68,16 +68,16 @@ def test_model_artifact():
     assert region, "Environment variable REGION is None!"
     assert model_display_name, "Environment variable MODEL_DISPLAY_NAME is None!"
 
-    vertex_ai.init(project=project, location=region,)
-
-    models = vertex_ai.Model.list(
-        filter=f'display_name={model_display_name}',
-        order_by="update_time"
+    vertex_ai.init(
+        project=project,
+        location=region,
     )
 
-    assert (
-        models
-    ), f"No model with display name {model_display_name} exists!"
+    models = vertex_ai.Model.list(
+        filter=f"display_name={model_display_name}", order_by="update_time"
+    )
+
+    assert models, f"No model with display name {model_display_name} exists!"
 
     model = models[-1]
     artifact_uri = model.gca_resource.artifact_uri
@@ -125,8 +125,7 @@ def test_model_endpoint():
     assert endpoint_display_name, "Environment variable ENDPOINT_DISPLAY_NAME is None!"
 
     endpoints = vertex_ai.Endpoint.list(
-        filter=f'display_name={endpoint_display_name}',
-        order_by="update_time"
+        filter=f"display_name={endpoint_display_name}", order_by="update_time"
     )
     assert (
         endpoints

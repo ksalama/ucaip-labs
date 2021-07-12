@@ -55,6 +55,7 @@ def hyperparameters_gen(
     hidden_units: Parameter[str],
     hyperparameters: OutputArtifact[HyperParameters],
 ):
+    """A TFX custom-Python-function component for receiving hyperparameters."""
 
     hp_dict = dict()
     hp_dict["num_epochs"] = num_epochs
@@ -80,6 +81,7 @@ def vertex_model_uploader(
     explanation_config: Parameter[str],
     uploaded_model: OutputArtifact[UploadedModel],
 ):
+    """A TFX custom-Python-function component to upload the model to Vertex."""
 
     vertex_ai.init(project=project, location=region)
 
@@ -123,6 +125,7 @@ def bigquery_data_gen(
     beam_args: Parameter[str],
     serving_dataset: OutputArtifact[Dataset],
 ):
+    """A TFX custom-Python-function component for extracting data from BigQuery."""
 
     output_dir = os.path.join(
         artifact_utils.get_single_uri([serving_dataset]), SERVING_DATA_PREFIX
@@ -150,6 +153,7 @@ def vertex_batch_prediction(
     serving_dataset: InputArtifact[Dataset],
     prediction_results: OutputArtifact[Dataset],
 ):
+    """A TFX custom-Python-function component to submit a Vertex batch prediction Job."""
 
     job_resources = json.loads(job_resources)
     gcs_source_pattern = (
@@ -184,6 +188,7 @@ def datastore_prediction_writer(
     beam_args: Parameter[str],
     prediction_results: InputArtifact[Dataset],
 ):
+    """A TFX custom-Python-function component for writing prediction JSONL files to Datastore."""
 
     prediction_results_dir = os.path.join(
         artifact_utils.get_single_uri([prediction_results])

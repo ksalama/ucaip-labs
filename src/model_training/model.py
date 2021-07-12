@@ -17,14 +17,15 @@ import tensorflow as tf
 from tensorflow import keras
 
 from src.common import features
-from . import features as feature_info
 
 
 def create_model_inputs():
+    """Creates Keras model input dictionary."""
+
     inputs = {}
-    for feature_name in feature_info.FEATURE_NAMES:
+    for feature_name in features.FEATURE_NAMES:
         name = features.transformed_name(feature_name)
-        if feature_name in feature_info.NUMERICAL_FEATURE_NAMES:
+        if feature_name in features.NUMERICAL_FEATURE_NAMES:
             inputs[name] = keras.layers.Input(name=name, shape=[], dtype=tf.float32)
         elif feature_name in features.categorical_feature_names():
             inputs[name] = keras.layers.Input(name=name, shape=[], dtype=tf.int64)
@@ -34,21 +35,23 @@ def create_model_inputs():
 
 
 def _create_binary_classifier(feature_vocab_sizes, hyperparams):
+    """Return a Keras binary classifier."""
+
     input_layers = create_model_inputs()
 
     layers = []
     for key in input_layers:
         feature_name = features.original_name(key)
-        if feature_name in feature_info.EMBEDDING_CATEGORICAL_FEATURES:
+        if feature_name in features.EMBEDDING_CATEGORICAL_FEATURES:
             vocab_size = feature_vocab_sizes[feature_name]
-            embedding_size = feature_info.EMBEDDING_CATEGORICAL_FEATURES[feature_name]
+            embedding_size = features.EMBEDDING_CATEGORICAL_FEATURES[feature_name]
             embedding_output = keras.layers.Embedding(
                 input_dim=vocab_size + 1,
                 output_dim=embedding_size,
                 name=f"{key}_embedding",
             )(input_layers[key])
             layers.append(embedding_output)
-        elif feature_name in feature_info.ONEHOT_CATEGORICAL_FEATURE_NAMES:
+        elif feature_name in features.ONEHOT_CATEGORICAL_FEATURE_NAMES:
             vocab_size = feature_vocab_sizes[feature_name]
             onehot_layer = keras.layers.experimental.preprocessing.CategoryEncoding(
                 max_tokens=vocab_size,
@@ -56,7 +59,7 @@ def _create_binary_classifier(feature_vocab_sizes, hyperparams):
                 name=f"{key}_onehot",
             )(input_layers[key])
             layers.append(onehot_layer)
-        elif feature_name in feature_info.NUMERICAL_FEATURE_NAMES:
+        elif feature_name in features.NUMERICAL_FEATURE_NAMES:
             numeric_layer = tf.expand_dims(input_layers[key], -1)
             layers.append(numeric_layer)
         else:
@@ -77,6 +80,8 @@ def _create_binary_classifier(feature_vocab_sizes, hyperparams):
 
 
 def create_binary_classifier(tft_output, hyperparams):
+    """Returns a Keras binary classifier."""
+
     feature_vocab_sizes = dict()
     for feature_name in features.categorical_feature_names():
         feature_vocab_sizes[feature_name] = tft_output.vocabulary_size_by_name(
