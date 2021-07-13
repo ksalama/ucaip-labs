@@ -61,8 +61,7 @@ def run_transform_pipeline(args):
     exported_data_prefix = args["exported_data_prefix"]
     transformed_data_prefix = args["transformed_data_prefix"]
     transform_artifact_dir = args["transform_artifact_dir"]
-    temporary_dir = args["temporary_dir"]
-    gcs_location = args["gcs_location"]
+    temp_location = args["temp_location"]
     project = args["project"]
 
     source_raw_schema = tfdv.load_schema_text(RAW_SCHEMA_LOCATION)
@@ -75,7 +74,7 @@ def run_transform_pipeline(args):
     )
 
     with beam.Pipeline(options=pipeline_options) as pipeline:
-        with tft_beam.Context(temporary_dir):
+        with tft_beam.Context(temp_location):
 
             # Read raw BigQuery data.
             raw_train_data, raw_eval_data = (
@@ -85,7 +84,6 @@ def run_transform_pipeline(args):
                     query=raw_data_query,
                     project=project,
                     use_standard_sql=True,
-                    gcs_location=gcs_location,
                 )
                 | "Parse Data" >> beam.Map(parse_bq_record)
                 | "Split" >> beam.Partition(split_dataset, 2, ratio=[8, 2])
