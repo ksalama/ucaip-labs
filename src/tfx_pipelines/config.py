@@ -15,7 +15,7 @@
 
 import os
 
-PROJECT = os.getenv("PROJECT", "ksalama-cloudml")
+PROJECT_ID = os.getenv("PROJECT_ID", "ksalama-cloudml")
 REGION = os.getenv("REGION", "us-central1")
 GCS_LOCATION = os.getenv("GCS_LOCATION", "gs://ksalama-cloudml-us/chicago-taxi-tips")
 
@@ -44,16 +44,16 @@ ACCURACY_THRESHOLD = os.getenv("ACCURACY_THRESHOLD", "0.8")
 USE_KFP_SA = os.getenv("USE_KFP_SA", "False")
 
 TFX_IMAGE_URI = os.getenv(
-    "TFX_IMAGE_URI", f"gcr.io/{PROJECT}/tfx-{DATASET_DISPLAY_NAME}:latest"
+    "TFX_IMAGE_URI", f"gcr.io/{PROJECT_ID}/tfx-{DATASET_DISPLAY_NAME}:latest"
 )
 
 BEAM_RUNNER = os.getenv("BEAM_RUNNER", "DirectRunner")
 BEAM_DIRECT_PIPELINE_ARGS = [
-    f"--project={PROJECT}",
+    f"--project={PROJECT_ID}",
     f"--temp_location={os.path.join(GCS_LOCATION, 'temp')}",
 ]
 BEAM_DATAFLOW_PIPELINE_ARGS = [
-    f"--project={PROJECT}",
+    f"--project={PROJECT_ID}",
     f"--temp_location={os.path.join(GCS_LOCATION, 'temp')}",
     f"--region={REGION}",
     f"--runner={BEAM_RUNNER}",
@@ -62,7 +62,7 @@ BEAM_DATAFLOW_PIPELINE_ARGS = [
 
 TRAINING_RUNNER = os.getenv("TRAINING_RUNNER", "local")
 AI_PLATFORM_TRAINING_ARGS = {
-    "project": PROJECT,
+    "project": PROJECT_ID,
     "region": REGION,
     "masterConfig": {"imageUri": TFX_IMAGE_URI},
 }
@@ -81,7 +81,7 @@ BATCH_PREDICTION_BEAM_ARGS = {
     "runner": f"{BEAM_RUNNER}",
     "temporary_dir": os.path.join(GCS_LOCATION, "temp"),
     "gcs_location": os.path.join(GCS_LOCATION, "temp"),
-    "project": PROJECT,
+    "project": PROJECT_ID,
     "region": REGION,
     "setup_file": "./setup.py",
 }
@@ -97,7 +97,7 @@ DATASTORE_PREDICTION_KIND = f"{MODEL_DISPLAY_NAME}-predictions"
 ENABLE_CACHE = os.getenv("ENABLE_CACHE", "0")
 UPLOAD_MODEL = os.getenv("UPLOAD_MODEL", "1")
 
-os.environ["PROJECT"] = PROJECT
+os.environ["PROJECT_ID"] = PROJECT_ID
 os.environ["PIPELINE_NAME"] = PIPELINE_NAME
 os.environ["TFX_IMAGE_URI"] = TFX_IMAGE_URI
 os.environ["MODEL_REGISTRY_URI"] = MODEL_REGISTRY_URI
