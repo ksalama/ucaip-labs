@@ -54,7 +54,6 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 from src.tfx_pipelines import config
 from src.tfx_pipelines import components as custom_components
 from src.common import features, datasource_utils
-from src.model_training import features as feature_info
 
 RAW_SCHEMA_DIR = "src/raw_schema"
 TRANSFORM_MODULE_FILE = "src/preprocessing/transformations.py"
@@ -101,10 +100,11 @@ def create_pipeline(
     ).with_id("HyperparamsGen")
 
     # Get train source query.
-    train_sql_query = datasource_utils.create_bq_source_query(
-        dataset_display_name=config.DATASET_DISPLAY_NAME,
-        missing=MISSING,
-        ML_use="UNASSIGNED",
+    train_sql_query = datasource_utils.get_training_source_query(
+        config.PROJECT_ID,
+        config.REGION,
+        config.DATASET_DISPLAY_NAME,
+        ml_use="UNASSIGNED",
         limit=int(config.TRAIN_LIMIT),
     )
 
@@ -128,10 +128,11 @@ def create_pipeline(
     ).with_id("TrainDataGen")
 
     # Get test source query.
-    test_sql_query = datasource_utils.create_bq_source_query(
-        dataset_display_name=config.DATASET_DISPLAY_NAME,
-        missing=MISSING,
-        ML_use="TEST",
+    test_sql_query = datasource_utils.get_training_source_query(
+        config.PROJECT_ID,
+        config.REGION,
+        config.DATASET_DISPLAY_NAME,
+        ml_use="TEST",
         limit=int(config.TEST_LIMIT),
     )
 
@@ -214,7 +215,7 @@ def create_pipeline(
         model_specs=[
             tfma.ModelSpec(
                 signature_name="serving_tf_example",
-                label_key=feature_info.TARGET_FEATURE_NAME,
+                label_key=features.TARGET_FEATURE_NAME,
                 prediction_key="probabilities",
             )
         ],
@@ -273,7 +274,7 @@ def create_pipeline(
     # Upload custom trained model to Vertex AI.
     explanation_config = json.dumps(features.generate_explanation_config())
     vertex_model_uploader = custom_components.vertex_model_uploader(
-        project=config.PROJECT,
+        project=config.PROJECT_ID,
         region=config.REGION,
         model_display_name=config.MODEL_DISPLAY_NAME,
         pushed_model_location=exported_model_location,

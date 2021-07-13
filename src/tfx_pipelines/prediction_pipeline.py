@@ -29,7 +29,6 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, "..")))
 from src.tfx_pipelines import config
 from src.tfx_pipelines import components as custom_components
 from src.common import datasource_utils
-from src.model_training import features as feature_info
 
 
 def create_pipeline(
@@ -39,9 +38,9 @@ def create_pipeline(
     """Returns a batch prediction pipeline using TFX."""
 
     # Get source query.
-    sql_query = datasource_utils.create_bq_source_query(
-        dataset_display_name=config.DATASET_DISPLAY_NAME,
-        missing=feature_info.MISSING_VALUES,
+    sql_query = datasource_utils.get_serving_source_query(
+        bq_dataset_name=config.BATCH_PREDICTION_BQ_DATASET_NAME,
+        bq_table_name=config.BATCH_PREDICTION_BQ_TABLE_NAME,
         limit=int(config.SERVE_LIMIT),
     )
 
