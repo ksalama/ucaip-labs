@@ -33,7 +33,7 @@ steps:
   args: ['src/tests/datasource_utils_tests.py', '-s']
   dir: 'ucaip-labs'
   env: 
-  - 'PROJECT=$_PROJECT'  
+  - 'PROJECT_ID=$_PROJECT_ID'  
   - 'BQ_LOCATION=$_BQ_LOCATION'
   - 'BQ_DATASET_NAME=$_BQ_DATASET_NAME'
   - 'BQ_TABLE_NAME=$_BQ_TABLE_NAME'  
@@ -57,7 +57,7 @@ steps:
   args: ['src/tests/pipeline_deployment_tests.py::test_e2e_pipeline', '-s']
   dir: 'ucaip-labs'
   env: 
-  - 'PROJECT=$_PROJECT'  
+  - 'PROJECT_ID=$_PROJECT_ID'  
   - 'REGION=$_REGION'
   - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
   - 'DATASET_DISPLAY_NAME=$_DATASET_DISPLAY_NAME'  
@@ -88,7 +88,7 @@ steps:
           ]
   dir: 'ucaip-labs'
   env: 
-  - 'PROJECT=$_PROJECT'  
+  - 'PROJECT_ID=$_PROJECT_ID'  
   - 'REGION=$_REGION'
   - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
   - 'DATASET_DISPLAY_NAME=$_DATASET_DISPLAY_NAME'  
