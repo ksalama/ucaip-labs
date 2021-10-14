@@ -1,3 +1,6 @@
+# PLEASE USE THIS REPO INSTEAD: https://github.com/GoogleCloudPlatform/mlops-with-vertex-ai
+
+
 # MLOps on Vertex AI
 
 This example implements the end-to-end [MLOps process](https://services.google.com/fh/files/misc/practitioners_guide_to_mlops_whitepaper.pdf) using [Vertex AI](https://cloud.google.com/vertex-ai) platform and [Smart Analytics](https://cloud.google.com/solutions/smart-analytics) technology capabilities. The example use [Keras](https://keras.io/) to implement the ML model, [TFX](https://www.tensorflow.org/tfx) to implement the training pipeline, and [Model Builder SDK](https://github.com/googleapis/python-aiplatform/tree/569d4cd03e888fde0171f7b0060695a14f99b072/google/cloud/aiplatform) to interact with Vertex AI.
